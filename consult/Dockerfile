@@ -1,4 +1,4 @@
-FROM gradle:8-jdk17-alpine AS builder
+FROM gradle:jdk17 AS builder
 WORKDIR /home/gradle/project
 
 COPY settings.gradle build.gradle gradle.* ./
@@ -9,7 +9,7 @@ COPY consult consult
 
 RUN gradle :user:bootJar --no-daemon -x test
 
-FROM eclipse-temurin:17-jdk-slim
+FROM openjdk:17-jdk-slim AS runtime
 WORKDIR /app
 
 ARG JAR_FILE=home/gradle/project/consult/build/libs/consult-*.jar
