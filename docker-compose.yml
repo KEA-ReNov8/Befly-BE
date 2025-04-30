@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  user:
+    build:
+      context: .
+      dockerfile: user/Dockerfile
+    image: your-registry/befly-user:prod
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SERVER_PORT: 8081
+      SPRING_DATASOURCE_URL: ${{ DB_URL }}
+      SPRING_DATASOURCE_USERNAME: ${{ DB_USERNAME }}
+      SPRING_DATASOURCE_PASSWORD: ${{ DB_PASSWORD }}
+    ports:
+      - "8081:8081"
+    networks:
+      - befly-net
+
+  community:
+    build:
+      context: .
+      dockerfile: community/Dockerfile
+    image: your-registry/befly-community:prod
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SERVER_PORT: 8083
+      SPRING_DATASOURCE_URL: ${{ DB_URL }}
+      SPRING_DATASOURCE_USERNAME: ${{ DB_USERNAME }}
+      SPRING_DATASOURCE_PASSWORD: ${{ DB_PASSWORD }}
+    ports:
+      - "8083:8083"
+    networks:
+      - befly-net
+
+networks:
+  befly-net:
+    external: true
+    name: befly-network
