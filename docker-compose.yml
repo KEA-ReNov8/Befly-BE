@@ -5,10 +5,10 @@ services:
     build:
       context: .
       dockerfile: user/Dockerfile
-    image: your-registry/befly-user:prod
+    image: dogsub/befly-user:dev
     restart: always
     environment:
-      SPRING_PROFILES_ACTIVE: prod
+      SPRING_PROFILES_ACTIVE: dev
       SERVER_PORT: 8081
       SPRING_DATASOURCE_URL: ${{ DB_URL }}
       SPRING_DATASOURCE_USERNAME: ${{ DB_USERNAME }}
@@ -22,10 +22,10 @@ services:
     build:
       context: .
       dockerfile: community/Dockerfile
-    image: your-registry/befly-community:prod
+    image: dogsub/befly-community:dev
     restart: always
     environment:
-      SPRING_PROFILES_ACTIVE: prod
+      SPRING_PROFILES_ACTIVE: dev
       SERVER_PORT: 8083
       SPRING_DATASOURCE_URL: ${{ DB_URL }}
       SPRING_DATASOURCE_USERNAME: ${{ DB_USERNAME }}

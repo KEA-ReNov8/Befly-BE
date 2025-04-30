@@ -15,7 +15,7 @@ WORKDIR /app
 ARG JAR_FILE=home/gradle/project/user/build/libs/user-*.jar
 COPY --from=builder /${JAR_FILE} app.jar
 
-ENV SPRING_PROFILES_ACTIVE=prod
+ENV SPRING_PROFILES_ACTIVE=dev
 EXPOSE 8081
 
 ENTRYPOINT ["java","-jar","app.jar"]

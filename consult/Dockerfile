@@ -15,7 +15,7 @@ WORKDIR /app
 ARG JAR_FILE=home/gradle/project/consult/build/libs/consult-*.jar
 COPY --from=builder /${JAR_FILE} app.jar
 
-ENV SPRING_PROFILES_ACTIVE=prod
+ENV SPRING_PROFILES_ACTIVE=dev
 EXPOSE 8082
 
 ENTRYPOINT ["java","-jar","app.jar"]
