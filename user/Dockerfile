@@ -9,7 +9,7 @@ COPY user    user
 
 RUN gradle :user:bootJar --no-daemon -x test
 
-FROM eclipse-temurin:17-jdk-slim
+FROM openjdk:17-jdk-slim AS runtime
 WORKDIR /app
 
 ARG JAR_FILE=home/gradle/project/user/build/libs/user-*.jar
