@@ -7,7 +7,7 @@ RUN gradle clean --no-daemon
 COPY common common
 COPY user    user
 
-RUN gradle :user:bootJar --no-daemon -x test
+RUN gradle :community:bootJar --no-daemon -x test
 
 FROM openjdk:17-jdk-slim AS runtime
 WORKDIR /app
