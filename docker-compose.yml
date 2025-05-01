@@ -2,9 +2,6 @@ version: '3.8'
 
 services:
   user:
-    build:
-      context: .
-      dockerfile: user/Dockerfile
     image: dogsub/befly-user:dev
     restart: always
     environment:
@@ -19,10 +16,7 @@ services:
       - befly-net
 
   community:
-    build:
-      context: .
-      dockerfile: community/Dockerfile
-    image: dogsub/befly-community:dev
+    image: dogsub/befly-post:dev
     restart: always
     environment:
       SPRING_PROFILES_ACTIVE: dev
