@@ -1,0 +1,46 @@
+name: "BeFly-BE CI"
+
+on:
+  pull_request:
+    branches:
+      - develop
+  push:
+    branches:
+      - develop
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17 and enable Gradle caching
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Run Build and Unit Tests
+        run: |
+          ./gradlew clean build --no-daemon
+
+      - name: Verify Module Boot JARs
+        run: |
+          ./gradlew :user:bootJar -x test --no-daemon
+          ./gradlew :community:bootJar -x test --no-daemon
+          ./gradlew :consult:bootJar -x test --no-daemon
