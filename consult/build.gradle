@@ -2,6 +2,16 @@ dependencies {
     implementation project(':common')
 }
 
+task copyPrivate(type: Copy) {
+    copy {
+        from "$rootDir/shared-config/consult-service"
+        include "*.yml"
+        into "$projectDir/src/main/resources"
+    }
+}
+
+processResources.dependsOn(copyPrivate)
+
 test {
     useJUnitPlatform()
 }

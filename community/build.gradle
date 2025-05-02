@@ -6,6 +6,16 @@ dependencies {
 
 }
 
+task copyPrivate(type: Copy) {
+    copy {
+        from "$rootDir/shared-config/community-service"
+        include "*.yml"
+        into "$projectDir/src/main/resources"
+    }
+}
+
+processResources.dependsOn(copyPrivate)
+
 test {
     useJUnitPlatform()
 }
