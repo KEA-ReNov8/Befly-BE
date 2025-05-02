@@ -8,6 +8,15 @@ dependencyManagement {
     }
 }
 
+task copyPrivate(type: Copy) {
+    copy {
+        from "$rootDir/shared-config/user-service"
+        include "*.yml"
+        into "$projectDir/src/main/resources"
+    }
+}
+
+processResources.dependsOn(copyPrivate)
 
 dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
