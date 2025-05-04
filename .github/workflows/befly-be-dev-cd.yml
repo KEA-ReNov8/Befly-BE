@@ -5,10 +5,6 @@ on:
     types: [closed]
     branches:
       - develop
-      - develop-cd # test용
-  push:
-    branches:
-      - develop-cd # test용
 
 jobs:
   deploy:
