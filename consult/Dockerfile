@@ -1,19 +1,8 @@
-FROM gradle:jdk17 AS builder
-WORKDIR /home/gradle/project
-
-COPY settings.gradle build.gradle gradle.* ./
-RUN gradle clean --no-daemon
-
-COPY common common
-COPY consult consult
-
-RUN gradle :consult:bootJar --no-daemon -x test
-
-FROM openjdk:17-jdk-slim AS runtime
+FROM openjdk:17-jdk-slim
 WORKDIR /app
 
-ARG JAR_FILE=home/gradle/project/consult/build/libs/consult-*.jar
-COPY --from=builder /${JAR_FILE} app.jar
+ARG JAR_FILE=build/libs/consult-0.0.1-SNAPSHOT.jar
+COPY ${JAR_FILE} app.jar
 
 ENV SPRING_PROFILES_ACTIVE=dev
 EXPOSE 8082

@@ -3,6 +3,7 @@ version: '3.8'
 services:
   user:
     image: dogsub/befly-user:dev
+    container_name: befly-user
     restart: always
     environment:
       SPRING_PROFILES_ACTIVE: dev
@@ -17,6 +18,7 @@ services:
 
   community:
     image: dogsub/befly-post:dev
+    container_name: befly-post
     restart: always
     environment:
       SPRING_PROFILES_ACTIVE: dev
