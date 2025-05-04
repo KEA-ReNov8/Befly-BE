@@ -1,0 +1,131 @@
+name: BeFly-BE CD
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - develop
+
+jobs:
+  deploy:
+    if: ${{ github.event.pull_request.merged == true }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository (with submodules)
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          token: ${{ secrets.PAT }}
+
+      - name: Init submodules
+        run: |
+          git config --global url."https://${{ secrets.PAT }}@github.com".insteadOf "https://github.com"
+          git submodule update --init --recursive
+
+      - name: Set up Java 17 & cache Gradle
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Determine & Build changed modules
+        id: build
+        run: |
+          commit=${{ github.event.pull_request.merge_commit_sha }}
+          files=$(git diff-tree --no-commit-id --name-only -r $commit)
+          mods=$(echo "$files" \
+            | grep -E '^(user|community|consult)/' \
+            | cut -d/ -f1 \
+            | sort -u \
+            | tr '\n' ' ')
+          echo "modules=$mods" >> $GITHUB_OUTPUT
+          if [ -n "$mods" ]; then
+            chmod +x ./gradlew
+            for m in $mods; do
+              ./gradlew :$m:bootJar -x test --no-daemon
+            done
+          fi
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" \
+             | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build & Push images
+        if: ${{ steps.build.outputs.modules != '' }}
+        run: |
+          for m in ${{ steps.modules.outputs.modules }}; do
+            docker build \
+              --file $m/Dockerfile \
+              --build-arg JAR_FILE=build/libs/${m}-0.0.1-SNAPSHOT.jar \
+              --tag ${{ secrets.DOCKER_USERNAME }}/befly-$m:dev \
+              $m
+            docker push ${{ secrets.DOCKER_USERNAME }}/befly-$m:dev
+          done
+
+      - name: Deploy to UserPost & Consult via Gateway
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_GATEWAY_HOST }}
+          username: ${{ secrets.SSH_GATEWAY_USER }}
+          key: ${{ secrets.SSH_GATEWAY_PRIVATE_KEY }}
+          script: |
+            # (A) UserPost VM: user, community 컨테이너만 변경 배포
+            if [[ "${{ steps.build.outputs.modules }}" =~ user ]]; then
+              ssh -i ~/.ssh/id_rsa_userpost ${{ secrets.SSH_GATEWAY_USER }}@${{ secrets.SSH_USERPOST_HOST }} << 'EOF'
+                echo "${{ secrets.DOCKER_PASSWORD }}" \
+                  | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+                docker pull ${{ secrets.DOCKER_USERNAME }}/befly-user:dev
+                docker stop befly-user || true
+                docker rm   befly-user || true
+                docker run -d \
+                  --name befly-user \
+                  -e SPRING_PROFILES_ACTIVE=dev \
+                  -e SERVER_PORT=8081 \
+                  -e SPRING_DATASOURCE_URL=${{ secrets.DB_URL }} \
+                  -e SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }} \
+                  -e SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }} \
+                  -p 8081:8081 \
+                  ${{ secrets.DOCKER_USERNAME }}/befly-user:dev
+              EOF
+            fi
+
+            if [[ "${{ steps.build.outputs.modules }}" =~ community ]]; then
+              ssh -i ~/.ssh/id_rsa_userpost ${{ secrets.SSH_GATEWAY_USER }}@${{ secrets.SSH_USERPOST_HOST }} << 'EOF'
+                echo "${{ secrets.DOCKER_PASSWORD }}" \
+                  | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+                docker pull ${{ secrets.DOCKER_USERNAME }}/befly-community:dev
+                docker stop befly-community || true
+                docker rm   befly-community || true
+                docker run -d \
+                  --name befly-community \
+                  -e SPRING_PROFILES_ACTIVE=dev \
+                  -e SERVER_PORT=8083 \
+                  -e SPRING_DATASOURCE_URL=${{ secrets.DB_URL }} \
+                  -e SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }} \
+                  -e SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }} \
+                  -p 8083:8083 \
+                  ${{ secrets.DOCKER_USERNAME }}/befly-community:dev
+              EOF
+            fi
+
+            # (B) Consult VM: consult 컨테이너만 변경 배포
+            if [[ "${{ steps.build.outputs.modules }}" =~ consult ]]; then
+              ssh -i ~/.ssh/id_rsa_consult ${{ secrets.SSH_GATEWAY_USER }}@${{ secrets.SSH_CONSULT_HOST }} << 'EOF'
+                echo "${{ secrets.DOCKER_PASSWORD }}" \
+                  | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+                docker pull ${{ secrets.DOCKER_USERNAME }}/befly-consult:dev
+                docker stop befly-consult || true
+                docker rm   befly-consult || true
+                docker run -d \
+                  --name befly-consult \
+                  -e SPRING_PROFILES_ACTIVE=dev \
+                  -e SERVER_PORT=8082 \
+                  -e SPRING_DATASOURCE_URL=${{ secrets.DB_URL }} \
+                  -e SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }} \
+                  -e SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }} \
+                  -p 8082:8082 \
+                  ${{ secrets.DOCKER_USERNAME }}/befly-consult:dev
+              EOF
+            fi
