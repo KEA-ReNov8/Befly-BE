@@ -17,6 +17,8 @@ import befly.user.service.SignUpService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.Instant;
+
 @RestController
 @Slf4j
 @RequestMapping("/auth")
@@ -96,5 +98,12 @@ public class AuthController {
                 loginResponse.getRefreshToken()
         ));
         return loginResponse;
+    }
+
+    @GetMapping("/cd-test")
+    public ApiResponse<String> cdTest() {
+        String payload = "CD test successful at " + Instant.now().toString();
+        log.info(payload);
+        return ApiResponse.onSuccess(payload);
     }
 }
