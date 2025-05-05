@@ -59,7 +59,7 @@ jobs:
       - name: Build & Push images
         if: ${{ steps.build.outputs.modules != '' }}
         run: |
-          for m in ${{ steps.modules.outputs.modules }}; do
+          for m in ${{ steps.build.outputs.modules }}; do
             docker build \
               --file $m/Dockerfile \
               --build-arg JAR_FILE=build/libs/${m}-0.0.1-SNAPSHOT.jar \
