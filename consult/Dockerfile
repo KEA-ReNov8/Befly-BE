@@ -6,7 +6,7 @@ COPY ${JAR_FILE} app.jar
 
 ENV SPRING_PROFILES_ACTIVE=dev
 ENV SERVER_PORT=8082
-
+# 포트 명시
 EXPOSE 8082
 
 ENTRYPOINT ["java","-jar","app.jar"]
