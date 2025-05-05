@@ -71,61 +71,36 @@ jobs:
           username: ${{ secrets.SSH_GATEWAY_USER }}
           key: ${{ secrets.SSH_GATEWAY_PRIVATE_KEY }}
           script: |
+            chmod +x ~/deploy.sh
+            
             # (A) UserPost VM: user, community 컨테이너만 변경 배포
             if [[ "${{ steps.build.outputs.modules }}" =~ user ]]; then
-              ssh -i ~/.ssh/id_rsa_userpost ${{ secrets.SSH_GATEWAY_USER }}@${{ secrets.SSH_USERPOST_HOST }} << 'EOF'
-                echo "${{ secrets.DOCKER_PASSWORD }}" \
-                  | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-                docker pull ${{ secrets.DOCKER_USERNAME }}/befly-user:dev
-                docker stop befly-user || true
-                docker rm   befly-user || true
-                docker run -d \
-                  --name befly-user \
-                  -e SPRING_PROFILES_ACTIVE=dev \
-                  -e SERVER_PORT=8081 \
-                  -e SPRING_DATASOURCE_URL=${{ secrets.DB_URL }} \
-                  -e SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }} \
-                  -e SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }} \
-                  -p 8081:8081 \
-                  ${{ secrets.DOCKER_USERNAME }}/befly-user:dev
-              EOF
+            ssh -i ~/.ssh/id_rsa_userpost ${{ secrets.SSH_GATEWAY_USER }}@${{ secrets.SSH_USERPOST_HOST }} \
+            "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }} \
+                     DOCKER_PASSWORD='${{ secrets.DOCKER_PASSWORD }}' \
+                     DB_URL='${{ secrets.DB_URL }}' \
+                     DB_USERNAME='${{ secrets.DB_USERNAME }}' \
+                     DB_PASSWORD='${{ secrets.DB_PASSWORD }}' \
+                     ~/deploy.sh user"
             fi
-
+            
             if [[ "${{ steps.build.outputs.modules }}" =~ community ]]; then
-              ssh -i ~/.ssh/id_rsa_userpost ${{ secrets.SSH_GATEWAY_USER }}@${{ secrets.SSH_USERPOST_HOST }} << 'EOF'
-                echo "${{ secrets.DOCKER_PASSWORD }}" \
-                  | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-                docker pull ${{ secrets.DOCKER_USERNAME }}/befly-community:dev
-                docker stop befly-community || true
-                docker rm   befly-community || true
-                docker run -d \
-                  --name befly-community \
-                  -e SPRING_PROFILES_ACTIVE=dev \
-                  -e SERVER_PORT=8083 \
-                  -e SPRING_DATASOURCE_URL=${{ secrets.DB_URL }} \
-                  -e SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }} \
-                  -e SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }} \
-                  -p 8083:8083 \
-                  ${{ secrets.DOCKER_USERNAME }}/befly-community:dev
-              EOF
+            ssh -i ~/.ssh/id_rsa_userpost ${{ secrets.SSH_GATEWAY_USER }}@${{ secrets.SSH_USERPOST_HOST }} \
+            "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }} \
+                     DOCKER_PASSWORD='${{ secrets.DOCKER_PASSWORD }}' \
+                     DB_URL='${{ secrets.DB_URL }}' \
+                     DB_USERNAME='${{ secrets.DB_USERNAME }}' \
+                     DB_PASSWORD='${{ secrets.DB_PASSWORD }}' \
+                     ~/deploy.sh community"
             fi
 
             # (B) Consult VM: consult 컨테이너만 변경 배포
             if [[ "${{ steps.build.outputs.modules }}" =~ consult ]]; then
-              ssh -i ~/.ssh/id_rsa_consult ${{ secrets.SSH_GATEWAY_USER }}@${{ secrets.SSH_CONSULT_HOST }} << 'EOF'
-                echo "${{ secrets.DOCKER_PASSWORD }}" \
-                  | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-                docker pull ${{ secrets.DOCKER_USERNAME }}/befly-consult:dev
-                docker stop befly-consult || true
-                docker rm   befly-consult || true
-                docker run -d \
-                  --name befly-consult \
-                  -e SPRING_PROFILES_ACTIVE=dev \
-                  -e SERVER_PORT=8082 \
-                  -e SPRING_DATASOURCE_URL=${{ secrets.DB_URL }} \
-                  -e SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }} \
-                  -e SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }} \
-                  -p 8082:8082 \
-                  ${{ secrets.DOCKER_USERNAME }}/befly-consult:dev
-              EOF
+            ssh -i ~/.ssh/id_rsa_consult ${{ secrets.SSH_GATEWAY_USER }}@${{ secrets.SSH_CONSULT_HOST }} \
+            "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }} \
+                     DOCKER_PASSWORD='${{ secrets.DOCKER_PASSWORD }}' \
+                     DB_URL='${{ secrets.DB_URL }}' \
+                     DB_USERNAME='${{ secrets.DB_USERNAME }}' \
+                     DB_PASSWORD='${{ secrets.DB_PASSWORD }}' \
+                     ~/deploy.sh consult"
             fi
