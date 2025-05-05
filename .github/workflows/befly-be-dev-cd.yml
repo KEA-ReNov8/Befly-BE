@@ -33,8 +33,9 @@ jobs:
       - name: Determine & Build changed modules
         id: build
         run: |
-          commit=${{ github.event.pull_request.merge_commit_sha }}
-          files=$(git diff-tree --no-commit-id --name-only -r $commit)
+          base=${{ github.event.pull_request.base.sha }}
+          head=${{ github.event.pull_request.head.sha }}
+          files=$(git diff --name-only $base $head)
           mods=$(echo "$files" \
             | grep -E '^(user|community|consult)/' \
             | cut -d/ -f1 \
@@ -47,6 +48,7 @@ jobs:
               ./gradlew :$m:bootJar -x test --no-daemon
             done
           fi
+      
 
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" \
