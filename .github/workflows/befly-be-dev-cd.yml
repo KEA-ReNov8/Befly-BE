@@ -15,6 +15,7 @@ jobs:
       - name: Checkout repository (with submodules)
         uses: actions/checkout@v3
         with:
+          fetch-depth: 0
           submodules: true
           token: ${{ secrets.PAT }}
 
@@ -35,6 +36,8 @@ jobs:
         run: |
           base=${{ github.event.pull_request.base.sha }}
           head=${{ github.event.pull_request.head.sha }}
+          echo "Base: $base"
+          echo "Head: $head"
           files=$(git diff --name-only $base $head)
           mods=$(echo "$files" \
             | grep -E '^(user|community|consult)/' \
