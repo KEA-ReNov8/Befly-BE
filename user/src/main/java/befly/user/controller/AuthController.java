@@ -99,12 +99,4 @@ public class AuthController {
         ));
         return loginResponse;
     }
-
-    // CD 테스트용 API - 추후 제거할 예정
-    @GetMapping("/cd-test")
-    public ApiResponse<String> cdTest() {
-        String payload = "CD test successful at " + Instant.now().toString();
-        log.info(payload);
-        return ApiResponse.onSuccess(payload);
-    }
 }
