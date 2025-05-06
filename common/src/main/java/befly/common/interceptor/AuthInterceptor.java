@@ -23,6 +23,7 @@ public class AuthInterceptor implements HandlerInterceptor {
         } catch (NumberFormatException e) {
             log.error("Invalid or missing X-USER-ID header");
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid or missing X-USER-ID header");
+//            에러 페이지 RETURN 어떻게 할 것인지 -> 추후 확인해주세요(권하림)
             return false;
         }
         return true;
