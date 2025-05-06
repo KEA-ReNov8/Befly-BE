@@ -20,10 +20,11 @@ public class AuthInterceptor implements HandlerInterceptor {
         try {
             String userId = request.getHeader("X-USER-ID");
             request.setAttribute("userId", Long.parseLong(userId)); // ArgumentResolver에서 꺼내 쓸 수 있게 저장
+            log.info("인터셉터 X-USER-ID: {} 처리 완료", request.getHeader("X-USER-ID"));
         } catch (NumberFormatException e) {
             log.error("Invalid or missing X-USER-ID header");
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid or missing X-USER-ID header");
-//            에러 페이지 RETURN 어떻게 할 것인지 -> 추후 확인해주세요(권하림)
+//            에러 페이지 RETURN 어떻게 할 것인지 -> 추후 확인좀
             return false;
         }
         return true;
