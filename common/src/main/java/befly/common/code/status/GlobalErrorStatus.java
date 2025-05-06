@@ -14,6 +14,9 @@ import org.springframework.http.HttpStatus;
     DUPLICATE_EMAIL(HttpStatus.BAD_REQUEST, "MEMBER002", "이미 가입된 이메일입니다."),
     PWD_INVALID(HttpStatus.BAD_REQUEST, "AUTH004", "비밀번호가 틀립니다."),
     MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "MEMBER", "잘못된 ID입니다."),
+    DELETED_POST(HttpStatus.BAD_REQUEST, "SOLVED001", "삭제된 게시물입니다."),
+    INVALID_POST(HttpStatus.BAD_REQUEST, "FREE001", "잘못된 게시물 ID입니다."),
+    INVALID_COMMENT(HttpStatus.BAD_REQUEST, "FREE002", "잘못된 댓글 ID입니다.")
     ;
 
     private final HttpStatus httpStatus;

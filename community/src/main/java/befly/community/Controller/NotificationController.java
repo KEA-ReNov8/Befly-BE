@@ -1,44 +1,44 @@
-package befly.community.Controller;
+package befly.community.controller;
 
-import befly.community.Service.kafka.KafkaFreeCommentProducerService;
-import befly.community.Service.kafka.KafkaNotificationService;
+import befly.common.apiPayload.ApiResponse;
+import befly.community.dto.CommentDto;
+import befly.community.service.NotificationService;
+import befly.community.service.SSENotificationService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 public class NotificationController {
 
-    private final KafkaNotificationService notificationService;
-
-    public NotificationController(KafkaNotificationService notificationService, KafkaFreeCommentProducerService freeCommentService) {
-        this.notificationService = notificationService;
-    }
-
+    private final NotificationService notificationService;
+    private final SSENotificationService sseNotificationService;
 
     /**
-     * 클라이언트로부터 수신한 SSE 요청을 처리합니다.
-     * Service를 통해 SSE Emitter를 관리합니다.
+     * 알림이 오는 사이트
+     * @param userId
+     * @return
      */
-    @GetMapping("/noti")
-    public SseEmitter streamNotifications() {
-        return notificationService.addEmitter(); // Service를 통해 SSE 클라이언트 관리
+    @GetMapping(value = "/noti/{user_id}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter subscribe(@PathVariable("user_id") String userId) {
+        //TODO 요청한 유저가 실제 로그인한 유저와 같은지 검증 필요
+        log.info("SSE subscribe request from user: {}", userId);
+        return sseNotificationService.subscribe(userId);
     }
-
 
     /**
-     * Kafka로부터 수신한 메시지를 소비하여 클라이언트에게 전달합니다.
-     *
-     * @param record Kafka에서 받은 메시지를 담고 있는 ConsumerRecord 객체
+     * 댓글 달면 여기로 POST
+     * @param commentDto
+     * @return
      */
-    @KafkaListener(topics = "free-comment-notifications", groupId = "free-notification-group")
-    public void consumeKafkaMessage(ConsumerRecord<String, String> record) {
-        String message = record.value();
-        log.info("Received Kafka Message: {}", message);
-        notificationService.sendNotificationToClients(message); // 메시지 전송 로직 위임
+    @PostMapping("/free/comment")
+    public ApiResponse<?> createFreeComment(@RequestBody CommentDto commentDto) {
+        notificationService.createComment(commentDto);
+        return ApiResponse.onSuccess("성공");
     }
+
 }
