@@ -6,9 +6,11 @@ import befly.user.dto.gatewayAuth.response.GatewayValidateResponse;
 import befly.user.repository.userRepository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class GatewayAuthService {
     private final UserRepository userRepository;
@@ -16,7 +18,9 @@ public class GatewayAuthService {
 
     public GatewayLoginResponse findUserBySocialId(String socialId) {
         return userRepository.findByEmail(socialId)
-                .map(user -> createTokenResponse(user.getUserId()))
+                .map(user ->
+                        createTokenResponse(user.getUserId())
+                )
                 .orElseGet(() -> buildLoginResponse(false, null, null));
     }
 

@@ -17,7 +17,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(new AuthInterceptor())
                 .addPathPatterns("/**")
                 .excludePathPatterns(
-                        "/auth/oauth2",
+                        "/auth/oauth2/**",
                         "/auth/signup",
                         "/auth/signin",
                         "/auth/email/duplication"
