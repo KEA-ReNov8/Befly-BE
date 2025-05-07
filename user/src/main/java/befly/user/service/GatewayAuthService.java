@@ -1,27 +1,36 @@
 package befly.user.service;
 
 import befly.user.config.JwtProvider;
-import befly.user.dto.LoginResponse;
+import befly.user.dto.gatewayAuth.response.GatewayLoginResponse;
+import befly.user.dto.gatewayAuth.response.GatewayValidateResponse;
 import befly.user.repository.userRepository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-@Transactional
 @Service
 @RequiredArgsConstructor
-public class GateWayService {
+public class GatewayAuthService {
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
 
-    public LoginResponse findUserBySocialId(String socialId) {
+    public GatewayLoginResponse findUserBySocialId(String socialId) {
         return userRepository.findByEmail(socialId)
                 .map(user -> createTokenResponse(user.getUserId()))
                 .orElseGet(() -> buildLoginResponse(false, null, null));
     }
 
+    public GatewayValidateResponse validateUserExist(Long userId) {
+        return GatewayValidateResponse.builder()
+                .existStatus(
+                        userRepository.findById(userId)
+                        .isPresent())
+                .build();
+    }
 
-    public LoginResponse generateLoginResponse(Long userId) {
+
+    @Transactional
+    public GatewayLoginResponse generateLoginResponse(Long userId) {
         if (isUserExists(userId)) {
             return createTokenResponse(userId);
         } else {
@@ -33,15 +42,15 @@ public class GateWayService {
         return userRepository.findById(userId).isPresent();
     }
 
-    private LoginResponse createTokenResponse(Long userId) {
+    private GatewayLoginResponse createTokenResponse(Long userId) {
         String id = userId.toString();
         String accessToken = jwtProvider.generateAccessToken(id);
         String refreshToken = jwtProvider.generateRefreshToken(id);
         return buildLoginResponse(true, accessToken, refreshToken);
     }
 
-    private LoginResponse buildLoginResponse(boolean signUpStatus, String accessToken, String refreshToken) {
-        return LoginResponse.builder()
+    private GatewayLoginResponse buildLoginResponse(boolean signUpStatus, String accessToken, String refreshToken) {
+        return GatewayLoginResponse.builder()
                 .signUpStatus(signUpStatus)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
