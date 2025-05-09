@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserProfileResponse {
     private String userName;
-    private String nickname;
+    private String nickName;
     private String email;
     private String profileImg;
     private Long wing;

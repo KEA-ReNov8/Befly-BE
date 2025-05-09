@@ -36,6 +36,10 @@ public class User extends BaseTimeEntity {
     @Column
     private String password;
 
-    @Column
-    private String nickname;
+    @Column(unique = true, length = 255)
+    private String nickName;
+
+    public void updateNickName(String newNickName) {
+        this.nickName = newNickName;
+    }
 }

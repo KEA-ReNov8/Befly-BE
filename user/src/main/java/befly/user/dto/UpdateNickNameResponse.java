@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateNicknameResponse {
-    private String nickname;
+public class UpdateNickNameResponse {
+    private String nickName;
 }

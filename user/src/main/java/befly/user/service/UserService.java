@@ -17,9 +17,9 @@ import org.springframework.stereotype.Service;
 public class UserService {
     private final UserRepository userRepository;
 
-    public User updateNickname(Long userId, String newNickname) {
+    public User updateNickName(Long userId, String newNickName) {
         // 닉네임 중복 체크
-        if (userRepository.existsByNickname(newNickname)) {
+        if (userRepository.existsByNickName(newNickName)) {
             throw new RestApiException(GlobalErrorStatus.DUPLICATE_NICKNAME);
         }
 
@@ -27,18 +27,8 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RestApiException(GlobalErrorStatus.MEMBER_NOT_FOUND));
 
-        // 닉네임 업데이트
-        user = User.builder()
-                .userId(user.getUserId())
-                .userName(user.getUserName())
-                .email(user.getEmail())
-                .password(user.getPassword())
-                .profileImg(user.getProfileImg())
-                .wing(user.getWing())
-                .badge(user.getBadge())
-                .nickname(newNickname)
-                .build();
-
+        // 닉네임만 업데이트
+        user.updateNickName(newNickName);
         return userRepository.save(user);
     }
 
@@ -47,7 +37,7 @@ public class UserService {
                 .orElseThrow(() -> new RestApiException(GlobalErrorStatus.MEMBER_NOT_FOUND));
         return UserProfileResponse.builder()
                 .userName(user.getUserName())
-                .nickname(user.getNickname())
+                .nickName(user.getNickName())
                 .email(user.getEmail())
                 .profileImg(user.getProfileImg())
                 .wing(user.getWing())

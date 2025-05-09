@@ -40,7 +40,7 @@ public class SignUpService {
 
 
     private void checkForDuplicates(SignUpRequest signUpRequest) {
-        if (userRepository.existsByNickname(signUpRequest.getNickname())) {
+        if (userRepository.existsByNickName(signUpRequest.getNickName())) {
             throw new RestApiException(GlobalErrorStatus.DUPLICATE_NICKNAME);
         }
         if (userRepository.existsByEmail(signUpRequest.getEmail())) {
@@ -53,7 +53,7 @@ public class SignUpService {
     private User saveUser(SignUpRequest signUpRequest, String encodedPassword) {
         return userRepository.save(User.builder()
                 .userName(signUpRequest.getUserName())
-                .nickname(signUpRequest.getNickname())
+                .nickName(signUpRequest.getNickName())
                 .email(signUpRequest.getEmail())
                 .password(encodedPassword)
                 .wing(0L)
