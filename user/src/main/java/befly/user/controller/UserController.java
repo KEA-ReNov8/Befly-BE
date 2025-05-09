@@ -5,6 +5,7 @@ import befly.common.apiPayload.ApiResponse;
 import befly.common.code.status.SuccessStatus;
 import befly.user.domain.User;
 import befly.user.dto.UpdateNicknameRequest;
+import befly.user.dto.UpdateNicknameResponse;
 import befly.user.dto.UserProfileResponse;
 import befly.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -19,11 +20,13 @@ public class UserController {
     private final UserService userService;
 
     @PutMapping("/nickname")
-    public ApiResponse<User> updateNickname(
+    public ApiResponse<UpdateNicknameResponse> updateNickname(
             @LoginUser Long userId,
             @RequestBody UpdateNicknameRequest request) {
         User updatedUser = userService.updateNickname(userId, request.getNickname());
-        return ApiResponse.onSuccess(updatedUser);
+        return ApiResponse.onSuccess(UpdateNicknameResponse.builder()
+                .nickname(updatedUser.getNickname())
+                .build());
     }
 
     @GetMapping("/profile")
@@ -31,4 +34,9 @@ public class UserController {
         UserProfileResponse profile = userService.getProfile(userId);
         return ApiResponse.onSuccess(profile);
     }
-} 
+
+    @PostMapping("/logout")
+    public ApiResponse<SuccessStatus> logout() {
+        return ApiResponse.onSuccess(SuccessStatus._OK);
+    }
+}
