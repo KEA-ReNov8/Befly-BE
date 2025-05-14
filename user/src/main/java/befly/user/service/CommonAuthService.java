@@ -71,7 +71,7 @@ public class CommonAuthService {
 
 
     @Transactional
-    public ApiResponse<TokenResponse> signIn(SignInRequest signInRequest) {
+    public TokenResponse signIn(SignInRequest signInRequest) {
         log.info("SignIn request started for email: {}", signInRequest.getEmail());
 
         // 1. User 정보 조회
@@ -87,8 +87,7 @@ public class CommonAuthService {
         // 3. JWT 토큰 생성 및 반환
         String accessToken = jwtProvider.generateAccessToken(user.getUserId().toString());
         String refreshToken = jwtProvider.generateRefreshToken(user.getUserId().toString());
-        TokenResponse tokenResponse = makeTokenObject(accessToken, refreshToken);
-        return ApiResponse.onSuccess(tokenResponse);
+        return makeTokenObject(accessToken, refreshToken);
     }
 
     private static TokenResponse makeTokenObject(String accessToken, String refreshToken) {

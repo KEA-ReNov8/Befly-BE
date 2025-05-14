@@ -9,6 +9,7 @@ import befly.user.dto.gatewayAuth.request.GatewaySocialIdRequest;
 import befly.user.dto.gatewayAuth.response.GatewayValidateResponse;
 import befly.user.service.CommonAuthService;
 import befly.user.service.GatewayAuthService;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,11 +44,14 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
     @PostMapping("/signin")
-    public ApiResponse<TokenResponse> commonSignInController(@RequestBody SignInRequest signInRequest) {
+    public ApiResponse<Void> commonSignInController(@RequestBody SignInRequest signInRequest,
+                                                             HttpServletResponse response) {
         log.info("signIn Request : {}", signInRequest);
-        ApiResponse<TokenResponse> apiResponse = commonAuthService.signIn(signInRequest);
+        TokenResponse tokenResponse = commonAuthService.signIn(signInRequest);
+        response.addHeader("Authorization", tokenResponse.getAccessToken());
+        response.addHeader("X-Refresh-Token", tokenResponse.getAccessToken());
         log.info("signIn Success");
-        return apiResponse;
+        return ApiResponse.onSuccess(null);
     }
 
     /**
@@ -67,25 +71,19 @@ public class AuthController {
      * @return
      */
     @GetMapping("/exist/user")
-    public GatewayValidateResponse validateUserController(@LoginUser Long userId) {
+    public GatewayValidateResponse validateUserController(@LoginUser @Parameter(hidden = true) Long userId) {
         log.info("SocialId Request : {}", userId);
         return gateWayAuthService.validateUserExist(userId);
     }
 
     @GetMapping("/refresh")
-    public GatewayLoginResponse refreshTokenController(@LoginUser Long userId, HttpServletResponse response) {
+    public ApiResponse<Void> refreshTokenController(@LoginUser @Parameter(hidden = true) Long userId, HttpServletResponse response) {
         log.info("Refresh Token Request : {}", userId);
         GatewayLoginResponse gatewayLoginResponse = gateWayAuthService.generateLoginResponse(userId);
         //https 배포시 Secure 추가
-        response.addHeader("Set-Cookie", String.format(
-                "accessToken=%s; Path=/; HttpOnly; SameSite=None",
-                gatewayLoginResponse.getAccessToken()
-        ));
-        response.addHeader("Set-Cookie", String.format(
-                "refreshToken=%s; Path=/; HttpOnly; SameSite=None",
-                gatewayLoginResponse.getRefreshToken()
-        ));
-        return gatewayLoginResponse;
+        response.addHeader("Authorization", gatewayLoginResponse.getAccessToken());
+        response.addHeader("X-Refresh-Token", gatewayLoginResponse.getAccessToken());
+        return ApiResponse.onSuccess(null);
     }
 
     //dddasdfasdfㅁㄴㅇㄹㅁㄴㅇㄹㅁㄴ
