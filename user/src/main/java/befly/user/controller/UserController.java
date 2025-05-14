@@ -7,6 +7,7 @@ import befly.user.domain.User;
 import befly.user.dto.UpdateNicknameRequest;
 import befly.user.dto.UserProfileResponse;
 import befly.user.service.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -33,14 +34,14 @@ public class UserController {
 
     @PutMapping("/nickname")
     public ApiResponse<User> updateNickname(
-            @LoginUser Long userId,
+            @LoginUser @Parameter(hidden = true) Long userId,
             @RequestBody UpdateNicknameRequest request) {
         User updatedUser = userService.updateNickname(userId, request.getNickname());
         return ApiResponse.onSuccess(updatedUser);
     }
 
     @GetMapping("/profile")
-    public ApiResponse<UserProfileResponse> getProfile(@LoginUser Long userId) {
+    public ApiResponse<UserProfileResponse> getProfile(@LoginUser @Parameter(hidden = true) Long userId) {
         UserProfileResponse profile = userService.getProfile(userId);
         return ApiResponse.onSuccess(profile);
     }
