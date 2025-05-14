@@ -23,7 +23,7 @@ public class UserService {
     @Transactional
     public User updateNickname(Long userId, String newNickname) {
         // 닉네임 중복 체크
-        if (userRepository.existsByNickname(newNickname)) {
+        if (userRepository.existsByNickName(newNickname)) {
             throw new RestApiException(UserErrorStatus.DUPLICATE_NICKNAME);
         }
 
@@ -40,7 +40,7 @@ public class UserService {
                 .profileImg(user.getProfileImg())
                 .wing(user.getWing())
                 .badge(user.getBadge())
-                .nickname(newNickname)
+                .nickName(newNickname)
                 .build();
 
         return userRepository.save(user);
@@ -51,7 +51,7 @@ public class UserService {
                 .orElseThrow(() -> new RestApiException(UserErrorStatus.MEMBER_NOT_FOUND));
         return UserProfileResponse.builder()
                 .userName(user.getUserName())
-                .nickname(user.getNickname())
+                .nickName(user.getNickName())
                 .email(user.getEmail())
                 .profileImg(user.getProfileImg())
                 .wing(user.getWing())

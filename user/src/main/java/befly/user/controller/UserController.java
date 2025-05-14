@@ -4,7 +4,7 @@ import befly.common.annotations.LoginUser;
 import befly.common.apiPayload.ApiResponse;
 import befly.common.code.status.SuccessStatus;
 import befly.user.domain.User;
-import befly.user.dto.UpdateNicknameRequest;
+import befly.user.dto.UpdateNickNameRequest;
 import befly.user.dto.UserProfileResponse;
 import befly.user.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -35,8 +35,8 @@ public class UserController {
     @PutMapping("/nickname")
     public ApiResponse<User> updateNickname(
             @LoginUser @Parameter(hidden = true) Long userId,
-            @RequestBody UpdateNicknameRequest request) {
-        User updatedUser = userService.updateNickname(userId, request.getNickname());
+            @RequestBody UpdateNickNameRequest request) {
+        User updatedUser = userService.updateNickname(userId, request.getNickName());
         return ApiResponse.onSuccess(updatedUser);
     }
 
