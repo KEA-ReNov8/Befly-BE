@@ -112,7 +112,6 @@ public class NotificationService {
                     .message("TestCommenterNickName님이 댓글을 달았습니다.")
                     .createdAt(LocalDateTime.now())
                     .build();
-            log.info("Sending notification to user {}: {}", postUserId, message);
 
             kafkaNotificationService.sendNotification(message);
         }
