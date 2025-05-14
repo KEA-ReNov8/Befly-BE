@@ -2,6 +2,7 @@ package befly.community.domain.comment;
 
 
 import befly.common.common.BaseTimeEntity;
+import befly.community.domain.SolvedPost;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,18 +20,21 @@ public class SolvedComment extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long solvedCommentId; // solved_comment_id (PK)
 
-    @Column(nullable = false)
-    private Long solvedId; // solved_id (FK)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
+    private SolvedPost solvedId; // 댓글이 달린 글 ID (FK)
 
     @Column(nullable = false)
-    private Long userId; // user_id (FK)
+    private Long userId; // 댓글 작성자 ID (FK)
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false)
+    private Boolean isDeleted = false; //댓글 삭제 여부
+
+    @Column(nullable = false, length = 500)
     private String solvedComment; // solved_comment (NOT NULL)
 
-    @Column
-    private Long pSolvedCommentId; // p_solved_comment_id
+    @ManyToOne
+    @JoinColumn(name = "p_solved_comment_id")
+    private SolvedComment pSolvedCommentId; // 부모 댓글 ID (대댓글)
 
-    @Column(nullable = false)
-    private Boolean isDeleted = Boolean.FALSE; // is_deleted (default = FALSE)
 }

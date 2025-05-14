@@ -10,4 +10,5 @@ public class CommentDto {
     NotificationType notificationType; //좋아요인지, 해결함인지, 고민함인지 등등 (FREEPOST, LIKE, SOLVEDPOST 받는 걸로 예정)
     Long PcommentId;
     String comment;
+
 }
