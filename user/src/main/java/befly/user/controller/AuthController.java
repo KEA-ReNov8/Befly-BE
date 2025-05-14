@@ -1,23 +1,22 @@
 package befly.user.controller;
 
 import befly.common.annotations.LoginUser;
-import befly.user.dto.LoginResponse;
-import befly.user.dto.SocialIdRequest;
-import befly.user.service.GateWayService;
+import befly.user.dto.commonAuth.SignInRequest;
+import befly.user.dto.commonAuth.SignUpRequest;
+import befly.user.dto.commonAuth.TokenResponse;
+import befly.user.dto.gatewayAuth.response.GatewayLoginResponse;
+import befly.user.dto.gatewayAuth.request.GatewaySocialIdRequest;
+import befly.user.dto.gatewayAuth.response.GatewayValidateResponse;
+import befly.user.service.CommonAuthService;
+import befly.user.service.GatewayAuthService;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import befly.common.apiPayload.ApiResponse;
-import befly.common.code.status.SuccessStatus;
 import befly.user.domain.User;
-import befly.user.dto.*;
-import befly.user.service.EmailDuplication;
-import befly.user.service.SignInService;
-import befly.user.service.SignUpService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.time.Instant;
 
 @RestController
 @Slf4j
@@ -25,10 +24,8 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final SignUpService signUpService;
-    private final SignInService signInService;
-    private final EmailDuplication emailDuplication;
-    private final GateWayService gateWayService;
+    private final CommonAuthService commonAuthService;
+    private final GatewayAuthService gateWayAuthService;
 
 
     /**
@@ -38,66 +35,55 @@ public class AuthController {
      * @return 아직 없음
      */
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<String>> signUp(@RequestBody SignUpRequest signUpRequest) {
+    public ResponseEntity<ApiResponse<String>> commonSignUpController(@RequestBody SignUpRequest signUpRequest) {
         log.info("signUp Request : {}", signUpRequest);
-        User signUpUser = signUpService.signUp(signUpRequest);
+        User signUpUser = commonAuthService.signUp(signUpRequest);
         log.info("signUp Success : {}", signUpUser);
 
         ApiResponse<String> response = ApiResponse.onSuccess("회원가입이 완료되었습니다.");
         return ResponseEntity.ok(response);
     }
-
-
     @PostMapping("/signin")
-    public ApiResponse<TokenResponse> signIn(@RequestBody SignInRequest signInRequest) {
+    public ApiResponse<Void> commonSignInController(@RequestBody SignInRequest signInRequest,
+                                                             HttpServletResponse response) {
         log.info("signIn Request : {}", signInRequest);
-        ApiResponse<TokenResponse> apiResponse = signInService.signIn(signInRequest);
+        TokenResponse tokenResponse = commonAuthService.signIn(signInRequest);
+        response.addHeader("Authorization", tokenResponse.getAccessToken());
+        response.addHeader("X-Refresh-Token", tokenResponse.getAccessToken());
         log.info("signIn Success");
-        return apiResponse;
+        return ApiResponse.onSuccess(null);
     }
-
-    @GetMapping("/test")
-    public String test(@LoginUser Long userId) {
-        return userId.toString();
-    }
-
 
     /**
-     * 이메일 중복 체크
-     * @param Email 가입 ID 겸 이메일
-     * @return 함수 반환값은 항상 True. 만약 중복 발생 시 서비스에서 예외 던짐
+     * 소셜 로그인시에 사용자가 존재하는지 확인하는 controller
+     * @param gatewaySocialIdRequest
+     * @return
      */
-    @GetMapping("/email/duplication")
-    public String checkNicknameDuplication(@RequestParam String Email) {
-        log.info("Email duplication check: {}", Email);
-        if(!emailDuplication.isDuplication(Email)) {
-            log.info("Email duplication check success: {}, No email Duplication", Email);
-        }
-        return SuccessStatus._OK.getMessage();
+    @PostMapping("/oauth2")
+    public GatewayLoginResponse oauth2AuthController(@RequestBody GatewaySocialIdRequest gatewaySocialIdRequest) {
+        log.info("SocialId Request : {}", gatewaySocialIdRequest.getOauth2Id());
+        return gateWayAuthService.findUserBySocialId(gatewaySocialIdRequest.getOauth2Id());
     }
 
-
-
-    @PostMapping("/oauth2")
-    public LoginResponse oauth2(@RequestBody SocialIdRequest socialIdRequest) {
-        log.info("SocialId Request : {}", socialIdRequest.getOauth2Id());
-        return gateWayService.findUserBySocialId(socialIdRequest.getOauth2Id());
+    /**
+     * 일반 요청시 요청하는 사용자가 존재하는 사용자 인지 확인하는 controller
+     * @param userId
+     * @return
+     */
+    @GetMapping("/exist/user")
+    public GatewayValidateResponse validateUserController(@LoginUser @Parameter(hidden = true) Long userId) {
+        log.info("SocialId Request : {}", userId);
+        return gateWayAuthService.validateUserExist(userId);
     }
 
     @GetMapping("/refresh")
-    public LoginResponse refreshToken(@LoginUser Long userId, HttpServletResponse response) {
+    public ApiResponse<Void> refreshTokenController(@LoginUser @Parameter(hidden = true) Long userId, HttpServletResponse response) {
         log.info("Refresh Token Request : {}", userId);
-        LoginResponse loginResponse = gateWayService.generateLoginResponse(userId);
+        GatewayLoginResponse gatewayLoginResponse = gateWayAuthService.generateLoginResponse(userId);
         //https 배포시 Secure 추가
-        response.addHeader("Set-Cookie", String.format(
-                "accessToken=%s; Path=/; HttpOnly; SameSite=None",
-                loginResponse.getAccessToken()
-        ));
-        response.addHeader("Set-Cookie", String.format(
-                "refreshToken=%s; Path=/; HttpOnly; SameSite=None",
-                loginResponse.getRefreshToken()
-        ));
-        return loginResponse;
+        response.addHeader("Authorization", gatewayLoginResponse.getAccessToken());
+        response.addHeader("X-Refresh-Token", gatewayLoginResponse.getAccessToken());
+        return ApiResponse.onSuccess(null);
     }
 
     //dddasdfasdfㅁㄴㅇㄹㅁㄴㅇㄹㅁㄴ

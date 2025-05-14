@@ -1,4 +1,4 @@
-package befly.user.dto;
+package befly.user.dto.commonAuth;
 
 import lombok.Getter;
 import lombok.Setter;
