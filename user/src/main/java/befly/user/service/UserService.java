@@ -1,6 +1,7 @@
 package befly.user.service;
 
 import befly.common.exception.RestApiException;
+import befly.common.service.S3Service;
 import befly.user.domain.User;
 import befly.user.dto.UserProfileResponse;
 import befly.user.repository.userRepository.UserRepository;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final S3Service s3Service;
 
     public boolean isNickNameDuplication(String email) {
         if(userRepository.existsByEmail(email)) {
@@ -57,5 +59,26 @@ public class UserService {
                 .wing(user.getWing())
                 .badge(user.getBadge())
                 .build();
+    }
+
+    @Transactional
+    public User updateProfileImage(Long userId, String imageKey) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RestApiException(UserErrorStatus.MEMBER_NOT_FOUND));
+
+        String imageUrl = s3Service.getImageUrl(imageKey);
+        
+        user = User.builder()
+                .userId(user.getUserId())
+                .userName(user.getUserName())
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .profileImg(imageUrl)
+                .wing(user.getWing())
+                .badge(user.getBadge())
+                .nickName(user.getNickName())
+                .build();
+
+        return userRepository.save(user);
     }
 }

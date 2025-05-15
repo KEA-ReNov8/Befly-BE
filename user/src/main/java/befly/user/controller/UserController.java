@@ -5,7 +5,10 @@ import befly.common.apiPayload.ApiResponse;
 import befly.common.code.status.SuccessStatus;
 import befly.user.domain.User;
 import befly.user.dto.UpdateNickNameRequest;
+import befly.user.dto.UpdateProfileImageRequest;
 import befly.user.dto.UserProfileResponse;
+import befly.user.dto.ProfileImageResponse;
+import befly.user.dto.UpdateNickNameResponse;
 import befly.user.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
@@ -33,11 +36,14 @@ public class UserController {
     }
 
     @PutMapping("/nickname")
-    public ApiResponse<User> updateNickname(
+    public ApiResponse<UpdateNickNameResponse> updateNickname(
             @LoginUser @Parameter(hidden = true) Long userId,
             @RequestBody UpdateNickNameRequest request) {
         User updatedUser = userService.updateNickname(userId, request.getNickName());
-        return ApiResponse.onSuccess(updatedUser);
+        UpdateNickNameResponse response = UpdateNickNameResponse.builder()
+            .nickName(updatedUser.getNickName())
+            .build();
+        return ApiResponse.onSuccess(response);
     }
 
     @GetMapping("/profile")
@@ -46,4 +52,15 @@ public class UserController {
         return ApiResponse.onSuccess(profile);
     }
 
+    @PutMapping("/profile/image")
+    public ApiResponse<ProfileImageResponse> updateProfileImage(
+            @LoginUser @Parameter(hidden = true) Long userId,
+            @RequestBody UpdateProfileImageRequest request) {
+        User updatedUser = userService.updateProfileImage(userId, request.getImageKey());
+        ProfileImageResponse response = ProfileImageResponse.builder()
+            .userId(updatedUser.getUserId())
+            .profileImg(updatedUser.getProfileImg())
+            .build();
+        return ApiResponse.onSuccess(response);
+    }
 }
