@@ -36,7 +36,6 @@ public class UserService {
         // 닉네임 업데이트
         user = User.builder()
                 .userId(user.getUserId())
-                .userName(user.getUserName())
                 .clientId(user.getClientId())
                 .password(user.getPassword())
                 .profileImg(user.getProfileImg())
@@ -52,7 +51,6 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RestApiException(UserErrorStatus.MEMBER_NOT_FOUND));
         return UserProfileResponse.builder()
-                .userName(user.getUserName())
                 .nickName(user.getNickName())
                 .clientId(user.getClientId())
                 .profileImg(user.getProfileImg())
@@ -70,7 +68,6 @@ public class UserService {
         
         user = User.builder()
                 .userId(user.getUserId())
-                .userName(user.getUserName())
                 .clientId(user.getClientId())
                 .password(user.getPassword())
                 .profileImg(imageUrl)

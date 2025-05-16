@@ -4,6 +4,7 @@ import befly.common.apiPayload.ApiResponse;
 import befly.common.code.status.GlobalErrorStatus;
 import befly.common.exception.RestApiException;
 import befly.user.config.JwtProvider;
+import befly.user.domain.Enum.LoginType;
 import befly.user.domain.User;
 import befly.user.dto.commonAuth.SignInRequest;
 import befly.user.dto.commonAuth.SignUpRequest;
@@ -32,7 +33,7 @@ public class CommonAuthService {
      */
     @Transactional
     public User signUp(SignUpRequest signUpRequest) {
-        log.info("SignUp request started for userName: {}", signUpRequest.getUserName());
+        log.info("SignUp request started for userName: {}", signUpRequest.getClientId());
 //       check email, nickname duplicate
         checkForDuplicates(signUpRequest);
 //        PasswordEncoding
@@ -40,7 +41,7 @@ public class CommonAuthService {
 //        save user
         User user = saveUser(signUpRequest, encodedPassword);
 
-        log.info("SignUp completed for userName: {} with userId: {}", user.getUserName(), user.getUserId());
+        log.info("SignUp completed for clientId: {} with userId: {}", user.getClientId(), user.getUserId());
         return user;
 
     }
@@ -55,13 +56,13 @@ public class CommonAuthService {
     //HACK URL 이미지 경로 하드코딩되어있음
     private User saveUser(SignUpRequest signUpRequest, String encodedPassword) {
         return userRepository.save(User.builder()
-                .userName(signUpRequest.getUserName())
                 .nickName(signUpRequest.getNickName())
                 .clientId(signUpRequest.getClientId())
                 .password(encodedPassword)
                 .wing(0L)
                 .badge(0L)
                 .profileImg("test.url")
+                .loginType(LoginType.Internal) //자체로그인시 internal로 설정
                 .build());
     }
 
