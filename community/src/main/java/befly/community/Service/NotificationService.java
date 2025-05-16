@@ -1,4 +1,4 @@
-package befly.community.service;
+package befly.community.Service;
 
 import befly.common.code.status.GlobalErrorStatus;
 import befly.common.exception.RestApiException;
