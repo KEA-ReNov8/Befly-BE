@@ -48,7 +48,7 @@ public class CommonAuthService {
         if (userRepository.existsByNickName(signUpRequest.getNickName())) {
             throw new RestApiException(GlobalErrorStatus.DUPLICATE_NICKNAME);
         }
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+        if (userRepository.existsByClientId(signUpRequest.getClientId())) {
             throw new RestApiException(GlobalErrorStatus.DUPLICATE_EMAIL);
         }
     }
@@ -57,7 +57,7 @@ public class CommonAuthService {
         return userRepository.save(User.builder()
                 .userName(signUpRequest.getUserName())
                 .nickName(signUpRequest.getNickName())
-                .email(signUpRequest.getEmail())
+                .clientId(signUpRequest.getClientId())
                 .password(encodedPassword)
                 .wing(0L)
                 .badge(0L)
@@ -72,17 +72,17 @@ public class CommonAuthService {
 
     @Transactional
     public TokenResponse signIn(SignInRequest signInRequest) {
-        log.info("SignIn request started for email: {}", signInRequest.getEmail());
+        log.info("SignIn request started for email: {}", signInRequest.getClientId());
 
         // 1. User 정보 조회
-        User user = userRepository.findByEmail(signInRequest.getEmail())
+        User user = userRepository.findByClientId(signInRequest.getClientId())
                 .orElseThrow(() -> new RestApiException(GlobalErrorStatus.MEMBER_NOT_FOUND));
 
         // 2. 비밀번호 확인
         if (!passwordEncoder.matches(signInRequest.getPassword(), user.getPassword())) {
             throw new RestApiException(GlobalErrorStatus.PWD_INVALID);
         }
-        log.info("SignIn completed for email: {}", signInRequest.getEmail());
+        log.info("SignIn completed for email: {}", signInRequest.getClientId());
 
         // 3. JWT 토큰 생성 및 반환
         String accessToken = jwtProvider.generateAccessToken(user.getUserId().toString());

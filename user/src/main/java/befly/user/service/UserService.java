@@ -16,9 +16,9 @@ public class UserService {
     private final UserRepository userRepository;
     private final S3Service s3Service;
 
-    public boolean isNickNameDuplication(String email) {
-        if(userRepository.existsByEmail(email)) {
-            throw new RestApiException(UserErrorStatus.DUPLICATE_EMAIL);
+    public boolean isNickNameDuplication(String ClientId) {
+        if(userRepository.existsByClientId(ClientId)) {
+            throw new RestApiException(UserErrorStatus.DUPLICATE_ClIENT_ID);
         }
         return false;
     }
@@ -37,7 +37,7 @@ public class UserService {
         user = User.builder()
                 .userId(user.getUserId())
                 .userName(user.getUserName())
-                .email(user.getEmail())
+                .clientId(user.getClientId())
                 .password(user.getPassword())
                 .profileImg(user.getProfileImg())
                 .wing(user.getWing())
@@ -54,7 +54,7 @@ public class UserService {
         return UserProfileResponse.builder()
                 .userName(user.getUserName())
                 .nickName(user.getNickName())
-                .email(user.getEmail())
+                .clientId(user.getClientId())
                 .profileImg(user.getProfileImg())
                 .wing(user.getWing())
                 .badge(user.getBadge())
@@ -71,7 +71,7 @@ public class UserService {
         user = User.builder()
                 .userId(user.getUserId())
                 .userName(user.getUserName())
-                .email(user.getEmail())
+                .clientId(user.getClientId())
                 .password(user.getPassword())
                 .profileImg(imageUrl)
                 .wing(user.getWing())
