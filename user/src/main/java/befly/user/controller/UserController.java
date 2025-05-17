@@ -9,6 +9,7 @@ import befly.user.dto.UpdateProfileImageRequest;
 import befly.user.dto.UserProfileResponse;
 import befly.user.dto.ProfileImageResponse;
 import befly.user.dto.UpdateNickNameResponse;
+import befly.user.dto.ImageUploadResponse;
 import befly.user.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
@@ -52,11 +53,19 @@ public class UserController {
         return ApiResponse.onSuccess(profile);
     }
 
+    @PostMapping("/upload/image")
+    public ApiResponse<ImageUploadResponse> getImageUploadUrl(
+            @LoginUser @Parameter(hidden = true) Long userId,
+            @RequestParam String imageKey) {
+        ImageUploadResponse response = userService.getImageUploadUrl(imageKey);
+        return ApiResponse.onSuccess(response);
+    }
+
     @PutMapping("/profile/image")
     public ApiResponse<ProfileImageResponse> updateProfileImage(
             @LoginUser @Parameter(hidden = true) Long userId,
             @RequestBody UpdateProfileImageRequest request) {
-        User updatedUser = userService.updateProfileImage(userId, request.getImageKey());
+        User updatedUser = userService.updateProfileImage(userId, request.getImageUrl());
         ProfileImageResponse response = ProfileImageResponse.builder()
             .userId(updatedUser.getUserId())
             .profileImg(updatedUser.getProfileImg())

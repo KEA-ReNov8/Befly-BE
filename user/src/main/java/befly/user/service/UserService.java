@@ -3,6 +3,7 @@ package befly.user.service;
 import befly.common.exception.RestApiException;
 import befly.common.service.S3Service;
 import befly.user.domain.User;
+import befly.user.dto.ImageUploadResponse;
 import befly.user.dto.UserProfileResponse;
 import befly.user.repository.userRepository.UserRepository;
 import befly.user.status.UserErrorStatus;
@@ -59,12 +60,20 @@ public class UserService {
                 .build();
     }
 
+    public ImageUploadResponse getImageUploadUrl(String key) {
+        String preSignedUrl = s3Service.createPreSignedUrl(key, "PUT");
+        String imageUrl = s3Service.getImageUrl(key);
+        
+        return ImageUploadResponse.builder()
+                .preSignedUrl(preSignedUrl)
+                .imageUrl(imageUrl)
+                .build();
+    }
+
     @Transactional
-    public User updateProfileImage(Long userId, String imageKey) {
+    public User updateProfileImage(Long userId, String imageUrl) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RestApiException(UserErrorStatus.MEMBER_NOT_FOUND));
-
-        String imageUrl = s3Service.getImageUrl(imageKey);
         
         user = User.builder()
                 .userId(user.getUserId())

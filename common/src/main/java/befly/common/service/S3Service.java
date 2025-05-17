@@ -40,12 +40,11 @@ public class S3Service implements S3Interface {
     @Override
     public String getImageUrl(String key) {
         return s3Properties.getEndPoint() + "/v1/"
-                + s3Properties.getProjectId()
-                + s3Properties.getBucketName()
-                + s3Properties.getFolderName()
+                + s3Properties.getProjectId() + "/"
+                + s3Properties.getBucketName() + "/"
+                + s3Properties.getFolderName() + "/"
                 + convertImageName(key);
     }
-
     /**
      * 주어진 이미지 파일 이름을 중복되지 않게 현재 시각과 합쳐 반환합니다.
      * @param key  이미지 파일 이름(확장자 포함)
