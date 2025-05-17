@@ -17,7 +17,7 @@ public class GatewayAuthService {
     private final JwtProvider jwtProvider;
 
     public GatewayLoginResponse findUserBySocialId(String socialId) {
-        return userRepository.findByEmail(socialId)
+        return userRepository.findByClientId(socialId)
                 .map(user ->
                         createTokenResponse(user.getUserId())
                 )

@@ -9,11 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserProfileResponse {
-    private String nickName;
-    private String clientId;
+public class ProfileImageResponse {
+    private Long userId;
     private String profileImg;
-    private Long wing;
-    private Long badge;
-    private String loginType;
-}
+} 

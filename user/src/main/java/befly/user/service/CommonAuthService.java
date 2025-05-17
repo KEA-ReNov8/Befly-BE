@@ -4,6 +4,7 @@ import befly.common.apiPayload.ApiResponse;
 import befly.common.code.status.GlobalErrorStatus;
 import befly.common.exception.RestApiException;
 import befly.user.config.JwtProvider;
+import befly.user.domain.Enum.LoginType;
 import befly.user.domain.User;
 import befly.user.dto.commonAuth.SignInRequest;
 import befly.user.dto.commonAuth.SignUpRequest;
@@ -32,7 +33,7 @@ public class CommonAuthService {
      */
     @Transactional
     public User signUp(SignUpRequest signUpRequest) {
-        log.info("SignUp request started for userName: {}", signUpRequest.getUserName());
+        log.info("SignUp request started for userName: {}", signUpRequest.getClientId());
 //       check email, nickname duplicate
         checkForDuplicates(signUpRequest);
 //        PasswordEncoding
@@ -40,28 +41,28 @@ public class CommonAuthService {
 //        save user
         User user = saveUser(signUpRequest, encodedPassword);
 
-        log.info("SignUp completed for userName: {} with userId: {}", user.getUserName(), user.getUserId());
+        log.info("SignUp completed for clientId: {} with userId: {}", user.getClientId(), user.getUserId());
         return user;
 
     }
     private void checkForDuplicates(SignUpRequest signUpRequest) {
-        if (userRepository.existsByNickname(signUpRequest.getNickname())) {
+        if (userRepository.existsByNickName(signUpRequest.getNickName())) {
             throw new RestApiException(GlobalErrorStatus.DUPLICATE_NICKNAME);
         }
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+        if (userRepository.existsByClientId(signUpRequest.getClientId())) {
             throw new RestApiException(GlobalErrorStatus.DUPLICATE_EMAIL);
         }
     }
     //HACK URL 이미지 경로 하드코딩되어있음
     private User saveUser(SignUpRequest signUpRequest, String encodedPassword) {
         return userRepository.save(User.builder()
-                .userName(signUpRequest.getUserName())
-                .nickname(signUpRequest.getNickname())
-                .email(signUpRequest.getEmail())
+                .nickName(signUpRequest.getNickName())
+                .clientId(signUpRequest.getClientId())
                 .password(encodedPassword)
                 .wing(0L)
                 .badge(0L)
                 .profileImg("test.url")
+                .loginType(LoginType.Internal) //자체로그인시 internal로 설정
                 .build());
     }
 
@@ -72,17 +73,17 @@ public class CommonAuthService {
 
     @Transactional
     public TokenResponse signIn(SignInRequest signInRequest) {
-        log.info("SignIn request started for email: {}", signInRequest.getEmail());
+        log.info("SignIn request started for email: {}", signInRequest.getClientId());
 
         // 1. User 정보 조회
-        User user = userRepository.findByEmail(signInRequest.getEmail())
+        User user = userRepository.findByClientId(signInRequest.getClientId())
                 .orElseThrow(() -> new RestApiException(GlobalErrorStatus.MEMBER_NOT_FOUND));
 
         // 2. 비밀번호 확인
         if (!passwordEncoder.matches(signInRequest.getPassword(), user.getPassword())) {
             throw new RestApiException(GlobalErrorStatus.PWD_INVALID);
         }
-        log.info("SignIn completed for email: {}", signInRequest.getEmail());
+        log.info("SignIn completed for email: {}", signInRequest.getClientId());
 
         // 3. JWT 토큰 생성 및 반환
         String accessToken = jwtProvider.generateAccessToken(user.getUserId().toString());
