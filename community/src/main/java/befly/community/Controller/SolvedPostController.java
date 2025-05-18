@@ -33,4 +33,12 @@ public class SolvedPostController {
                                                       @RequestBody SolvedPostRequest request) {
         return ApiResponse.onSuccess(solvedPostService.createPost(userId, request));
     }
+
+    // 해결함 글 수정
+    @PatchMapping("/{solvedId}")
+    public ApiResponse<SolvedPostResponse> updatePost(@LoginUser Long userId,
+                                                      @PathVariable Long solvedId,
+                                                      @RequestBody SolvedPostRequest request) {
+        return ApiResponse.onSuccess(solvedPostService.updatePost(userId, solvedId, request));
+    }
 }

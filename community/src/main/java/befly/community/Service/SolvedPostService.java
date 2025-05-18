@@ -34,6 +34,28 @@ public class SolvedPostService {
         return toResponse(saved);
     }
 
+    // 해결함 글 수정
+    @Transactional
+    public SolvedPostResponse updatePost(Long userId, Long id, SolvedPostRequest request) {
+        SolvedPost post = solvedPostRepository.findById(id)
+                .orElseThrow(() -> new RestApiException(SolvedErrorStatus.POST_NOT_FOUND));
+
+        // 작성자 본인 확인
+        if (!post.getUserId().equals(userId)) {
+            throw new RestApiException(SolvedErrorStatus.NO_PERMISSION);
+        }
+
+        SolvedPost updated = SolvedPost.builder()
+                .solvedId(post.getSolvedId())
+                .userId(userId)
+                .solvedTitle(request.getSolvedTitle())
+                .solvedContent(request.getSolvedContent())
+                .imageKey(request.getImageKey())
+                .build();
+
+        return toResponse(solvedPostRepository.save(updated));
+    }
+
     // 결과 응답용
     private SolvedPostResponse toResponse(SolvedPost post) {
         return SolvedPostResponse.builder()
