@@ -1,0 +1,15 @@
+package befly.community.Repository;
+
+import befly.community.domain.empathy.SolvedEmpathy;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface SolvedEmpathyRepository extends JpaRepository<SolvedEmpathy, Long> {
+
+    Optional<SolvedEmpathy> findByUserIdAndSolvedId(Long userId, Long solvedId);
+
+    boolean existsByUserIdAndSolvedId(Long userId, Long solvedId);
+
+    Long countSolvedEmpathyBySolvedId(Long solvedId);
+}

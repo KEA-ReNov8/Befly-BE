@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RequestMapping("/free/{freeId}/empathy")
 @RequiredArgsConstructor
-public class FreeEmpathyController {
+public class    FreeEmpathyController {
 
     private final FreeEmpathyService freeEmpathyService;
 
