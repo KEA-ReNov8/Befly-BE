@@ -56,6 +56,20 @@ public class SolvedPostService {
         return toResponse(solvedPostRepository.save(updated));
     }
 
+    // 해결함 글 조회
+    public SolvedPostResponse getPost(Long id) {
+        SolvedPost post = solvedPostRepository.findById(id)
+                .orElseThrow(() -> new RestApiException(SolvedErrorStatus.POST_NOT_FOUND));
+        return toResponse(post);
+    }
+
+    // 해결함 글 리스트 조회
+    public List<SolvedPostResponse> getAllPosts() {
+        return solvedPostRepository.findAll().stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
     // 결과 응답용
     private SolvedPostResponse toResponse(SolvedPost post) {
         return SolvedPostResponse.builder()

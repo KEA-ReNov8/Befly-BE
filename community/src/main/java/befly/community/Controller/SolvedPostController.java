@@ -41,4 +41,16 @@ public class SolvedPostController {
                                                       @RequestBody SolvedPostRequest request) {
         return ApiResponse.onSuccess(solvedPostService.updatePost(userId, solvedId, request));
     }
+
+    // 해결함 글 조회
+    @GetMapping("/{solvedId}")
+    public ApiResponse<SolvedPostResponse> getPost(@PathVariable Long solvedId) {
+        return ApiResponse.onSuccess(solvedPostService.getPost(solvedId));
+    }
+
+    // 해결함 글 리스트 조회
+    @GetMapping
+    public ApiResponse<List<SolvedPostResponse>> getAllPosts() {
+        return ApiResponse.onSuccess(solvedPostService.getAllPosts());
+    }
 }
