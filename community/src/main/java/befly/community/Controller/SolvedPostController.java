@@ -53,4 +53,13 @@ public class SolvedPostController {
     public ApiResponse<List<SolvedPostResponse>> getAllPosts() {
         return ApiResponse.onSuccess(solvedPostService.getAllPosts());
     }
+
+    // 해결함 글 삭제
+    @DeleteMapping("/{solvedId}")
+    public ApiResponse<Void> deletePost(@LoginUser Long userId,
+                                        @PathVariable Long solvedId) {
+        solvedPostService.deletePost(userId, solvedId);
+        return ApiResponse.onSuccess(null);
+    }
+
 }

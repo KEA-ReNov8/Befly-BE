@@ -70,6 +70,20 @@ public class SolvedPostService {
                 .collect(Collectors.toList());
     }
 
+    // 해결함 글 삭제
+    @Transactional
+    public void deletePost(Long userId, Long id) {
+        SolvedPost post = solvedPostRepository.findById(id)
+                .orElseThrow(() -> new RestApiException(SolvedErrorStatus.POST_NOT_FOUND));
+
+        // 작성자 본인 확인
+        if (!post.getUserId().equals(userId)) {
+            throw new RestApiException(SolvedErrorStatus.NO_PERMISSION);
+        }
+
+        solvedPostRepository.delete(post);
+    }
+
     // 결과 응답용
     private SolvedPostResponse toResponse(SolvedPost post) {
         return SolvedPostResponse.builder()
