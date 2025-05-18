@@ -1,6 +1,6 @@
 package befly.community.Repository;
 
-import befly.community.domain.empathy.SolvedEmpathy;
+import befly.community.domain.empahty.SolvedEmpathy;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
