@@ -7,7 +7,7 @@ import org.springframework.kafka.annotation.EnableKafka;
 
 @EnableKafka
 @EnableJpaAuditing
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"befly.community", "befly.common"})
 public class CommunityApplication {
     public static void main(String[] args) {
         SpringApplication.run(CommunityApplication.class, args);

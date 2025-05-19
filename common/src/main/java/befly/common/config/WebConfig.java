@@ -2,6 +2,7 @@ package befly.common.config;
 
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -11,10 +12,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import befly.common.interceptor.AuthInterceptor;
 import befly.common.resolver.LoginUserArgumentResolver;
 
+@Slf4j
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        log.info("WebConfig.addInterceptors");
         registry.addInterceptor(new AuthInterceptor())
                 .addPathPatterns("/**")
                 .excludePathPatterns(

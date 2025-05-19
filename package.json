@@ -19,8 +19,9 @@
   },
   "homepage": "https://github.com/KAE-ReNov8/ReNov8-BE#readme",
   "devDependencies": {
-    "@commitlint/cli": "^19.8.0",
+    "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.0",
+    "commitlint-config-gitmoji": "^2.3.1",
     "husky": "^9.1.7"
   }
 }

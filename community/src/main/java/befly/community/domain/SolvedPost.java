@@ -27,4 +27,8 @@ public class SolvedPost extends BaseTimeEntity {
 
     @Column(name = "solved_content", length = 2048)
     private String solvedContent; // Nullable
+
+    @Column
+    private String imageKey;
+
 }

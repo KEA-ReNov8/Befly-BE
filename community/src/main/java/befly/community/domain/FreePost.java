@@ -26,4 +26,8 @@ public class FreePost extends BaseTimeEntity {
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String freeContent; // 글 내용
+
+    @Column
+    private String imageKey;
+
 }

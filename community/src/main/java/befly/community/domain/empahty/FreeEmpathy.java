@@ -23,5 +23,5 @@ public class FreeEmpathy extends BaseTimeEntity {
     private Long userId; // 좋아요 누른 유저 (FK)
 
     @Column(name = "free_id", nullable = false)
-    private Long longId; // 좋아요 누른 글 (FK)
+    private Long freeId; // 좋아요 누른 글 (FK)
 }
