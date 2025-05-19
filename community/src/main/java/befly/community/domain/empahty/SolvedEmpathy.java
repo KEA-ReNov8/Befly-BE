@@ -3,6 +3,7 @@ package befly.community.domain.empahty;
 import befly.common.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "solved_empathy")
 public class SolvedEmpathy extends BaseTimeEntity {
 
