@@ -7,5 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface SolvedCommentRepository extends JpaRepository<SolvedComment, Long> {
-    List<SolvedComment> findBySolvedId(SolvedPost freeId);
+    List<SolvedComment> findBySolvedId(SolvedPost solvedId);
+    Long countSolvedCommentBySolvedId(Long solvedId);
 }

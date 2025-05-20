@@ -11,5 +11,5 @@ public interface SolvedEmpathyRepository extends JpaRepository<SolvedEmpathy, Lo
 
     boolean existsByUserIdAndSolvedId(Long userId, Long solvedId);
 
-    Long countSolvedEmpathyBySolvedId(Long solvedId);
+    long countSolvedEmpathyBySolvedId(Long solvedId);
 }
