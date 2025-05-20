@@ -31,4 +31,10 @@ public class SolvedPost extends BaseTimeEntity {
     @Column
     private String imageKey;
 
+    public void update(String solvedTitle, String solvedContent, String imageKey) {
+        this.solvedTitle = solvedTitle;
+        this.solvedContent = solvedContent;
+        this.imageKey = imageKey;
+    }
 }
+

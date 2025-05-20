@@ -8,7 +8,7 @@ import befly.community.dto.SolvedPostRequest;
 import befly.community.dto.SolvedPostResponse;
 import befly.community.service.kafka.WingEventProducerService;
 import befly.community.status.SolvedErrorStatus;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -51,18 +51,12 @@ public class SolvedPostService {
             throw new RestApiException(SolvedErrorStatus.NO_PERMISSION);
         }
 
-        SolvedPost updated = SolvedPost.builder()
-                .solvedId(post.getSolvedId())
-                .userId(userId)
-                .solvedTitle(request.getSolvedTitle())
-                .solvedContent(request.getSolvedContent())
-                .imageKey(request.getImageKey())
-                .build();
-
-        return toResponse(solvedPostRepository.save(updated));
+        post.update(request.getSolvedTitle(), request.getSolvedContent(), request.getImageKey());
+        return toResponse(post);
     }
 
     // 해결함 글 조회
+    @Transactional(readOnly = true)
     public SolvedPostResponse getPost(Long id) {
         SolvedPost post = solvedPostRepository.findById(id)
                 .orElseThrow(() -> new RestApiException(SolvedErrorStatus.POST_NOT_FOUND));
@@ -70,6 +64,7 @@ public class SolvedPostService {
     }
 
     // 해결함 글 리스트 조회
+    @Transactional(readOnly = true)
     public List<SolvedPostResponse> getAllPosts() {
         return solvedPostRepository.findAll().stream()
                 .map(this::toResponse)

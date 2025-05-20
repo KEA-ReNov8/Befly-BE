@@ -20,13 +20,6 @@ public class SolvedPostController {
     private final SolvedPostService solvedPostService;
     private final S3Interface s3Interface;
 
-    @GetMapping("/test")
-    public ApiResponse<Long> test(@LoginUser Long userId) {
-        log.info("test");
-        log.info("userId:{}", userId);
-        return ApiResponse.onSuccess(userId);
-    }
-
     // 해결함 글 생성
     @PostMapping
     public ApiResponse<SolvedPostResponse> createPost(@LoginUser Long userId,
@@ -41,6 +34,7 @@ public class SolvedPostController {
                                                       @RequestBody SolvedPostRequest request) {
         return ApiResponse.onSuccess(solvedPostService.updatePost(userId, solvedId, request));
     }
+
 
     // 해결함 글 조회
     @GetMapping("/{solvedId}")
