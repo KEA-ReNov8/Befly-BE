@@ -16,6 +16,7 @@ jobs:
         with:
           token: ${{ secrets.PAT }}
           submodules: recursive
+          fetch-depth: 0
 
       - name: Set up Git authentication for submodules
         run: |
