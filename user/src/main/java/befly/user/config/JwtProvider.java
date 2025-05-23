@@ -40,7 +40,7 @@ public class JwtProvider {
                 .setClaims(claims)
                 .setSubject(userId)
                 .signWith(io.jsonwebtoken.SignatureAlgorithm.HS256, period)
-                .setExpiration(java.util.Date.from(java.time.Instant.now().plusSeconds(refreshExpiration)))
+                .setExpiration(java.util.Date.from(java.time.Instant.now().plusMillis(refreshExpiration))) //밀리세컨드 단위로 수정
                 .compact();
     }
 

@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
     public enum GlobalErrorStatus implements BaseCodeInterface {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "서버내부 오류입니다. 서버 담당자에게 문의하세요."),
     DUPLICATE_NICKNAME(HttpStatus.BAD_REQUEST, "MEMBER001", "중복된 닉네임입니다."),
-    DUPLICATE_EMAIL(HttpStatus.BAD_REQUEST, "MEMBER002", "이미 가입된 이메일입니다."),
+    DUPLICATE_EMAIL(HttpStatus.BAD_REQUEST, "MEMBER002", "이미 가입된 아이디입니다."),
     PWD_INVALID(HttpStatus.BAD_REQUEST, "AUTH004", "비밀번호가 틀립니다."),
     MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "MEMBER", "잘못된 ID입니다."),
     DELETED_POST(HttpStatus.BAD_REQUEST, "SOLVED001", "삭제된 게시물입니다."),
