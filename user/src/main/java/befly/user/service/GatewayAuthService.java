@@ -4,6 +4,7 @@ import befly.user.config.JwtProvider;
 import befly.user.dto.gatewayAuth.response.GatewayLoginResponse;
 import befly.user.dto.gatewayAuth.response.GatewayValidateResponse;
 import befly.user.repository.userRepository.UserRepository;
+import befly.user.service.AuthService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 public class GatewayAuthService {
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
+    private final AuthService authService;
 
     public GatewayLoginResponse findUserBySocialId(String socialId) {
         return userRepository.findByClientId(socialId)
@@ -50,6 +52,8 @@ public class GatewayAuthService {
         String id = userId.toString();
         String accessToken = jwtProvider.generateAccessToken(id);
         String refreshToken = jwtProvider.generateRefreshToken(id);
+        long refreshTokenExpireMillis = 1000L * 60 * 60 * 24 * 7;
+        authService.saveRefreshToken(userId, refreshToken, refreshTokenExpireMillis);
         return buildLoginResponse(true, accessToken, refreshToken);
     }
 
