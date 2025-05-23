@@ -1,8 +1,10 @@
-package befly.community.controller;
+package befly.community.Controller;
 
+import befly.common.annotations.LoginUser;
 import befly.common.apiPayload.ApiResponse;
+import befly.community.Service.NotificationService;
 import befly.community.dto.CommentDto;
-import befly.community.service.NotificationService;
+import befly.community.Service.NotificationService;
 import befly.community.service.SSENotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,11 +25,11 @@ public class NotificationController {
      * @param userId
      * @return
      */
-    @GetMapping(value = "/noti/{user_id}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter subscribe(@PathVariable("user_id") String userId) {
-        //TODO 요청한 유저가 실제 로그인한 유저와 같은지 검증 필요
+    @GetMapping(value = "/noti/{userId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter subscribe(@LoginUser @PathVariable Long userId) {
+        String St_userId = userId.toString();
         log.info("SSE subscribe request from user: {}", userId);
-        return sseNotificationService.subscribe(userId);
+        return sseNotificationService.subscribe(St_userId);
     }
 
     /**

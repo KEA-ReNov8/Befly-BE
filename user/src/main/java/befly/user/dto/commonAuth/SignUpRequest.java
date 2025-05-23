@@ -6,9 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SignUpRequest {
-    private String userName;
-    private String email;
+    private String clientId;
     private String password;
-    private String nickname;
+    private String nickName;
     private String photoUrl; // 사진 URL 추가
 }

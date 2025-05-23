@@ -1,7 +1,9 @@
 package befly.user.service;
 
 import befly.common.exception.RestApiException;
+import befly.common.service.S3Service;
 import befly.user.domain.User;
+import befly.user.dto.ImageUploadResponse;
 import befly.user.dto.UserProfileResponse;
 import befly.user.repository.userRepository.UserRepository;
 import befly.user.status.UserErrorStatus;
@@ -13,17 +15,18 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final S3Service s3Service;
 
-    public boolean isNickNameDuplication(String email) {
-        if(userRepository.existsByEmail(email)) {
-            throw new RestApiException(UserErrorStatus.DUPLICATE_EMAIL);
+    public boolean isNickNameDuplication(String ClientId) {
+        if(userRepository.existsByClientId(ClientId)) {
+            throw new RestApiException(UserErrorStatus.DUPLICATE_ClIENT_ID);
         }
         return false;
     }
     @Transactional
     public User updateNickname(Long userId, String newNickname) {
         // 닉네임 중복 체크
-        if (userRepository.existsByNickname(newNickname)) {
+        if (userRepository.existsByNickName(newNickname)) {
             throw new RestApiException(UserErrorStatus.DUPLICATE_NICKNAME);
         }
 
@@ -34,13 +37,12 @@ public class UserService {
         // 닉네임 업데이트
         user = User.builder()
                 .userId(user.getUserId())
-                .userName(user.getUserName())
-                .email(user.getEmail())
+                .clientId(user.getClientId())
                 .password(user.getPassword())
                 .profileImg(user.getProfileImg())
                 .wing(user.getWing())
                 .badge(user.getBadge())
-                .nickname(newNickname)
+                .nickName(newNickname)
                 .build();
 
         return userRepository.save(user);
@@ -50,12 +52,39 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RestApiException(UserErrorStatus.MEMBER_NOT_FOUND));
         return UserProfileResponse.builder()
-                .userName(user.getUserName())
-                .nickname(user.getNickname())
-                .email(user.getEmail())
+                .nickName(user.getNickName())
+                .clientId(user.getClientId())
                 .profileImg(user.getProfileImg())
                 .wing(user.getWing())
                 .badge(user.getBadge())
                 .build();
+    }
+
+    public ImageUploadResponse getImageUploadUrl(String key) {
+        String preSignedUrl = s3Service.createPreSignedUrl(key, "PUT");
+        String imageUrl = s3Service.getImageUrl(key);
+        
+        return ImageUploadResponse.builder()
+                .preSignedUrl(preSignedUrl)
+                .imageUrl(imageUrl)
+                .build();
+    }
+
+    @Transactional
+    public User updateProfileImage(Long userId, String imageUrl) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RestApiException(UserErrorStatus.MEMBER_NOT_FOUND));
+        
+        user = User.builder()
+                .userId(user.getUserId())
+                .clientId(user.getClientId())
+                .password(user.getPassword())
+                .profileImg(imageUrl)
+                .wing(user.getWing())
+                .badge(user.getBadge())
+                .nickName(user.getNickName())
+                .build();
+
+        return userRepository.save(user);
     }
 }
