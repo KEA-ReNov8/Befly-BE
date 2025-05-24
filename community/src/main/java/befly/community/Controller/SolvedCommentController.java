@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @Slf4j
-@RequestMapping("/solved/{solvedId}/comment")
+@RequestMapping("/community/solved/{solvedId}/comment")
 @RequiredArgsConstructor
 public class SolvedCommentController {
 

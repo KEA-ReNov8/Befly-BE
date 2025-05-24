@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @Slf4j
-@RequestMapping("/free")
+@RequestMapping("/community/free")
 @RequiredArgsConstructor
 public class FreePostController {
     private final FreePostService freePostService;

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Slf4j
-@RequestMapping("/free/{freeId}/empathy")
+@RequestMapping("/community/free/{freeId}/empathy")
 @RequiredArgsConstructor
 public class    FreeEmpathyController {
 
