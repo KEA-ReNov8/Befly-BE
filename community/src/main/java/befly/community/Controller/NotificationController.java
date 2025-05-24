@@ -4,7 +4,6 @@ import befly.common.annotations.LoginUser;
 import befly.common.apiPayload.ApiResponse;
 import befly.community.Service.NotificationService;
 import befly.community.dto.CommentDto;
-import befly.community.Service.NotificationService;
 import befly.community.service.SSENotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
