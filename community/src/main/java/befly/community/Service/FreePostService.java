@@ -1,4 +1,4 @@
-package befly.community.Service;
+package befly.community.service;
 
 import befly.common.exception.RestApiException;
 import befly.common.s3.S3Interface;
