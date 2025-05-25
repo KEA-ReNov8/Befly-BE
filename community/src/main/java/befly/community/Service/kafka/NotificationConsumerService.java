@@ -20,7 +20,7 @@ public class NotificationConsumerService {
     private final SSENotificationService sseNotificationService;
 
     @KafkaListener(
-            topics = {"notification.freepost", "notification.solvedpost", "notification.like"})
+            topics = {"notification.freepost", "notification.solvedpost", "notification.freelike", "notification.solvedlike"})
     public void consumeNotification(
             @Payload String message,
             @Header(KafkaHeaders.RECEIVED_KEY) String userId) {
