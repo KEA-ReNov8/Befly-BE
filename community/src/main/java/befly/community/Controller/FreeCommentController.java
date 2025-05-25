@@ -1,8 +1,8 @@
-package befly.community.Controller;
+package befly.community.controller;
 
 import befly.common.annotations.LoginUser;
 import befly.common.apiPayload.ApiResponse;
-import befly.community.Service.FreeCommentService;
+import befly.community.service.FreeCommentService;
 import befly.community.dto.FreeCommentResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
