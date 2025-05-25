@@ -16,7 +16,8 @@ import org.springframework.http.HttpStatus;
     MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "MEMBER", "잘못된 ID입니다."),
     DELETED_POST(HttpStatus.BAD_REQUEST, "SOLVED001", "삭제된 게시물입니다."),
     INVALID_POST(HttpStatus.BAD_REQUEST, "FREE001", "잘못된 게시물 ID입니다."),
-    INVALID_COMMENT(HttpStatus.BAD_REQUEST, "FREE002", "잘못된 댓글 ID입니다.")
+    INVALID_COMMENT(HttpStatus.BAD_REQUEST, "FREE002", "잘못된 댓글 ID입니다."),
+    INVALID_NOTI_TYPE(HttpStatus.BAD_REQUEST, "NOTI001", "잘못된 유형의 요청입니다.")
     ;
 
     private final HttpStatus httpStatus;
