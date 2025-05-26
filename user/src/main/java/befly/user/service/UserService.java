@@ -87,4 +87,22 @@ public class UserService {
 
         return userRepository.save(user);
     }
+
+    @Transactional
+    public void addWing(Long userId, Long wing) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RestApiException(UserErrorStatus.MEMBER_NOT_FOUND));
+        
+        user = User.builder()
+                .userId(user.getUserId())
+                .clientId(user.getClientId())
+                .password(user.getPassword())
+                .profileImg(user.getProfileImg())
+                .wing(user.getWing() + wing)
+                .badge(user.getBadge())
+                .nickName(user.getNickName())
+                .build();
+
+        userRepository.save(user);
+    }
 }

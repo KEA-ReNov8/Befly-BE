@@ -62,7 +62,7 @@ public class CommonAuthService {
                 .wing(0L)
                 .badge(0L)
                 .profileImg("test.url")
-                .loginType(LoginType.Internal) //자체로그인시 internal로 설정
+                .loginType(LoginType.INTERNAL) //자체로그인시 INTERNAL로 설정
                 .build());
     }
 
