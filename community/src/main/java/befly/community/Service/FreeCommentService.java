@@ -1,4 +1,4 @@
-package befly.community.Service;
+package befly.community.service;
 
 import befly.common.exception.RestApiException;
 import befly.community.Repository.FreeCommentRepository;
@@ -7,6 +7,8 @@ import befly.community.domain.FreePost;
 import befly.community.domain.comment.FreeComment;
 import befly.community.dto.CommentDto;
 import befly.community.dto.FreeCommentResponse;
+import befly.community.dto.kafka.NotificationType;
+import befly.community.service.kafka.NotificationProducerService;
 import befly.community.status.FreeErrorStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 public class FreeCommentService {
     private final FreeCommentRepository freeCommentRepository;
     private final FreePostRepository freePostRepository;
+    private final NotificationProducerService notificationProducerService;
 
     // 자유함 댓글 생성
     @Transactional
@@ -45,6 +48,16 @@ public class FreeCommentService {
                 .pFreeCommentId(pComment)
                 .build();
         FreeComment saved = freeCommentRepository.save(comment);
+
+        freePostRepository.findById(freeId)
+                .ifPresent(freePost -> {
+                    Long postUserId = freePost.getUserId();
+                    // 알림을 보내는 조건 (postUserId가 현재 사용자 userId와 다른 경우)도 여기서 처리
+                    if (postUserId != null && !postUserId.equals(userId)) { // null 체크 및 본인에게 알림 보내지 않기
+                        notificationProducerService.sendNotificationIfNeeded(postUserId, userId, NotificationType.FREEPOST);
+                    }
+                });
+
         return toResponse(saved);
     }
 

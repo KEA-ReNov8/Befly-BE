@@ -12,6 +12,8 @@ import befly.user.dto.commonAuth.TokenResponse;
 import befly.user.dto.gatewayAuth.response.GatewayLoginResponse;
 import befly.user.dto.gatewayAuth.response.GatewayValidateResponse;
 import befly.user.repository.userRepository.UserRepository;
+import befly.user.service.AuthService;
+import befly.user.service.GatewayAuthService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,8 @@ public class CommonAuthService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository; // Repository 추가
     private final JwtProvider jwtProvider;
+    private final AuthService authService;
+    private final GatewayAuthService gatewayAuthService;
 
     /**
      * 회원가입 로직
@@ -85,10 +89,9 @@ public class CommonAuthService {
         }
         log.info("SignIn completed for email: {}", signInRequest.getClientId());
 
-        // 3. JWT 토큰 생성 및 반환
-        String accessToken = jwtProvider.generateAccessToken(user.getUserId().toString());
-        String refreshToken = jwtProvider.generateRefreshToken(user.getUserId().toString());
-        return makeTokenObject(accessToken, refreshToken);
+        // 3. GatewayAuthService에서 토큰 생성 및 Redis 저장
+        GatewayLoginResponse loginResponse = gatewayAuthService.generateLoginResponse(user.getUserId());
+        return makeTokenObject(loginResponse.getAccessToken(), loginResponse.getRefreshToken());
     }
 
     private static TokenResponse makeTokenObject(String accessToken, String refreshToken) {

@@ -17,6 +17,7 @@ import befly.common.apiPayload.ApiResponse;
 import befly.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import befly.user.service.AuthService;
 
 @RestController
 @Slf4j
@@ -26,6 +27,7 @@ public class AuthController {
 
     private final CommonAuthService commonAuthService;
     private final GatewayAuthService gateWayAuthService;
+    private final AuthService authService;
 
 
     /**
@@ -49,7 +51,7 @@ public class AuthController {
         log.info("signIn Request : {}", signInRequest);
         TokenResponse tokenResponse = commonAuthService.signIn(signInRequest);
         response.addHeader("Authorization", tokenResponse.getAccessToken());
-        response.addHeader("X-Refresh-Token", tokenResponse.getAccessToken());
+        response.addHeader("X-Refresh-Token", tokenResponse.getRefreshToken());
         log.info("signIn Success");
         return ApiResponse.onSuccess(null);
     }
@@ -82,9 +84,13 @@ public class AuthController {
         GatewayLoginResponse gatewayLoginResponse = gateWayAuthService.generateLoginResponse(userId);
         //https 배포시 Secure 추가
         response.addHeader("Authorization", gatewayLoginResponse.getAccessToken());
-        response.addHeader("X-Refresh-Token", gatewayLoginResponse.getAccessToken());
+        response.addHeader("X-Refresh-Token", gatewayLoginResponse.getRefreshToken());
         return ApiResponse.onSuccess(null);
     }
 
-    //dddasdfasdfㅁㄴㅇㄹㅁㄴㅇㄹㅁㄴ
+    @PostMapping("/logout")
+    public ApiResponse<Void> logout(@LoginUser Long userId) {
+        authService.logout(userId);
+        return ApiResponse.onSuccess(null);
+    }
 }
