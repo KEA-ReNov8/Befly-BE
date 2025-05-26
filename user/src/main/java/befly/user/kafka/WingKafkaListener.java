@@ -1,7 +1,7 @@
-package com.befly.user.kafka;
+package befly.user.kafka;
 
-import com.befly.user.dto.WingMessage;
-import com.befly.user.service.UserService;
+import befly.user.dto.WingMessage;
+import befly.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

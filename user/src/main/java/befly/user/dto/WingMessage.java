@@ -1,4 +1,4 @@
-package com.befly.user.dto;
+package befly.user.dto;
 
 import lombok.Getter;
 import lombok.Setter;
