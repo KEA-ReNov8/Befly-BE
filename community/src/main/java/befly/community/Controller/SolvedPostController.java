@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @Slf4j
-@RequestMapping("/solved")
+@RequestMapping("/community/solved")
 @RequiredArgsConstructor
 public class SolvedPostController {
     private final SolvedPostService solvedPostService;
