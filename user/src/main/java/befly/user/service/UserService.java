@@ -5,11 +5,14 @@ import befly.common.service.S3Service;
 import befly.user.domain.User;
 import befly.user.dto.ImageUploadResponse;
 import befly.user.dto.UserProfileResponse;
+import befly.user.dto.UserListResponse;
 import befly.user.repository.userRepository.UserRepository;
 import befly.user.status.UserErrorStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -104,5 +107,29 @@ public class UserService {
                 .build();
 
         userRepository.save(user);
+    }
+
+    @Transactional
+    public UserListResponse getUsersByIds(List<Long> userIds) {
+        List<User> users = userRepository.findAllById(userIds);
+        
+        // 요청된 userId 중 일부가 존재하지 않는 경우
+        if (users.size() != userIds.size()) {
+            throw new RestApiException(UserErrorStatus.MEMBER_NOT_FOUND);
+        }
+
+        List<UserProfileResponse> userProfiles = users.stream()
+                .map(user -> UserProfileResponse.builder()
+                        .nickName(user.getNickName())
+                        .profileImg(user.getProfileImg())
+                        .wing(user.getWing())
+                        .badge(user.getBadge())
+                        .loginType(user.getLoginType().name())
+                        .build())
+                .toList();
+
+        return UserListResponse.builder()
+                .users(userProfiles)
+                .build();
     }
 }
