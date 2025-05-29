@@ -1,8 +1,8 @@
 package befly.community.service;
 
 import befly.common.exception.RestApiException;
-import befly.community.Repository.SolvedCommentRepository;
-import befly.community.Repository.SolvedPostRepository;
+import befly.community.repository.SolvedCommentRepository;
+import befly.community.repository.SolvedPostRepository;
 import befly.community.domain.SolvedPost;
 import befly.community.domain.comment.SolvedComment;
 import befly.community.dto.CommentDto;

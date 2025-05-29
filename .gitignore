@@ -50,3 +50,6 @@ out/
 /user/src/main/java/resources/application.properties
 /consult/src/main/java/resources/application.properties
 /community/src/main/java/resources/application.properties
+
+.DS_Store
+**/.DS_Store
