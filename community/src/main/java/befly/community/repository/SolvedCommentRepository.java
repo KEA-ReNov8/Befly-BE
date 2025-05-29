@@ -1,4 +1,4 @@
-package befly.community.Repository;
+package befly.community.repository;
 
 import befly.community.domain.SolvedPost;
 import befly.community.domain.comment.SolvedComment;
