@@ -1,8 +1,8 @@
-package befly.community.Service;
+package befly.community.service;
 
 import befly.common.exception.RestApiException;
 import befly.common.s3.S3Interface;
-import befly.community.Repository.SolvedPostRepository;
+import befly.community.repository.SolvedPostRepository;
 import befly.community.domain.SolvedPost;
 import befly.community.dto.SolvedPostRequest;
 import befly.community.dto.SolvedPostResponse;

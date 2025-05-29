@@ -1,8 +1,8 @@
 package befly.community.service;
 
 import befly.common.exception.RestApiException;
-import befly.community.Repository.SolvedEmpathyRepository;
-import befly.community.Repository.SolvedPostRepository;
+import befly.community.repository.SolvedEmpathyRepository;
+import befly.community.repository.SolvedPostRepository;
 import befly.community.domain.empahty.SolvedEmpathy;
 import befly.community.dto.kafka.NotificationType;
 import befly.community.service.kafka.NotificationProducerService;

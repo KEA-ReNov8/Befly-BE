@@ -2,7 +2,7 @@ package befly.community.service;
 
 import befly.common.exception.RestApiException;
 import befly.common.s3.S3Interface;
-import befly.community.Repository.FreePostRepository;
+import befly.community.repository.FreePostRepository;
 import befly.community.domain.FreePost;
 import befly.community.dto.FreePostRequest;
 import befly.community.dto.FreePostResponse;

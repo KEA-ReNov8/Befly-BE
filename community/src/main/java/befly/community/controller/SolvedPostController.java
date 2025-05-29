@@ -3,7 +3,7 @@ package befly.community.controller;
 import befly.common.annotations.LoginUser;
 import befly.common.apiPayload.ApiResponse;
 import befly.common.s3.S3Interface;
-import befly.community.Service.SolvedPostService;
+import befly.community.service.SolvedPostService;
 import befly.community.dto.SolvedPostRequest;
 import befly.community.dto.SolvedPostResponse;
 import lombok.RequiredArgsConstructor;
