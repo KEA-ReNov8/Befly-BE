@@ -38,16 +38,7 @@ public class UserService {
                 .orElseThrow(() -> new RestApiException(UserErrorStatus.MEMBER_NOT_FOUND));
 
         // 닉네임 업데이트
-        user = User.builder()
-                .userId(user.getUserId())
-                .clientId(user.getClientId())
-                .password(user.getPassword())
-                .profileImg(user.getProfileImg())
-                .wing(user.getWing())
-                .badge(user.getBadge())
-                .nickName(newNickname)
-                .build();
-
+        user.updateNickName(newNickname);
         return userRepository.save(user);
     }
 
@@ -78,16 +69,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RestApiException(UserErrorStatus.MEMBER_NOT_FOUND));
         
-        user = User.builder()
-                .userId(user.getUserId())
-                .clientId(user.getClientId())
-                .password(user.getPassword())
-                .profileImg(imageUrl)
-                .wing(user.getWing())
-                .badge(user.getBadge())
-                .nickName(user.getNickName())
-                .build();
-
+        user.updateProfileImg(imageUrl);
         return userRepository.save(user);
     }
 
@@ -96,16 +78,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RestApiException(UserErrorStatus.MEMBER_NOT_FOUND));
         
-        user = User.builder()
-                .userId(user.getUserId())
-                .clientId(user.getClientId())
-                .password(user.getPassword())
-                .profileImg(user.getProfileImg())
-                .wing(user.getWing() + wing)
-                .badge(user.getBadge())
-                .nickName(user.getNickName())
-                .build();
-
+        user.addWing(wing);
         userRepository.save(user);
     }
 
