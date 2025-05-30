@@ -1,12 +1,14 @@
-package befly.community.Service;
+package befly.community.service;
 
 import befly.common.exception.RestApiException;
-import befly.community.Repository.SolvedCommentRepository;
-import befly.community.Repository.SolvedPostRepository;
+import befly.community.repository.SolvedCommentRepository;
+import befly.community.repository.SolvedPostRepository;
 import befly.community.domain.SolvedPost;
 import befly.community.domain.comment.SolvedComment;
 import befly.community.dto.CommentDto;
 import befly.community.dto.SolvedCommentResponse;
+import befly.community.dto.kafka.NotificationType;
+import befly.community.service.kafka.NotificationProducerService;
 import befly.community.status.SolvedErrorStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 public class SolvedCommentService {
     private final SolvedCommentRepository solvedCommentRepository;
     private final SolvedPostRepository solvedPostRepository;
+    private final NotificationProducerService notificationProducerService;
 
     // 해결함 댓글 생성
     @Transactional
@@ -43,6 +46,18 @@ public class SolvedCommentService {
                 .pSolvedCommentId(pComment)
                 .build();
         SolvedComment saved = solvedCommentRepository.save(comment);
+
+        solvedPostRepository.findById(solvedId)
+                .ifPresent(solvedPost -> {
+                    Long postUserId = solvedPost.getUserId();
+                    // 알림을 보내는 조건 (postUserId가 현재 사용자 userId와 다른 경우)도 여기서 처리
+                    if (postUserId != null && !postUserId.equals(userId)) { // null 체크 및 본인에게 알림 보내지 않기
+                        notificationProducerService.sendNotificationIfNeeded(postUserId, userId, NotificationType.SOLVEDPOST);
+                    }
+                });
+
+
+
         return toResponse(saved);
     }
 

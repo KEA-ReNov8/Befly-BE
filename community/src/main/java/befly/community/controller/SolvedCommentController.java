@@ -1,8 +1,8 @@
-package befly.community.Controller;
+package befly.community.controller;
 
 import befly.common.annotations.LoginUser;
 import befly.common.apiPayload.ApiResponse;
-import befly.community.Service.SolvedCommentService;
+import befly.community.service.SolvedCommentService;
 import befly.community.dto.SolvedCommentResponse;
 import befly.community.dto.CommentDto;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @Slf4j
-@RequestMapping("/solved/{solvedId}/comment")
+@RequestMapping("/community/solved/{solvedId}/comment")
 @RequiredArgsConstructor
 public class SolvedCommentController {
 

@@ -1,8 +1,11 @@
-package befly.community.Service;
+package befly.community.service;
 
 import befly.common.exception.RestApiException;
-import befly.community.Repository.SolvedEmpathyRepository;
+import befly.community.repository.SolvedEmpathyRepository;
+import befly.community.repository.SolvedPostRepository;
 import befly.community.domain.empahty.SolvedEmpathy;
+import befly.community.dto.kafka.NotificationType;
+import befly.community.service.kafka.NotificationProducerService;
 import befly.community.status.SolvedErrorStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +16,8 @@ import org.springframework.stereotype.Service;
 public class SolvedEmpathyService {
 
     private final SolvedEmpathyRepository solvedEmpathyRepository;
+    private final NotificationProducerService notificationProducerService;
+    private final SolvedPostRepository solvedPostRepository;
 
     // 해결함 공감 생성
     @Transactional
@@ -25,6 +30,16 @@ public class SolvedEmpathyService {
                 .userId(userId)
                 .solvedId(solvedId)
                 .build();
+
+        solvedPostRepository.findById(solvedId)
+                .ifPresent(solvedEmpathy -> {
+                    Long postUserId = solvedEmpathy.getUserId();
+                    // 알림을 보내는 조건 (postUserId가 현재 사용자 userId와 다른 경우)도 여기서 처리
+                    if (postUserId != null && !postUserId.equals(userId)) { // null 체크 및 본인에게 알림 보내지 않기
+                        notificationProducerService.sendNotificationIfNeeded(postUserId, userId, NotificationType.SOLVEDLIKE);
+                    }
+                });
+
         solvedEmpathyRepository.save(empathy);
     }
 

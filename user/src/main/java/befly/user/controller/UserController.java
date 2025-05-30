@@ -10,11 +10,14 @@ import befly.user.dto.UserProfileResponse;
 import befly.user.dto.ProfileImageResponse;
 import befly.user.dto.UpdateNickNameResponse;
 import befly.user.dto.ImageUploadResponse;
+import befly.user.dto.UserListResponse;
 import befly.user.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -71,5 +74,10 @@ public class UserController {
             .profileImg(updatedUser.getProfileImg())
             .build();
         return ApiResponse.onSuccess(response);
+    }
+
+    @GetMapping("/profiles")
+    public ApiResponse<UserListResponse> getUsersByIds(@RequestParam List<Long> userIds) {
+        return ApiResponse.onSuccess(userService.getUsersByIds(userIds));
     }
 }

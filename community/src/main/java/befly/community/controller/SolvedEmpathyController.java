@@ -1,15 +1,15 @@
-package befly.community.Controller;
+package befly.community.controller;
 
 import befly.common.annotations.LoginUser;
 import befly.common.apiPayload.ApiResponse;
-import befly.community.Service.SolvedEmpathyService;
+import befly.community.service.SolvedEmpathyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Slf4j
-@RequestMapping("/solved/{solvedId}/empathy")
+@RequestMapping("/community/solved/{solvedId}/empathy")
 @RequiredArgsConstructor
 public class SolvedEmpathyController {
 

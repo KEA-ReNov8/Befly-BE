@@ -1,4 +1,4 @@
-package befly.community.Repository;
+package befly.community.repository;
 
 import befly.community.domain.FreePost;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,6 +1,6 @@
 package befly.user.domain.Enum;
 
 public enum LoginType {
-    Internal,
+    INTERNAL,
     KAKAO
 }

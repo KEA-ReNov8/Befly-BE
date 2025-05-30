@@ -1,15 +1,15 @@
-package befly.community.Controller;
+package befly.community.controller;
 
 import befly.common.annotations.LoginUser;
 import befly.common.apiPayload.ApiResponse;
-import befly.community.Service.FreeEmpathyService;
+import befly.community.service.FreeEmpathyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Slf4j
-@RequestMapping("/free/{freeId}/empathy")
+@RequestMapping("/community/free/{freeId}/empathy")
 @RequiredArgsConstructor
 public class    FreeEmpathyController {
 
@@ -18,6 +18,7 @@ public class    FreeEmpathyController {
     @PostMapping
     public ApiResponse<Void> createEmpathy(@LoginUser Long userId,
                                            @PathVariable Long freeId) {
+        log.info("공감 컨트롤러 실행");
         freeEmpathyService.createEmpathy(userId, freeId);
         return ApiResponse.onSuccess(null);
     }

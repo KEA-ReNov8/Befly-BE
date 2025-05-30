@@ -1,9 +1,9 @@
-package befly.community.Controller;
+package befly.community.controller;
 
 import befly.common.annotations.LoginUser;
 import befly.common.apiPayload.ApiResponse;
 import befly.common.s3.S3Interface;
-import befly.community.Service.FreePostService;
+import befly.community.service.FreePostService;
 import befly.community.dto.FreePostRequest;
 import befly.community.dto.FreePostResponse;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @Slf4j
-@RequestMapping("/free")
+@RequestMapping("/community/free")
 @RequiredArgsConstructor
 public class FreePostController {
     private final FreePostService freePostService;

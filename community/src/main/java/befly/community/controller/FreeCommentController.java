@@ -1,8 +1,8 @@
-package befly.community.Controller;
+package befly.community.controller;
 
 import befly.common.annotations.LoginUser;
 import befly.common.apiPayload.ApiResponse;
-import befly.community.Service.FreeCommentService;
+import befly.community.service.FreeCommentService;
 import befly.community.dto.FreeCommentResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @Slf4j
-@RequestMapping("/free/{freeId}/comment")
+@RequestMapping("/community/free/{freeId}/comment")
 @RequiredArgsConstructor
 public class FreeCommentController {
 

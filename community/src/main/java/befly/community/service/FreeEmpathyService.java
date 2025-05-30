@@ -1,18 +1,25 @@
-package befly.community.Service;
+package befly.community.service;
 
 import befly.common.exception.RestApiException;
-import befly.community.Repository.FreeEmpathyRepository;
+import befly.community.repository.FreeEmpathyRepository;
+import befly.community.repository.FreePostRepository;
 import befly.community.domain.empahty.FreeEmpathy;
+import befly.community.dto.kafka.NotificationType;
+import befly.community.service.kafka.NotificationProducerService;
 import befly.community.status.FreeErrorStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FreeEmpathyService {
 
     private final FreeEmpathyRepository freeEmpathyRepository;
+    private final NotificationProducerService notificationProducerService;
+    private final FreePostRepository freePostRepository;
 
     @Transactional
     public void createEmpathy(Long userId, Long freeId) {
@@ -25,6 +32,15 @@ public class FreeEmpathyService {
                 .userId(userId)
                 .freeId(freeId)
                 .build();
+
+        freePostRepository.findById(freeId)
+                .ifPresent(freePost -> {
+                    Long postUserId = freePost.getUserId();
+                    // 알림을 보내는 조건 (postUserId가 현재 사용자 userId와 다른 경우)도 여기서 처리
+                    if (postUserId != null && !postUserId.equals(userId)) { // null 체크 및 본인에게 알림 보내지 않기
+                        notificationProducerService.sendNotificationIfNeeded(postUserId, userId, NotificationType.FREELIKE);
+                    }
+                });
 
         freeEmpathyRepository.save(empathy);
     }

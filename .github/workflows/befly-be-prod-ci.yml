@@ -69,3 +69,26 @@ jobs:
               $m
             docker push ${{ secrets.DOCKER_USERNAME }}/befly-$m:${{ steps.vars.outputs.sha }}
           done
+          
+      - name: Checkout Manifests Repo
+        uses: actions/checkout@v3
+        with:
+          repository: KEA-ReNov8/Befly-Minifest
+          path: manifest-repo
+          token: ${{ secrets.PAT }}
+
+      - name: Bump image tags in manifests
+        if: ${{ steps.build.outputs.modules != '' }}
+        run: |
+          cd manifest-repo
+          for m in ${{ steps.build.outputs.modules }}; do
+            IMAGE=${{ secrets.DOCKER_USERNAME }}/befly-$m:${{ steps.vars.outputs.sha }}
+            yq eval -i \
+              ".spec.template.spec.containers[0].image = \"${IMAGE}\"" \
+              apps/${m}-service/deployment.yaml
+            git add apps/${m}-service/deployment.yaml
+          done
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git commit -m "ci: bump befly-$MODS images to ${{ steps.vars.outputs.sha }}"
+          git push origin main

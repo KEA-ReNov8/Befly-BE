@@ -1,15 +1,13 @@
-package befly.community.Controller;
+package befly.community.controller;
 
 import befly.common.annotations.LoginUser;
-import befly.common.apiPayload.ApiResponse;
-import befly.community.Service.NotificationService;
-import befly.community.dto.CommentDto;
-import befly.community.Service.NotificationService;
 import befly.community.service.SSENotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Slf4j
@@ -17,7 +15,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @RequiredArgsConstructor
 public class NotificationController {
 
-    private final NotificationService notificationService;
     private final SSENotificationService sseNotificationService;
 
     /**
@@ -31,16 +28,4 @@ public class NotificationController {
         log.info("SSE subscribe request from user: {}", userId);
         return sseNotificationService.subscribe(St_userId);
     }
-
-    /**
-     * 댓글 달면 여기로 POST
-     * @param commentDto
-     * @return
-     */
-    @PostMapping("/free/comment")
-    public ApiResponse<?> createFreeComment(@RequestBody CommentDto commentDto) {
-        notificationService.createComment(commentDto);
-        return ApiResponse.onSuccess("성공");
-    }
-
 }
