@@ -24,6 +24,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "/auth/oauth2/**",
                         "/auth/signup",
                         "/auth/signin",
+                        "/auth/refresh",
                         "/auth/email/duplication",
                         "/swagger-ui/**", // Swagger UI 경로 제외
                         "/v3/api-docs/**", // OpenAPI 명세 경로 제외

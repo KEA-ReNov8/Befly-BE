@@ -26,7 +26,7 @@ public class JwtProvider {
 
     public Long getUserIdFromRefreshToken(String refresh) {
         return Long.parseLong(Jwts.parserBuilder()
-                .setSigningKey(refresh)
+                .setSigningKey(this.refresh)
                 .build()
                 .parseClaimsJws(refresh)
                 .getBody()
