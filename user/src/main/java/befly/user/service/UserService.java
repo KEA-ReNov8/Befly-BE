@@ -39,7 +39,7 @@ public class UserService {
 
         // 닉네임 업데이트
         user.updateNickName(newNickname);
-        return userRepository.save(user);
+        return user;
     }
 
     public UserProfileResponse getProfile(Long userId) {
@@ -70,7 +70,7 @@ public class UserService {
                 .orElseThrow(() -> new RestApiException(UserErrorStatus.MEMBER_NOT_FOUND));
         
         user.updateProfileImg(imageUrl);
-        return userRepository.save(user);
+        return user;
     }
 
     @Transactional
@@ -79,7 +79,6 @@ public class UserService {
                 .orElseThrow(() -> new RestApiException(UserErrorStatus.MEMBER_NOT_FOUND));
         
         user.addWing(wing);
-        userRepository.save(user);
     }
 
     @Transactional
