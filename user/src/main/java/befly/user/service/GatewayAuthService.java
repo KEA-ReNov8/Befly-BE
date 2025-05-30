@@ -1,10 +1,13 @@
 package befly.user.service;
 
+import befly.common.exception.RestApiException;
 import befly.user.config.JwtProvider;
 import befly.user.dto.gatewayAuth.response.GatewayLoginResponse;
 import befly.user.dto.gatewayAuth.response.GatewayValidateResponse;
 import befly.user.repository.userRepository.UserRepository;
 import befly.user.service.AuthService;
+import befly.user.status.UserErrorStatus;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
