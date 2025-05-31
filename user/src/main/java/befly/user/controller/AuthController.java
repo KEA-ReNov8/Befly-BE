@@ -10,6 +10,7 @@ import befly.user.dto.gatewayAuth.response.GatewayValidateResponse;
 import befly.user.service.CommonAuthService;
 import befly.user.service.GatewayAuthService;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -79,8 +80,9 @@ public class AuthController {
     }
 
     @GetMapping("/refresh")
-    public ApiResponse<Void> refreshTokenController(@LoginUser @Parameter(hidden = true) Long userId, HttpServletResponse response) {
-        log.info("Refresh Token Request : {}", userId);
+    public ApiResponse<Void> refreshTokenController(HttpServletRequest request,
+                                                    HttpServletResponse response) {
+        Long userId = authService.validateRefreshToken(request);
         GatewayLoginResponse gatewayLoginResponse = gateWayAuthService.generateLoginResponse(userId);
         //https 배포시 Secure 추가
         response.addHeader("Authorization", gatewayLoginResponse.getAccessToken());

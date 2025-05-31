@@ -1,8 +1,8 @@
 package befly.community.service;
 
 import befly.common.exception.RestApiException;
-import befly.community.Repository.FreeCommentRepository;
-import befly.community.Repository.FreePostRepository;
+import befly.community.repository.FreeCommentRepository;
+import befly.community.repository.FreePostRepository;
 import befly.community.domain.FreePost;
 import befly.community.domain.comment.FreeComment;
 import befly.community.dto.CommentDto;
