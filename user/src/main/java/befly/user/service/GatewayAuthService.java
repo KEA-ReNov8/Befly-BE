@@ -23,9 +23,12 @@ public class GatewayAuthService {
 
     public GatewayLoginResponse findUserBySocialId(String socialId) {
         return userRepository.findByClientId(socialId)
-                .map(user ->
-                        createTokenResponse(user.getUserId())
-                )
+                .map(user -> {
+                    GatewayLoginResponse response = createTokenResponse(user.getUserId());
+                    long refreshTokenExpireMillis = 1000L * 60 * 60 * 24 * 7;
+                    authService.saveRefreshToken(user.getUserId(), response.getRefreshToken(), refreshTokenExpireMillis);
+                    return response;
+                })
                 .orElseGet(() -> buildLoginResponse(false, null, null));
     }
 
