@@ -20,30 +20,28 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI openAPI() {
-        SecurityRequirement refreshTokenSecurityRequirement = new SecurityRequirement().addList("X-Refresh-Token");
-        SecurityRequirement accesssTokenSecurityRequirement = new SecurityRequirement().addList("Authorization");
+        SecurityRequirement accessTokenSecurityRequirement = new SecurityRequirement().addList("accessToken");
+        SecurityRequirement refreshTokenSecurityRequirement = new SecurityRequirement().addList("refreshToken");
 
-        // accessToken 헤더 SecurityScheme 정의
-        SecurityScheme accessTokenHeader = new SecurityScheme()
+        // accessToken 쿠키 SecurityScheme 정의
+        SecurityScheme accessTokenCookie = new SecurityScheme()
                 .type(Type.APIKEY)
-                .in(In.HEADER)
-                .scheme("bearer")
-                .name("Authorization") // 일반적인 Authorization 헤더 사용
-                .description("액세스 토큰 (Bearer 형식)");
+                .in(In.COOKIE)  // 헤더에서 쿠키로 변경
+                .name("accessToken") // 쿠키 이름
+                .description("액세스 토큰 (쿠키)");
 
-        // refreshToken 헤더 SecurityScheme 정의
-        SecurityScheme refreshTokenHeader = new SecurityScheme()
+        // refreshToken 쿠키 SecurityScheme 정의
+        SecurityScheme refreshTokenCookie = new SecurityScheme()
                 .type(Type.APIKEY)
-                .in(In.HEADER)
-                .scheme("bearer")
-                .name("X-Refresh-Token") // 사용자 정의 헤더 사용
-                .description("리프레시 토큰 (Bearer 형식)");
+                .in(In.COOKIE)  // 헤더에서 쿠키로 변경
+                .name("refreshToken") // 쿠키 이름
+                .description("리프레시 토큰 (쿠키)");
 
         return new OpenAPI()
                 .components(new Components()
-                        .addSecuritySchemes("Authorization", accessTokenHeader)
-                        .addSecuritySchemes("X-Refresh-Token", refreshTokenHeader))
-                .addSecurityItem(accesssTokenSecurityRequirement)
+                        .addSecuritySchemes("accessToken", accessTokenCookie)
+                        .addSecuritySchemes("refreshToken", refreshTokenCookie))
+                .addSecurityItem(accessTokenSecurityRequirement)
                 .addSecurityItem(refreshTokenSecurityRequirement)
                 .addServersItem(new Server().url("/"));
     }
