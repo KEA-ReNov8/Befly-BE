@@ -55,12 +55,14 @@ public class AuthController {
         Cookie accessCookie = new Cookie("accessToken", tokenResponse.getAccessToken());
         accessCookie.setHttpOnly(true);
         accessCookie.setSecure(true);
+        accessCookie.setDomain(".befly.blog");
         accessCookie.setMaxAge(7 * 24 * 60 * 60); // 15분
         accessCookie.setPath("/");
 
         Cookie refreshCookie = new Cookie("refreshToken", tokenResponse.getRefreshToken());
         refreshCookie.setHttpOnly(true);
         refreshCookie.setSecure(true);
+        accessCookie.setDomain(".befly.blog");
         refreshCookie.setMaxAge(7 * 24 * 60 * 60);
         refreshCookie.setPath("/");
 
@@ -100,12 +102,14 @@ public class AuthController {
         Cookie accessCookie = new Cookie("accessToken", gatewayLoginResponse.getAccessToken());
         accessCookie.setHttpOnly(true);
         accessCookie.setSecure(true);
+        accessCookie.setDomain(".befly.blog");
         accessCookie.setMaxAge(7 * 24 * 60 * 60); // 15분
         accessCookie.setPath("/");
 
         Cookie refreshCookie = new Cookie("refreshToken", gatewayLoginResponse.getRefreshToken());
         refreshCookie.setHttpOnly(true);
         refreshCookie.setSecure(true);
+        accessCookie.setDomain(".befly.blog");
         refreshCookie.setMaxAge(7 * 24 * 60 * 60);
         refreshCookie.setPath("/");
 
