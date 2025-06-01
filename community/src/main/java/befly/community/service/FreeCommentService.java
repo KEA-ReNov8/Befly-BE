@@ -74,18 +74,13 @@ public class FreeCommentService {
             throw new RestApiException(FreeErrorStatus.NO_PERMISSION);
         }
 
-        comment = FreeComment.builder()
-                .freeCommentId(comment.getFreeCommentId())
-                .freeId(comment.getFreeId())
-                .userId(comment.getUserId())
-                .isDeleted(false)
-                .freeComment(commentDto.getComment())
-                .pFreeCommentId(comment.getPFreeCommentId())
-                .build();
-        FreeComment saved = freeCommentRepository.save(comment);
-        return toResponse(saved);
+        comment.updateFreeComment(commentDto.getComment());
+
+        // FreeComment updated = freeCommentRepository.save(comment);
+        return toResponse(comment);
     }
 
+    // 자유함 댓글 리스트 조회
     public List<FreeCommentResponse> getComments(Long freeId) {
         FreePost freePost = freePostRepository.findById(freeId)
                 .orElseThrow(() -> new RestApiException(FreeErrorStatus.POST_NOT_FOUND));
@@ -115,14 +110,8 @@ public class FreeCommentService {
             throw new RestApiException(FreeErrorStatus.NO_PERMISSION);
         }
 
-        comment = FreeComment.builder()
-                .freeCommentId(comment.getFreeCommentId())
-                .freeId(comment.getFreeId())
-                .userId(comment.getUserId())
-                .isDeleted(true)
-                .freeComment(comment.getFreeComment())
-                .pFreeCommentId(comment.getPFreeCommentId())
-                .build();
+        comment.deleteFreeComment();
+
         freeCommentRepository.save(comment);
     }
 

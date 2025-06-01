@@ -3,9 +3,12 @@ package befly.community.controller;
 import befly.common.annotations.LoginUser;
 import befly.common.apiPayload.ApiResponse;
 import befly.common.s3.S3Interface;
+import befly.community.dto.ImageUrlsResponse;
+import befly.community.dto.LatestFreeResponse;
 import befly.community.service.FreePostService;
 import befly.community.dto.FreePostRequest;
 import befly.community.dto.FreePostResponse;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +32,7 @@ public class FreePostController {
 
     // 자유함 글 생성
     @PostMapping
-    public ApiResponse<FreePostResponse> createPost(@LoginUser Long userId,
+    public ApiResponse<FreePostResponse> createPost(@Parameter(hidden = true) @LoginUser Long userId,
                                                     @RequestBody FreePostRequest request) {
         return ApiResponse.onSuccess(freePostService.createPost(userId, request));
     }
@@ -46,9 +49,15 @@ public class FreePostController {
         return ApiResponse.onSuccess(freePostService.getAllPosts());
     }
 
+    // 자유함 최신 글 조회
+    @GetMapping("/latest")
+    public ApiResponse<List<LatestFreeResponse>> getLatestPost() {
+        return ApiResponse.onSuccess(freePostService.getLatestFreePosts());
+    }
+
     // 자유함 글 수정
     @PatchMapping("/{freeId}")
-    public ApiResponse<FreePostResponse> updatePost(@LoginUser Long userId,
+    public ApiResponse<FreePostResponse> updatePost(@Parameter(hidden = true) @LoginUser Long userId,
                                                     @PathVariable Long freeId,
                                                     @RequestBody FreePostRequest request) {
         return ApiResponse.onSuccess(freePostService.updatePost(userId, freeId, request));
@@ -56,22 +65,24 @@ public class FreePostController {
 
     // 자유함 글 삭제
     @DeleteMapping("/{freeId}")
-    public ApiResponse<Void> deletePost(@LoginUser Long userId,
+    public ApiResponse<Void> deletePost(@Parameter(hidden = true) @LoginUser Long userId,
                                         @PathVariable Long freeId) {
         freePostService.deletePost(userId, freeId);
         return ApiResponse.onSuccess(null);
     }
 
-    // Pre-signed URL 생성
-    @PostMapping("/presigned")
-    public ApiResponse<String> getPresignedUrl(@RequestParam String imageKey) {
-        return ApiResponse.onSuccess(s3Interface.createPreSignedUrl(imageKey, "PUT"));
-    }
-
-    // 업로드된 이미지 URL 조회
-    @GetMapping("/url")
-    public ApiResponse<String> getImageUrl(@RequestParam String imageKey) {
-        return ApiResponse.onSuccess(s3Interface.getImageUrl(imageKey));
+    // 이미지 URL
+    @GetMapping("/image")
+    public ApiResponse<List<ImageUrlsResponse>> getImageUrls(@RequestParam List<String> imageKeys) {
+        List<ImageUrlsResponse> responses = imageKeys.stream()
+                .map(imageKey -> new ImageUrlsResponse(
+                        imageKey,
+                        s3Interface.createPreSignedUrl(imageKey, "GET"),
+                        s3Interface.createPreSignedUrl(imageKey, "PUT"),
+                        s3Interface.getImageUrl(imageKey)
+                ))
+                .toList();
+        return ApiResponse.onSuccess(responses);
     }
 
 }

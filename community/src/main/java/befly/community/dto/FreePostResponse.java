@@ -4,6 +4,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @Builder
@@ -12,5 +14,5 @@ public class FreePostResponse {
     private Long userId;
     private String freeTitle;
     private String freeContent;
-    private String imageUrl;
+    private List<String> imageUrl;
 }
