@@ -16,6 +16,9 @@ public class JwtProvider {
     @Value("${jwt.refresh.secret}") String refresh;
     @Value("${jwt.refresh.expire}") Long refreshExpiration;
 
+    @Value("${jwt.temp.secret}") String temp;
+    @Value("${jwt.temp.expire}") Long tempExpiration;
+
     public String generateAccessToken(String userId) {
         return getString(userId, access, accessExpiration);
     }
