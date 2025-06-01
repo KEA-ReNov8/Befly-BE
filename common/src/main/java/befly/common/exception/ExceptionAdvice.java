@@ -22,13 +22,13 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
     }
 
     //500에러
-    @ExceptionHandler(value = Exception.class)
+    /*@ExceptionHandler(value = Exception.class)
     public ResponseEntity<ApiResponse<String>> handleInternalException(Exception e) {
         return ResponseEntity
                 .status(INTERNAL_SERVER_ERROR.getHttpStatus())
                 .body(ApiResponse.onFailure(INTERNAL_SERVER_ERROR.getCode().code(),
                         INTERNAL_SERVER_ERROR.getMessage(), null));
-    }
+    }*/
 
     private ResponseEntity<ApiResponse<String>> handleExceptionInternal(BaseCodeDto errorCode) {
         return ResponseEntity
