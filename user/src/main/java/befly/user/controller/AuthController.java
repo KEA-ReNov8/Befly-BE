@@ -33,7 +33,7 @@ public class AuthController {
 
 
     /**
-     * 회원가입 로직
+     * 회원가입 로직ㅇ
      * @param signUpRequest 실명, 닉네임, 이메일, 패스워드 받음
      * TODO 추후 profile img를 url로 저장할 수 있도록 로직 수정 필요
      * @return 아직 없음
