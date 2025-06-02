@@ -38,17 +38,8 @@ public class UserService {
                 .orElseThrow(() -> new RestApiException(UserErrorStatus.MEMBER_NOT_FOUND));
 
         // 닉네임 업데이트
-        user = User.builder()
-                .userId(user.getUserId())
-                .clientId(user.getClientId())
-                .password(user.getPassword())
-                .profileImg(user.getProfileImg())
-                .wing(user.getWing())
-                .badge(user.getBadge())
-                .nickName(newNickname)
-                .build();
-
-        return userRepository.save(user);
+        user.updateNickName(newNickname);
+        return user;
     }
 
     public UserProfileResponse getProfile(Long userId) {
@@ -78,17 +69,8 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RestApiException(UserErrorStatus.MEMBER_NOT_FOUND));
         
-        user = User.builder()
-                .userId(user.getUserId())
-                .clientId(user.getClientId())
-                .password(user.getPassword())
-                .profileImg(imageUrl)
-                .wing(user.getWing())
-                .badge(user.getBadge())
-                .nickName(user.getNickName())
-                .build();
-
-        return userRepository.save(user);
+        user.updateProfileImg(imageUrl);
+        return user;
     }
 
     @Transactional
@@ -96,17 +78,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RestApiException(UserErrorStatus.MEMBER_NOT_FOUND));
         
-        user = User.builder()
-                .userId(user.getUserId())
-                .clientId(user.getClientId())
-                .password(user.getPassword())
-                .profileImg(user.getProfileImg())
-                .wing(user.getWing() + wing)
-                .badge(user.getBadge())
-                .nickName(user.getNickName())
-                .build();
-
-        userRepository.save(user);
+        user.addWing(wing);
     }
 
     @Transactional

@@ -3,14 +3,12 @@ package befly.user.domain;
 import befly.common.common.BaseTimeEntity;
 import befly.user.domain.Enum.LoginType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Builder
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class User extends BaseTimeEntity {
@@ -44,4 +42,14 @@ public class User extends BaseTimeEntity {
     public void updateNickName(String newNickName) {
         this.nickName = newNickName;
     }
+
+    public void updateProfileImg(String profileImg) {
+        this.profileImg = profileImg;
+    }
+
+    public void addWing(Long wing) {
+        this.wing += wing;
+    }
+    
+    
 }
