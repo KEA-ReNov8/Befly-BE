@@ -10,6 +10,7 @@ import befly.user.dto.gatewayAuth.response.GatewayValidateResponse;
 import befly.user.service.CommonAuthService;
 import befly.user.service.GatewayAuthService;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +33,7 @@ public class AuthController {
 
 
     /**
-     * 회원가입 로직
+     * 회원가입 로직ㅇ
      * @param signUpRequest 실명, 닉네임, 이메일, 패스워드 받음
      * TODO 추후 profile img를 url로 저장할 수 있도록 로직 수정 필요
      * @return 아직 없음
@@ -48,12 +49,25 @@ public class AuthController {
     }
     @PostMapping("/signin")
     public ApiResponse<Void> commonSignInController(@RequestBody SignInRequest signInRequest,
-                                                             HttpServletResponse response) {
+                                                    HttpServletResponse response) {
         log.info("signIn Request : {}", signInRequest);
         TokenResponse tokenResponse = commonAuthService.signIn(signInRequest);
-        response.addHeader("Authorization", tokenResponse.getAccessToken());
-        response.addHeader("X-Refresh-Token", tokenResponse.getRefreshToken());
-        log.info("signIn Success");
+        Cookie accessCookie = new Cookie("accessToken", tokenResponse.getAccessToken());
+        accessCookie.setHttpOnly(true);
+        accessCookie.setSecure(true);
+        accessCookie.setDomain("befly.blog");
+        accessCookie.setMaxAge(7 * 24 * 60 * 60); // 15분
+        accessCookie.setPath("/");
+
+        Cookie refreshCookie = new Cookie("refreshToken", tokenResponse.getRefreshToken());
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setSecure(true);
+        accessCookie.setDomain("befly.blog");
+        refreshCookie.setMaxAge(7 * 24 * 60 * 60);
+        refreshCookie.setPath("/");
+
+        response.addCookie(accessCookie);
+        response.addCookie(refreshCookie);
         return ApiResponse.onSuccess(null);
     }
 
@@ -85,8 +99,22 @@ public class AuthController {
         Long userId = authService.validateRefreshToken(request);
         GatewayLoginResponse gatewayLoginResponse = gateWayAuthService.generateLoginResponse(userId);
         //https 배포시 Secure 추가
-        response.addHeader("Authorization", gatewayLoginResponse.getAccessToken());
-        response.addHeader("X-Refresh-Token", gatewayLoginResponse.getRefreshToken());
+        Cookie accessCookie = new Cookie("accessToken", gatewayLoginResponse.getAccessToken());
+        accessCookie.setHttpOnly(true);
+        accessCookie.setSecure(true);
+        accessCookie.setDomain("befly.blog");
+        accessCookie.setMaxAge(7 * 24 * 60 * 60); // 15분
+        accessCookie.setPath("/");
+
+        Cookie refreshCookie = new Cookie("refreshToken", gatewayLoginResponse.getRefreshToken());
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setSecure(true);
+        accessCookie.setDomain("befly.blog");
+        refreshCookie.setMaxAge(7 * 24 * 60 * 60);
+        refreshCookie.setPath("/");
+
+        response.addCookie(accessCookie);
+        response.addCookie(refreshCookie);
         return ApiResponse.onSuccess(null);
     }
 
