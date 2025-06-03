@@ -33,7 +33,7 @@ public class UserController {
     @GetMapping("/clientId/duplication")
     public String checkNicknameDuplication(@RequestParam String ClientId) {
         log.info("ClientId duplication check: {}", ClientId);
-        if(!userService.isNickNameDuplication(ClientId)) {
+        if (!userService.isNickNameDuplication(ClientId)) {
             log.info("ClientId duplication check success: {}, No clientId Duplication", ClientId);
         }
         return SuccessStatus._OK.getMessage();
@@ -45,8 +45,8 @@ public class UserController {
             @RequestBody UpdateNickNameRequest request) {
         User updatedUser = userService.updateNickname(userId, request.getNickName());
         UpdateNickNameResponse response = UpdateNickNameResponse.builder()
-            .nickName(updatedUser.getNickName())
-            .build();
+                .nickName(updatedUser.getNickName())
+                .build();
         return ApiResponse.onSuccess(response);
     }
 
@@ -70,9 +70,9 @@ public class UserController {
             @RequestBody UpdateProfileImageRequest request) {
         User updatedUser = userService.updateProfileImage(userId, request.getImageUrl());
         ProfileImageResponse response = ProfileImageResponse.builder()
-            .userId(updatedUser.getUserId())
-            .profileImg(updatedUser.getProfileImg())
-            .build();
+                .userId(updatedUser.getUserId())
+                .profileImg(updatedUser.getProfileImg())
+                .build();
         return ApiResponse.onSuccess(response);
     }
 
@@ -80,4 +80,11 @@ public class UserController {
     public ApiResponse<UserListResponse> getUsersByIds(@RequestParam List<Long> userIds) {
         return ApiResponse.onSuccess(userService.getUsersByIds(userIds));
     }
+
+    @GetMapping("/getNickname/{userId}")
+    public ApiResponse<String> getUserNicknameById(@PathVariable Long userId) {
+        return ApiResponse.onSuccess(userService.getNicknameById(userId));
+    }
 }
+
+//    http://user-service.backend.svc.cluster.local/user/getNickname/{userId}

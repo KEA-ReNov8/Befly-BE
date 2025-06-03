@@ -104,4 +104,10 @@ public class UserService {
                 .users(userProfiles)
                 .build();
     }
+
+    public String getNicknameById(Long userId) {
+        return userRepository.findById(userId)
+                .map(user -> user.getNickName())
+                .orElseThrow(() -> new RestApiException(UserErrorStatus.MEMBER_NOT_FOUND));
+    }
 }

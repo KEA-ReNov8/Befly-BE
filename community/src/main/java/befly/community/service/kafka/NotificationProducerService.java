@@ -1,5 +1,7 @@
 package befly.community.service.kafka;
 
+import befly.common.apiPayload.ApiResponse;
+import befly.community.client.UserServiceClient;
 import befly.community.dto.kafka.NotificationMessage;
 import befly.community.dto.kafka.NotificationType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,19 +20,21 @@ import java.time.LocalDateTime;
 public class NotificationProducerService {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
+    private final UserServiceClient userServiceClient;
 
     // 알림 발송 (본인이 작성한 게시글에 댓글을 단 경우 제외), postUserId는 게시글 주인, getuserId는 뭔가를 한 작성자,즉 로그인한 유저 마지막은 유형
     public void sendNotificationIfNeeded(long postUserId, long commentUserId, NotificationType type) {
         // 본인이 작성한 게시글에 댓글을 작성한 경우 알림 발송하지 않음, 좋아요도 마찬가지
         //TODO
 //        추후 댓글 작성자의 닉네임을 가져올 수 있도록 수정
-
+        ApiResponse<String> responseWithNickname = userServiceClient.getUserNicknameById(commentUserId, commentUserId);
+        String Nickname = responseWithNickname.getResult();
 
         String messageContent = switch (type) {
-            case FREELIKE -> "TestCommenterNickName" + "님이 자유함을 좋아합니다.";
-            case SOLVEDLIKE ->  "TestCommenterNickName" + "님이 해결함을 좋아합니다.";
-            case FREEPOST -> "TestCommenterNickName" + "님의 자유함에 댓글을 남겼습니다.";
-            case SOLVEDPOST -> "TestCommenterNickName" +"님이 회원님의 해결함에 댓글을 남겼습니다.";
+            case FREELIKE -> Nickname + "님이 자유함을 좋아합니다.";
+            case SOLVEDLIKE ->  Nickname + "님이 해결함을 좋아합니다.";
+            case FREEPOST -> Nickname + "님의 자유함에 댓글을 남겼습니다.";
+            case SOLVEDPOST -> Nickname +"님이 회원님의 해결함에 댓글을 남겼습니다.";
             default -> "알 수 없는 알림입니다. 서버에 문의하세요";
         };
 
@@ -39,7 +43,7 @@ public class NotificationProducerService {
             NotificationMessage message = NotificationMessage.builder()
                     .targetUserId(postUserId)
                     .senderId(commentUserId)
-                    .senderUsername("TestCommenterNickName")
+                    .senderUsername(Nickname)
                     .type(type) //여기에 들어가는 타입이 토픽에 들어감
                     .message(messageContent)
                     .createdAt(LocalDateTime.now())
