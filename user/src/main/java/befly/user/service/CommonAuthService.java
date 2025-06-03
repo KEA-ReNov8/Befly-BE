@@ -65,8 +65,8 @@ public class CommonAuthService {
                 .password(encodedPassword)
                 .wing(0L)
                 .badge(0L)
-                .profileImg("test.url")
-                .loginType(LoginType.INTERNAL) //자체로그인시 INTERNAL로 설정
+                .profileImg("https://objectstorage.kr-central-2.kakaocloud.com/v1/af4c072eeaf845b5be29839350a03250/belfy-object-storage/profile_img/default-user-icon.png")
+                .loginType(signUpRequest.getLoginType()) // 요청에서 받은 loginType 사용
                 .build());
     }
 
