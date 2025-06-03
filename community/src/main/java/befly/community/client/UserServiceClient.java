@@ -8,6 +8,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 @FeignClient(name = "user-service", url = "${service.url}")
 public interface UserServiceClient {
-    @GetMapping("/getNickname/{userId}")
+    @GetMapping("/user/getNickname/{userId}")
     ApiResponse<String> getUserNicknameById(@PathVariable("userId") Long userId, @RequestHeader("X-USER-ID") Long X_USER_ID);
 }
