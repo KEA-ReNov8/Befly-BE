@@ -4,13 +4,19 @@ import befly.common.annotations.LoginUser;
 import befly.common.apiPayload.ApiResponse;
 import befly.common.s3.S3Interface;
 import befly.community.dto.ImageUrlsResponse;
-import befly.community.dto.LatestFreeResponse;
+import befly.community.dto.FreePostListResponse;
 import befly.community.service.FreePostService;
 import befly.community.dto.FreePostRequest;
 import befly.community.dto.FreePostResponse;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,15 +49,19 @@ public class FreePostController {
         return ApiResponse.onSuccess(freePostService.getPost(freeId));
     }
 
-    // 자유함 글 리스트 조회
-    @GetMapping
-    public ApiResponse<List<FreePostResponse>> getAllPosts() {
-        return ApiResponse.onSuccess(freePostService.getAllPosts());
+    // 자유함 글 리스트 조회 (페이지 사이즈 8, 생성 시간 순)
+    @GetMapping("/page/{page}")
+    public ResponseEntity<ApiResponse<Page<FreePostListResponse>>> getAllPosts(
+            @PathVariable int page
+    ) {
+        Pageable pageable = PageRequest.of(page, 8, Sort.Direction.DESC, "createdAt");
+        Page<FreePostListResponse> response = freePostService.getAllPosts(pageable);
+        return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 
     // 자유함 최신 글 조회
     @GetMapping("/latest")
-    public ApiResponse<List<LatestFreeResponse>> getLatestPost() {
+    public ApiResponse<List<FreePostListResponse>> getLatestPost() {
         return ApiResponse.onSuccess(freePostService.getLatestFreePosts());
     }
 
