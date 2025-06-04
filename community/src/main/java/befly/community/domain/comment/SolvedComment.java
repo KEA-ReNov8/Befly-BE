@@ -38,3 +38,4 @@ public class SolvedComment extends BaseTimeEntity {
     private SolvedComment pSolvedCommentId; // 부모 댓글 ID (대댓글)
 
 }
+
