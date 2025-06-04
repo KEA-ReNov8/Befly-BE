@@ -127,12 +127,7 @@ public class SolvedCommentService {
         solvedCommentRepository.save(comment);
     }
 
-    //해결함 글 댓글 수 조회
-    public long countComments(Long solvedId) {
-        SolvedPost post = solvedPostRepository.findById(solvedId)
-                .orElseThrow(() -> new RestApiException(SolvedErrorStatus.POST_NOT_FOUND));
-        return solvedCommentRepository.countSolvedCommentBySolvedId(solvedId);
-    }
+
 
     // 결과 응답용
     private SolvedCommentResponse toResponse(SolvedComment comment) {
