@@ -35,11 +35,6 @@ public class FreePostController {
         return ApiResponse.onSuccess(userId);
     }
 
-    @GetMapping("/nickname/test/{targetId}")
-    public ApiResponse<String> testNickname(@LoginUser Long userId, @PathVariable Long targetId) {
-        return ApiResponse.onSuccess(freePostService.getNickName(userId, targetId));
-    }
-
     // 자유함 글 생성
     @PostMapping
     public ApiResponse<FreePostResponse> createPost(@Parameter(hidden = true) @LoginUser Long userId,
