@@ -15,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,6 +35,11 @@ public class FreePostController {
         return ApiResponse.onSuccess(userId);
     }
 
+    @GetMapping("/nickname/test/{targetId}")
+    public ApiResponse<String> testNickname(@LoginUser Long userId, @PathVariable Long targetId) {
+        return ApiResponse.onSuccess(freePostService.getNickName(userId, targetId));
+    }
+
     // 자유함 글 생성
     @PostMapping
     public ApiResponse<FreePostResponse> createPost(@Parameter(hidden = true) @LoginUser Long userId,
@@ -52,17 +56,18 @@ public class FreePostController {
     // 자유함 글 리스트 조회 (페이지 사이즈 8, 생성 시간 순)
     @GetMapping("/page/{page}")
     public ResponseEntity<ApiResponse<Page<FreePostListResponse>>> getAllPosts(
+            @LoginUser Long userId,
             @PathVariable int page
     ) {
         Pageable pageable = PageRequest.of(page, 8, Sort.Direction.DESC, "createdAt");
-        Page<FreePostListResponse> response = freePostService.getAllPosts(pageable);
+        Page<FreePostListResponse> response = freePostService.getAllPosts(userId, pageable);
         return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 
     // 자유함 최신 글 조회
     @GetMapping("/latest")
-    public ApiResponse<List<FreePostListResponse>> getLatestPost() {
-        return ApiResponse.onSuccess(freePostService.getLatestFreePosts());
+    public ApiResponse<List<FreePostListResponse>> getLatestPost(@LoginUser Long userId) {
+        return ApiResponse.onSuccess(freePostService.getLatestFreePosts(userId));
     }
 
     // 자유함 글 수정
@@ -87,7 +92,6 @@ public class FreePostController {
         List<ImageUrlsResponse> responses = imageKeys.stream()
                 .map(imageKey -> new ImageUrlsResponse(
                         imageKey,
-                        s3Interface.createPreSignedUrl(imageKey, "GET"),
                         s3Interface.createPreSignedUrl(imageKey, "PUT"),
                         s3Interface.getImageUrl(imageKey)
                 ))

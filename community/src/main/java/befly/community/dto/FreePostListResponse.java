@@ -16,7 +16,7 @@ public class FreePostListResponse {
     private Long likes;
     private Long comments;
     private String time;
-    // private String nickname; // user 쪽에 API 있음
-    private Long userId;
+    // private Long userId;
+    private String nickname;
     private List<String> imageUrl;
 }
