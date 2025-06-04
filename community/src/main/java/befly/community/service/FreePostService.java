@@ -74,14 +74,14 @@ public class FreePostService {
 
         FreePost saved = freePostRepository.save(post);
 
-        return toResponse(saved);
+        return toResponse(saved, userId);
     }
 
     // 자유함 글 조회
-    public FreePostResponse getPost(Long id) {
+    public FreePostResponse getPost(Long id, Long userId) {
         FreePost post = freePostRepository.findById(id)
                 .orElseThrow(() -> new RestApiException(FreeErrorStatus.POST_NOT_FOUND));
-        return toResponse(post);
+        return toResponse(post, userId);
     }
 
     // 자유함 글 리스트 조회 (페이지네이션, 페이지 사이즈 8, 생성 시간 순)
@@ -113,7 +113,7 @@ public class FreePostService {
 
         post.updateFreePost(request.getFreeTitle(), request.getFreeContent(), request.getImageKeys());
         // FreePost updated = freePostRepository.save(post);
-        return toResponse(post);
+        return toResponse(post, userId);
     }
 
     // 자유함 글 삭제
@@ -222,8 +222,11 @@ public class FreePostService {
 
 
     // 결과 응답용
-    private FreePostResponse toResponse(FreePost post) {
+    private FreePostResponse toResponse(FreePost post, Long userId) {
         List<String> imageUrls = null;
+
+        Long empathyCount = freeEmpathyRepository.countFreeEmpathyByFreeId(post.getFreeId()); // 공감 수 조회
+        Long commentCount = freeCommentRepository.countFreeCommentByFreeId(post); // 응원 수 조회
 
         if (post.getImageKeys() != null && !post.getImageKeys().isEmpty()) {
             imageUrls = post.getImageKeys().stream()
@@ -233,10 +236,15 @@ public class FreePostService {
 
         return FreePostResponse.builder()
                 .freeId(post.getFreeId())
-                .userId(post.getUserId())
+                // .userId(post.getUserId())
+                .nickname(getNickName(userId, post.getUserId()))
                 .freeTitle(post.getFreeTitle())
                 .freeContent(post.getFreeContent())
                 .imageUrl(imageUrls)
+                .likes(empathyCount)
+                .comments(commentCount)
+                .createdAt(post.getCreatedAt())
+                .updatedAt(post.getUpdatedAt())
                 .build();
     }
 }

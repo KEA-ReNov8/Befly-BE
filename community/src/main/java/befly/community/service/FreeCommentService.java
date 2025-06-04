@@ -1,6 +1,7 @@
 package befly.community.service;
 
 import befly.common.exception.RestApiException;
+import befly.community.dto.NickNameResponse;
 import befly.community.repository.FreeCommentRepository;
 import befly.community.repository.FreePostRepository;
 import befly.community.domain.FreePost;
@@ -12,14 +13,22 @@ import befly.community.service.kafka.NotificationProducerService;
 import befly.community.status.FreeErrorStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FreeCommentService {
+    private final RestTemplate restTemplate;
     private final FreeCommentRepository freeCommentRepository;
     private final FreePostRepository freePostRepository;
     private final NotificationProducerService notificationProducerService;
@@ -58,7 +67,7 @@ public class FreeCommentService {
                     }
                 });
 
-        return toResponse(saved);
+        return toResponse(saved, userId);
     }
 
     // 자유함 댓글 업데이트
@@ -77,11 +86,11 @@ public class FreeCommentService {
         comment.updateFreeComment(commentDto.getComment());
 
         // FreeComment updated = freeCommentRepository.save(comment);
-        return toResponse(comment);
+        return toResponse(comment, userId);
     }
 
     // 자유함 댓글 리스트 조회
-    public List<FreeCommentResponse> getComments(Long freeId) {
+    public List<FreeCommentResponse> getComments(Long freeId, Long userId) {
         FreePost freePost = freePostRepository.findById(freeId)
                 .orElseThrow(() -> new RestApiException(FreeErrorStatus.POST_NOT_FOUND));
 
@@ -89,10 +98,13 @@ public class FreeCommentService {
                 .map(comment -> FreeCommentResponse.builder()
                         .commentId(comment.getFreeCommentId())
                         .postId(comment.getFreeId())
-                        .userId(comment.getUserId())
+                        // .userId(comment.getUserId())
+                        .nickname(getNickName(userId, comment.getUserId()))
                         .comment(comment.getIsDeleted() ? "삭제된 댓글입니다." : comment.getFreeComment())
                         .parentCommentId(comment.getPFreeCommentId())
                         .isDeleted(comment.getIsDeleted())
+                        .createdAt(comment.getCreatedAt())
+                        .updatedAt(comment.getUpdatedAt())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -115,17 +127,53 @@ public class FreeCommentService {
         freeCommentRepository.save(comment);
     }
 
+    public String getNickName(Long userId, Long targetId) {
+        System.out.println("userId: " + userId);
+        System.out.println("targetId: " + targetId);
+        String api = "http://localhost:8081/user/getNickname/" + targetId;
+        System.out.println(api);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-USER-ID", userId.toString());
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<NickNameResponse> response = restTemplate.exchange(
+                    api,
+                    HttpMethod.GET,
+                    entity,
+                    NickNameResponse.class
+            );
+
+            NickNameResponse body = response.getBody();
+
+            if (body != null && "COMMON200".equals(body.getCode())) {
+                return body.getResult();
+            } else {
+                log.error("Nickname not found for targetId: " + targetId);
+                return String.valueOf(targetId);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("Exception: " + e.getMessage());
+            return String.valueOf(targetId);
+        }
+    }
 
 
     // 결과 응답용
-    private FreeCommentResponse toResponse(FreeComment comment) {
+    private FreeCommentResponse toResponse(FreeComment comment, Long userId) {
         return FreeCommentResponse.builder()
                 .commentId(comment.getFreeCommentId())
                 .postId(comment.getFreeId())
-                .userId(comment.getUserId())
+                // .userId(comment.getUserId())
+                .nickname(getNickName(userId, comment.getUserId()))
                 .comment(comment.getFreeComment())
                 .isDeleted(comment.getIsDeleted())
                 .parentCommentId(comment.getPFreeCommentId())
+                .createdAt(comment.getCreatedAt())
+                .updatedAt(comment.getUpdatedAt())
                 .build();
     }
 }

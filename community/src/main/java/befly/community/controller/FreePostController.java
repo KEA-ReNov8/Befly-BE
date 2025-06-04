@@ -29,7 +29,7 @@ public class FreePostController {
     private final S3Interface s3Interface;
 
     @GetMapping("/test")
-    public ApiResponse<Long> test(@LoginUser Long userId) {
+    public ApiResponse<Long> test(@Parameter(hidden = true) @LoginUser Long userId) {
         log.info("test");
         log.info("userId:{}", userId);
         return ApiResponse.onSuccess(userId);
@@ -44,14 +44,15 @@ public class FreePostController {
 
     // 자유함 글 조회
     @GetMapping("/{freeId}")
-    public ApiResponse<FreePostResponse> getPost(@PathVariable Long freeId) {
-        return ApiResponse.onSuccess(freePostService.getPost(freeId));
+    public ApiResponse<FreePostResponse> getPost(@PathVariable Long freeId,
+                                                 @Parameter(hidden = true) @LoginUser Long userId) {
+        return ApiResponse.onSuccess(freePostService.getPost(freeId, userId));
     }
 
     // 자유함 글 리스트 조회 (페이지 사이즈 8, 생성 시간 순)
     @GetMapping("/page/{page}")
     public ResponseEntity<ApiResponse<Page<FreePostListResponse>>> getAllPosts(
-            @LoginUser Long userId,
+            @Parameter(hidden = true) @LoginUser Long userId,
             @PathVariable int page
     ) {
         Pageable pageable = PageRequest.of(page, 8, Sort.Direction.DESC, "createdAt");
@@ -61,7 +62,7 @@ public class FreePostController {
 
     // 자유함 최신 글 조회
     @GetMapping("/latest")
-    public ApiResponse<List<FreePostListResponse>> getLatestPost(@LoginUser Long userId) {
+    public ApiResponse<List<FreePostListResponse>> getLatestPost(@Parameter(hidden = true) @LoginUser Long userId) {
         return ApiResponse.onSuccess(freePostService.getLatestFreePosts(userId));
     }
 
