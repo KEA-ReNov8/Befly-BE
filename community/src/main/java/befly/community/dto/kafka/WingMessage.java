@@ -1,14 +1,15 @@
-package befly.user.dto;
+package befly.community.dto.kafka;
 
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
-
+@AllArgsConstructor
 public class WingMessage {
+
     private Long userId;
     private Long wing;
-} 
+
+}

@@ -36,4 +36,12 @@ public class FreeComment extends BaseTimeEntity {
     @ManyToOne
     @JoinColumn(name = "p_free_comment_id")
     private FreeComment pFreeCommentId; // 부모 댓글 ID (대댓글)
+
+    public void updateFreeComment(String comment) {
+        if (comment != null) this.freeComment = comment;
+    }
+
+    public void deleteFreeComment() {
+        this.isDeleted = true;
+    }
 }

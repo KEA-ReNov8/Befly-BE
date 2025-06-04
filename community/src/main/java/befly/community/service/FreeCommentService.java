@@ -1,6 +1,8 @@
 package befly.community.service;
 
+import befly.common.apiPayload.ApiResponse;
 import befly.common.exception.RestApiException;
+import befly.community.client.UserServiceClient;
 import befly.community.repository.FreeCommentRepository;
 import befly.community.repository.FreePostRepository;
 import befly.community.domain.FreePost;
@@ -12,17 +14,20 @@ import befly.community.service.kafka.NotificationProducerService;
 import befly.community.status.FreeErrorStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FreeCommentService {
     private final FreeCommentRepository freeCommentRepository;
     private final FreePostRepository freePostRepository;
     private final NotificationProducerService notificationProducerService;
+    private final UserServiceClient userServiceClient;
 
     // 자유함 댓글 생성
     @Transactional
@@ -58,7 +63,7 @@ public class FreeCommentService {
                     }
                 });
 
-        return toResponse(saved);
+        return toResponse(saved, userId);
     }
 
     // 자유함 댓글 업데이트
@@ -74,19 +79,14 @@ public class FreeCommentService {
             throw new RestApiException(FreeErrorStatus.NO_PERMISSION);
         }
 
-        comment = FreeComment.builder()
-                .freeCommentId(comment.getFreeCommentId())
-                .freeId(comment.getFreeId())
-                .userId(comment.getUserId())
-                .isDeleted(false)
-                .freeComment(commentDto.getComment())
-                .pFreeCommentId(comment.getPFreeCommentId())
-                .build();
-        FreeComment saved = freeCommentRepository.save(comment);
-        return toResponse(saved);
+        comment.updateFreeComment(commentDto.getComment());
+
+        // FreeComment updated = freeCommentRepository.save(comment);
+        return toResponse(comment, userId);
     }
 
-    public List<FreeCommentResponse> getComments(Long freeId) {
+    // 자유함 댓글 리스트 조회
+    public List<FreeCommentResponse> getComments(Long freeId, Long userId) {
         FreePost freePost = freePostRepository.findById(freeId)
                 .orElseThrow(() -> new RestApiException(FreeErrorStatus.POST_NOT_FOUND));
 
@@ -94,10 +94,13 @@ public class FreeCommentService {
                 .map(comment -> FreeCommentResponse.builder()
                         .commentId(comment.getFreeCommentId())
                         .postId(comment.getFreeId())
-                        .userId(comment.getUserId())
+                        // .userId(comment.getUserId())
+                        .nickname(userServiceClient.getUserNicknameById(comment.getUserId(), userId).getResult())
                         .comment(comment.getIsDeleted() ? "삭제된 댓글입니다." : comment.getFreeComment())
                         .parentCommentId(comment.getPFreeCommentId())
                         .isDeleted(comment.getIsDeleted())
+                        .createdAt(comment.getCreatedAt())
+                        .updatedAt(comment.getUpdatedAt())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -115,28 +118,27 @@ public class FreeCommentService {
             throw new RestApiException(FreeErrorStatus.NO_PERMISSION);
         }
 
-        comment = FreeComment.builder()
-                .freeCommentId(comment.getFreeCommentId())
-                .freeId(comment.getFreeId())
-                .userId(comment.getUserId())
-                .isDeleted(true)
-                .freeComment(comment.getFreeComment())
-                .pFreeCommentId(comment.getPFreeCommentId())
-                .build();
+        comment.deleteFreeComment();
+
         freeCommentRepository.save(comment);
     }
 
 
-
     // 결과 응답용
-    private FreeCommentResponse toResponse(FreeComment comment) {
+    private FreeCommentResponse toResponse(FreeComment comment, Long userId) {
+        ApiResponse<String> responseWithNickname = userServiceClient.getUserNicknameById(comment.getUserId(), userId);
+        String nickname = responseWithNickname.getResult();
+
         return FreeCommentResponse.builder()
                 .commentId(comment.getFreeCommentId())
                 .postId(comment.getFreeId())
-                .userId(comment.getUserId())
+                // .userId(comment.getUserId())
+                .nickname(nickname)
                 .comment(comment.getFreeComment())
                 .isDeleted(comment.getIsDeleted())
                 .parentCommentId(comment.getPFreeCommentId())
+                .createdAt(comment.getCreatedAt())
+                .updatedAt(comment.getUpdatedAt())
                 .build();
     }
 }

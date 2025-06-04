@@ -6,6 +6,7 @@ import befly.community.repository.SolvedPostRepository;
 import befly.community.domain.SolvedPost;
 import befly.community.dto.SolvedPostRequest;
 import befly.community.dto.SolvedPostResponse;
+import befly.community.service.kafka.WingEventProducerService;
 import befly.community.status.SolvedErrorStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 public class SolvedPostService {
     private final SolvedPostRepository solvedPostRepository;
     private final S3Interface s3Interface;
+    private final WingEventProducerService wingEventProducerService;
 
     // 해결함 글 생성
     @Transactional
@@ -31,6 +33,10 @@ public class SolvedPostService {
                 .build();
 
         SolvedPost saved = solvedPostRepository.save(post);
+
+        // SolvedPost는 하루 제한 없이, 생성 시 10 wings
+        wingEventProducerService.produceWingEvent(userId, 10L);
+
         return toResponse(saved);
     }
 
