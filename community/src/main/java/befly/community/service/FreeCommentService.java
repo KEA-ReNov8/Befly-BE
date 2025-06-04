@@ -1,7 +1,8 @@
 package befly.community.service;
 
+import befly.common.apiPayload.ApiResponse;
 import befly.common.exception.RestApiException;
-import befly.community.dto.NickNameResponse;
+import befly.community.client.UserServiceClient;
 import befly.community.repository.FreeCommentRepository;
 import befly.community.repository.FreePostRepository;
 import befly.community.domain.FreePost;
@@ -14,12 +15,7 @@ import befly.community.status.FreeErrorStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,10 +24,10 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class FreeCommentService {
-    private final RestTemplate restTemplate;
     private final FreeCommentRepository freeCommentRepository;
     private final FreePostRepository freePostRepository;
     private final NotificationProducerService notificationProducerService;
+    private final UserServiceClient userServiceClient;
 
     // 자유함 댓글 생성
     @Transactional
@@ -99,7 +95,7 @@ public class FreeCommentService {
                         .commentId(comment.getFreeCommentId())
                         .postId(comment.getFreeId())
                         // .userId(comment.getUserId())
-                        .nickname(getNickName(userId, comment.getUserId()))
+                        .nickname(userServiceClient.getUserNicknameById(comment.getUserId(), userId).getResult())
                         .comment(comment.getIsDeleted() ? "삭제된 댓글입니다." : comment.getFreeComment())
                         .parentCommentId(comment.getPFreeCommentId())
                         .isDeleted(comment.getIsDeleted())
@@ -127,48 +123,17 @@ public class FreeCommentService {
         freeCommentRepository.save(comment);
     }
 
-    public String getNickName(Long userId, Long targetId) {
-        System.out.println("userId: " + userId);
-        System.out.println("targetId: " + targetId);
-        String api = "http://localhost:8081/user/getNickname/" + targetId;
-        System.out.println(api);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("X-USER-ID", userId.toString());
-
-        HttpEntity<Void> entity = new HttpEntity<>(headers);
-
-        try {
-            ResponseEntity<NickNameResponse> response = restTemplate.exchange(
-                    api,
-                    HttpMethod.GET,
-                    entity,
-                    NickNameResponse.class
-            );
-
-            NickNameResponse body = response.getBody();
-
-            if (body != null && "COMMON200".equals(body.getCode())) {
-                return body.getResult();
-            } else {
-                log.error("Nickname not found for targetId: " + targetId);
-                return String.valueOf(targetId);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("Exception: " + e.getMessage());
-            return String.valueOf(targetId);
-        }
-    }
-
 
     // 결과 응답용
     private FreeCommentResponse toResponse(FreeComment comment, Long userId) {
+        ApiResponse<String> responseWithNickname = userServiceClient.getUserNicknameById(comment.getUserId(), userId);
+        String nickname = responseWithNickname.getResult();
+
         return FreeCommentResponse.builder()
                 .commentId(comment.getFreeCommentId())
                 .postId(comment.getFreeId())
                 // .userId(comment.getUserId())
-                .nickname(getNickName(userId, comment.getUserId()))
+                .nickname(nickname)
                 .comment(comment.getFreeComment())
                 .isDeleted(comment.getIsDeleted())
                 .parentCommentId(comment.getPFreeCommentId())
