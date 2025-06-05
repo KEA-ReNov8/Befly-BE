@@ -22,8 +22,12 @@ public class SolvedPostResponse {
     private LocalDateTime updatedAt;
     private String category;
     // AI 분석 결과
-    private List<EmotionAnalytics> emotionCards;
-    private String analysisReport;
-    private String naraeSuggestion;
+
+    private List<EmotionAnalytics> analytics;
+    private String totalComment;
+    private String suggest;
+    private String worry_title;
+    private String worry_category;
+    private String worry_created_at;
 }
 

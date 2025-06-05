@@ -3,7 +3,7 @@ package befly.community.service;
 import befly.common.apiPayload.ApiResponse;
 import befly.common.exception.RestApiException;
 import befly.common.s3.S3Interface;
-import befly.community.client.AiSummaryClient;
+import befly.community.client.ConsultServiceClient;
 import befly.community.client.UserServiceClient;
 import befly.community.domain.SolvedPost;
 import befly.community.dto.AiSummaryResponse;
@@ -28,7 +28,7 @@ public class SolvedPostService {
     private final SolvedPostRepository solvedPostRepository;
     private final S3Interface s3Interface;
     private final WingEventProducerService wingEventProducerService;
-    private final AiSummaryClient aiSummaryClient;
+    private final ConsultServiceClient consultServiceClient;
     private final UserServiceClient userServiceClient;
     private final SolvedCommentRepository solvedCommentRepository;
     private final SolvedEmpathyRepository solvedEmpathyRepository;
@@ -48,7 +48,7 @@ public class SolvedPostService {
         SolvedPost saved = solvedPostRepository.save(post);
         wingEventProducerService.produceWingEvent(userId, 10L);
 
-        AiSummaryResponse aiSummary = aiSummaryClient.getSummary(request.getSessionId());
+        AiSummaryResponse aiSummary = consultServiceClient.evaluateChat(request.getSessionId(), userId).getResult();
         String nickname = getNickname(saved.getUserId(), userId);
         long commentCount = solvedCommentRepository.countBySolvedId(saved);
         long likeCount = solvedEmpathyRepository.countSolvedEmpathyBySolvedId(saved.getSolvedId());
@@ -64,7 +64,7 @@ public class SolvedPostService {
         if (!post.getUserId().equals(userId)) throw new RestApiException(SolvedErrorStatus.NO_PERMISSION);
 
         post.update(request.getSolvedTitle(), request.getSolvedContent(), request.getImageKeys(), request.getCategory());
-        AiSummaryResponse aiSummary = aiSummaryClient.getSummary(post.getSessionId());
+        AiSummaryResponse aiSummary = consultServiceClient.evaluateChat(request.getSessionId(), userId).getResult();
         String nickname = getNickname(post.getUserId(), userId);
         long commentCount = solvedCommentRepository.countBySolvedId(post);
         long likeCount = solvedEmpathyRepository.countSolvedEmpathyBySolvedId(post.getSolvedId());
@@ -88,7 +88,7 @@ public class SolvedPostService {
     public SolvedPostResponse getPost(Long id, Long currentUserId) {
         SolvedPost post = solvedPostRepository.findById(id)
                 .orElseThrow(() -> new RestApiException(SolvedErrorStatus.POST_NOT_FOUND));
-        AiSummaryResponse aiSummary = aiSummaryClient.getSummary(post.getSessionId());
+        AiSummaryResponse aiSummary = consultServiceClient.evaluateChat(post.getSessionId(), currentUserId).getResult();
         String nickname = getNickname(post.getUserId(), currentUserId);
         long commentCount = solvedCommentRepository.countBySolvedId(post);
         long likeCount = solvedEmpathyRepository.countSolvedEmpathyBySolvedId(post.getSolvedId());
@@ -102,7 +102,7 @@ public class SolvedPostService {
         List<SolvedPost> posts = solvedPostRepository.findTop4ByOrderByCreatedAtDesc();
         return posts.stream()
                 .map(post -> {
-                    AiSummaryResponse aiSummary = aiSummaryClient.getSummary(post.getSessionId());
+                    AiSummaryResponse aiSummary = consultServiceClient.evaluateChat(post.getSessionId(), currentUserId).getResult();
                     String nickname = getNickname(post.getUserId(), currentUserId);
                     long commentCount = solvedCommentRepository.countBySolvedId(post);
                     long likeCount = solvedEmpathyRepository.countSolvedEmpathyBySolvedId(post.getSolvedId());
@@ -116,7 +116,7 @@ public class SolvedPostService {
     public Page<SolvedPostResponse> getAllPosts(Long currentUserId, Pageable pageable) {
         return solvedPostRepository.findAll(pageable)
                 .map(post -> {
-                    AiSummaryResponse aiSummary = aiSummaryClient.getSummary(post.getSessionId());
+                    AiSummaryResponse aiSummary = consultServiceClient.evaluateChat(post.getSessionId(), currentUserId).getResult();
                     String nickname = getNickname(post.getUserId(), currentUserId);
                     long commentCount = solvedCommentRepository.countBySolvedId(post);
                     long likeCount = solvedEmpathyRepository.countSolvedEmpathyBySolvedId(post.getSolvedId());
@@ -146,9 +146,11 @@ public class SolvedPostService {
                 .likeCount(likeCount)
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
-                .emotionCards(aiSummary != null ? aiSummary.getEmotionCards() : List.of())
-                .analysisReport(aiSummary != null ? aiSummary.getAnalysisReport() : null)
-                .naraeSuggestion(aiSummary != null ? aiSummary.getNaraeSuggestion() : null)
+                .analytics(aiSummary != null ? aiSummary.getAnalytics() : List.of())
+                .totalComment(aiSummary != null ? aiSummary.getTotalComment() : null)
+                .suggest(aiSummary != null ? aiSummary.getSuggest() : null)
+                .worry_category(aiSummary != null ? aiSummary.getWorry_category() : null)
+                .worry_created_at(aiSummary != null ? aiSummary.getWorry_created_at() : null)
                 .build();
     }
 }
