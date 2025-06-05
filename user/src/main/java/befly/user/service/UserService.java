@@ -56,11 +56,11 @@ public class UserService {
 
     public ImageUploadResponse getImageUploadUrl(String key) {
         String preSignedUrl = s3Service.createPreSignedUrl(key, "PUT");
-        String imageUrl = s3Service.getImageUrl(key);
-        
+        String path = preSignedUrl.split("\\?")[0];  // 쿼리스트링 제거
+        String fileName = path.substring(path.lastIndexOf('/') + 1);
         return ImageUploadResponse.builder()
+                .imageKey(fileName)
                 .preSignedUrl(preSignedUrl)
-                .imageUrl(imageUrl)
                 .build();
     }
 
