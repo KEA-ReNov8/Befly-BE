@@ -2,10 +2,8 @@ package befly.community.domain;
 
 import befly.common.common.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import java.util.List;
 
 @Entity
 @Getter
@@ -13,22 +11,34 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SolvedPost extends BaseTimeEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "solved_id")
-    private Long solvedId; // Primary Key, Auto-Increment
+    private Long solvedId;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId; // Foreign Key, Not Null
+    @Column(nullable = false)
+    private Long userId;
 
-    @Column(name = "solved_title", nullable = false, length = 255)
-    private String solvedTitle; // Not Null
+    @Column(nullable = false, length = 255)
+    private String solvedTitle;
 
-    @Column(name = "solved_content", length = 2048)
-    private String solvedContent; // Nullable
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String solvedContent;
 
-    @Column
-    private String imageKey;
+    @ElementCollection
+    @CollectionTable(name = "solved_images", joinColumns = @JoinColumn(name = "solved_id"))
+    @Column(name = "image_key")
+    private List<String> imageKeys;
 
+    @Column(name = "session_id")
+    private String sessionId;
+
+    @Column(nullable = false, length = 20)
+    private String category; // 카테고리 필드 추가 ("불안", "상처" 등)
+
+    public void update(String title, String content, List<String> imageKeys, String category) {
+        if (title != null) this.solvedTitle = title;
+        if (content != null) this.solvedContent = content;
+        if (imageKeys != null) this.imageKeys = imageKeys;
+        if (category != null) this.category = category;
+    }
 }

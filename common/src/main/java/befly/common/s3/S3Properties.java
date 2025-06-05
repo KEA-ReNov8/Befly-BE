@@ -30,4 +30,5 @@ public class S3Properties {
 
     @Value("${s3.projectId}")
     private String projectId;
+
 }

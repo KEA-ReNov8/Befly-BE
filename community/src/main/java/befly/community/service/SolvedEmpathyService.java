@@ -7,7 +7,7 @@ import befly.community.domain.empahty.SolvedEmpathy;
 import befly.community.dto.kafka.NotificationType;
 import befly.community.service.kafka.NotificationProducerService;
 import befly.community.status.SolvedErrorStatus;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +22,7 @@ public class SolvedEmpathyService {
     // 해결함 공감 생성
     @Transactional
     public void createEmpathy(Long userId, Long solvedId) {
-        boolean exists = solvedEmpathyRepository.existsByUserIdAndSolvedId(userId, solvedId);
-        if (exists) {
+        if (solvedEmpathyRepository.existsByUserIdAndSolvedId(userId, solvedId)) {
             throw new RestApiException(SolvedErrorStatus.ALREADY_EMPATHIZED);
         }
         SolvedEmpathy empathy = SolvedEmpathy.builder()
@@ -52,11 +51,13 @@ public class SolvedEmpathyService {
     }
 
     // 유저가 공감했는지 여부 확인
+    @Transactional(readOnly = true)
     public boolean isEmpathized(Long userId, Long solvedId) {
         return solvedEmpathyRepository.existsByUserIdAndSolvedId(userId, solvedId);
     }
 
     // 해결함 글 공감 갯수 확인
+    @Transactional(readOnly = true)
     public long countSolvedEmpathy(Long solvedId) {
         return solvedEmpathyRepository.countSolvedEmpathyBySolvedId(solvedId);
     }
