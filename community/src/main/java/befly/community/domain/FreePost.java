@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Builder
@@ -27,7 +29,15 @@ public class FreePost extends BaseTimeEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String freeContent; // 글 내용
 
-    @Column
-    private String imageKey;
+    @ElementCollection
+    @CollectionTable(name = "free_images", joinColumns = @JoinColumn(name = "free_Id"))
+    @Column(name = "image_key")
+    private List<String> imageKeys;
+
+    public void updateFreePost(String title, String content, List<String> imageKeys) {
+        if (title != null) this.freeTitle = title;
+        if (content != null) this.freeContent = content;
+        if (imageKeys != null) this.imageKeys = imageKeys;
+    }
 
 }

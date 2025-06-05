@@ -38,17 +38,8 @@ public class UserService {
                 .orElseThrow(() -> new RestApiException(UserErrorStatus.MEMBER_NOT_FOUND));
 
         // 닉네임 업데이트
-        user = User.builder()
-                .userId(user.getUserId())
-                .clientId(user.getClientId())
-                .password(user.getPassword())
-                .profileImg(user.getProfileImg())
-                .wing(user.getWing())
-                .badge(user.getBadge())
-                .nickName(newNickname)
-                .build();
-
-        return userRepository.save(user);
+        user.updateNickName(newNickname);
+        return user;
     }
 
     public UserProfileResponse getProfile(Long userId) {
@@ -65,11 +56,11 @@ public class UserService {
 
     public ImageUploadResponse getImageUploadUrl(String key) {
         String preSignedUrl = s3Service.createPreSignedUrl(key, "PUT");
-        String imageUrl = s3Service.getImageUrl(key);
-        
+        String path = preSignedUrl.split("\\?")[0];  // 쿼리스트링 제거
+        String fileName = path.substring(path.lastIndexOf('/') + 1);
         return ImageUploadResponse.builder()
+                .imageKey(fileName)
                 .preSignedUrl(preSignedUrl)
-                .imageUrl(imageUrl)
                 .build();
     }
 
@@ -78,17 +69,8 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RestApiException(UserErrorStatus.MEMBER_NOT_FOUND));
         
-        user = User.builder()
-                .userId(user.getUserId())
-                .clientId(user.getClientId())
-                .password(user.getPassword())
-                .profileImg(imageUrl)
-                .wing(user.getWing())
-                .badge(user.getBadge())
-                .nickName(user.getNickName())
-                .build();
-
-        return userRepository.save(user);
+        user.updateProfileImg(imageUrl);
+        return user;
     }
 
     @Transactional
@@ -96,17 +78,38 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RestApiException(UserErrorStatus.MEMBER_NOT_FOUND));
         
-        user = User.builder()
-                .userId(user.getUserId())
-                .clientId(user.getClientId())
-                .password(user.getPassword())
-                .profileImg(user.getProfileImg())
-                .wing(user.getWing() + wing)
-                .badge(user.getBadge())
-                .nickName(user.getNickName())
-                .build();
+        user.addWing(wing);
+        updateBadgeByWing(user);
+    }
 
-        userRepository.save(user);
+    private void updateBadgeByWing(User user) {
+        Long wing = user.getWing();
+        Long badge = 0L;
+        
+        if (wing >= 1250 ) {
+            badge = 8L;
+        } else if (wing >= 850) {
+            badge = 7L;
+        } else if (wing >= 550) {
+            badge = 5L;
+        }
+        else if (wing >= 330) {
+            badge = 4L;
+        }
+        else if (wing >= 180) {
+            badge = 3L;
+        }
+        else if (wing >= 90) {
+            badge = 2L;
+        }
+        else if (wing >= 30) {
+            badge = 1L;
+        }
+        else {
+            badge = 0L;
+        }
+        
+        user.updateBadge(badge);
     }
 
     @Transactional
@@ -132,4 +135,12 @@ public class UserService {
                 .users(userProfiles)
                 .build();
     }
+
+    public String getNicknameById(Long userId) {
+        return userRepository.findById(userId)
+                .map(user -> user.getNickName())
+                .orElseThrow(() -> new RestApiException(UserErrorStatus.MEMBER_NOT_FOUND));
+    }
+
+
 }

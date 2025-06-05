@@ -1,5 +1,6 @@
 package befly.user.dto.commonAuth;
 
+import befly.user.domain.Enum.LoginType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,5 +10,5 @@ public class SignUpRequest {
     private String clientId;
     private String password;
     private String nickName;
-    private String photoUrl; // 사진 URL 추가
+    private LoginType loginType;
 }

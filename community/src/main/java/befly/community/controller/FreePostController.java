@@ -3,11 +3,19 @@ package befly.community.controller;
 import befly.common.annotations.LoginUser;
 import befly.common.apiPayload.ApiResponse;
 import befly.common.s3.S3Interface;
+import befly.community.dto.ImageUrlsResponse;
+import befly.community.dto.FreePostListResponse;
 import befly.community.service.FreePostService;
 import befly.community.dto.FreePostRequest;
 import befly.community.dto.FreePostResponse;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +29,7 @@ public class FreePostController {
     private final S3Interface s3Interface;
 
     @GetMapping("/test")
-    public ApiResponse<Long> test(@LoginUser Long userId) {
+    public ApiResponse<Long> test(@Parameter(hidden = true) @LoginUser Long userId) {
         log.info("test");
         log.info("userId:{}", userId);
         return ApiResponse.onSuccess(userId);
@@ -29,26 +37,50 @@ public class FreePostController {
 
     // 자유함 글 생성
     @PostMapping
-    public ApiResponse<FreePostResponse> createPost(@LoginUser Long userId,
+    public ApiResponse<FreePostResponse> createPost(@Parameter(hidden = true) @LoginUser Long userId,
                                                     @RequestBody FreePostRequest request) {
         return ApiResponse.onSuccess(freePostService.createPost(userId, request));
     }
 
     // 자유함 글 조회
     @GetMapping("/{freeId}")
-    public ApiResponse<FreePostResponse> getPost(@PathVariable Long freeId) {
-        return ApiResponse.onSuccess(freePostService.getPost(freeId));
+    public ApiResponse<FreePostResponse> getPost(@PathVariable Long freeId,
+                                                 @Parameter(hidden = true) @LoginUser Long userId) {
+        return ApiResponse.onSuccess(freePostService.getPost(freeId, userId));
     }
 
-    // 자유함 글 리스트 조회
-    @GetMapping
-    public ApiResponse<List<FreePostResponse>> getAllPosts() {
-        return ApiResponse.onSuccess(freePostService.getAllPosts());
+    // 특정 유저 아이디로 자유함 글 조회
+    @GetMapping("/user/{userId}/page/{page}")
+    public ApiResponse<Page<FreePostListResponse>> getAllPostsByUserId(
+            @Parameter(hidden = true) @LoginUser Long loginId,
+            @PathVariable Long userId,
+            @PathVariable int page
+    ) {
+        Pageable pageable = PageRequest.of(page, 8, Sort.Direction.DESC, "createdAt");
+        Page<FreePostListResponse> response = freePostService.getPostByUserId(loginId, userId, pageable);
+        return ApiResponse.onSuccess(response);
+    }
+
+    // 자유함 글 리스트 조회 (페이지 사이즈 8, 생성 시간 순)
+    @GetMapping("/page/{page}")
+    public ApiResponse<Page<FreePostListResponse>> getAllPosts(
+            @Parameter(hidden = true) @LoginUser Long userId,
+            @PathVariable int page
+    ) {
+        Pageable pageable = PageRequest.of(page, 8, Sort.Direction.DESC, "createdAt");
+        Page<FreePostListResponse> response = freePostService.getAllPosts(userId, pageable);
+        return ApiResponse.onSuccess(response);
+    }
+
+    // 자유함 최신 글 조회
+    @GetMapping("/latest")
+    public ApiResponse<List<FreePostListResponse>> getLatestPost(@Parameter(hidden = true) @LoginUser Long userId) {
+        return ApiResponse.onSuccess(freePostService.getLatestFreePosts(userId));
     }
 
     // 자유함 글 수정
     @PatchMapping("/{freeId}")
-    public ApiResponse<FreePostResponse> updatePost(@LoginUser Long userId,
+    public ApiResponse<FreePostResponse> updatePost(@Parameter(hidden = true) @LoginUser Long userId,
                                                     @PathVariable Long freeId,
                                                     @RequestBody FreePostRequest request) {
         return ApiResponse.onSuccess(freePostService.updatePost(userId, freeId, request));
@@ -56,22 +88,27 @@ public class FreePostController {
 
     // 자유함 글 삭제
     @DeleteMapping("/{freeId}")
-    public ApiResponse<Void> deletePost(@LoginUser Long userId,
+    public ApiResponse<Void> deletePost(@Parameter(hidden = true) @LoginUser Long userId,
                                         @PathVariable Long freeId) {
         freePostService.deletePost(userId, freeId);
         return ApiResponse.onSuccess(null);
     }
 
-    // Pre-signed URL 생성
-    @PostMapping("/presigned")
-    public ApiResponse<String> getPresignedUrl(@RequestParam String imageKey) {
-        return ApiResponse.onSuccess(s3Interface.createPreSignedUrl(imageKey, "PUT"));
-    }
-
-    // 업로드된 이미지 URL 조회
-    @GetMapping("/url")
-    public ApiResponse<String> getImageUrl(@RequestParam String imageKey) {
-        return ApiResponse.onSuccess(s3Interface.getImageUrl(imageKey));
+    // 이미지 URL
+    @GetMapping("/image")
+    public ApiResponse<List<ImageUrlsResponse>> getImageUrls(@RequestParam List<String> imageKeys) {
+        List<ImageUrlsResponse> responses = imageKeys.stream()
+                .map(imageKey -> {
+                    String preSignedUrl = s3Interface.createPreSignedUrl(imageKey, "PUT");
+                    String path = preSignedUrl.split("\\?")[0];  // 쿼리스트링 제거
+                    String fileName = path.substring(path.lastIndexOf('/') + 1);
+                    return new ImageUrlsResponse(
+                            fileName,
+                            preSignedUrl
+                    );
+                })
+                .toList();
+        return ApiResponse.onSuccess(responses);
     }
 
 }

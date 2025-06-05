@@ -13,7 +13,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 @Builder
-@Table(name = "solved_empathy")
+@Table(name = "solved_empathy",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "solved_id"})
+)
 public class SolvedEmpathy extends BaseTimeEntity {
 
     @Id

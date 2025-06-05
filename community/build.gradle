@@ -4,7 +4,23 @@ dependencies {
     // Spring Kafka
     implementation 'org.springframework.kafka:spring-kafka'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
+//    Client Feignclient
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
+    implementation 'co.elastic.clients:elasticsearch-java:8.17.6'
+    implementation 'jakarta.json:jakarta.json-api:2.0.1'
+    implementation 'org.eclipse.parsson:parsson:1.1.1'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.0'
+}
+
+ext {
+    springCloudVersion = "2024.0.1"
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
 }
 
 task copyPrivate(type: Copy) {
@@ -21,3 +37,6 @@ test {
     useJUnitPlatform()
 }
 
+repositories {
+    mavenCentral()
+}

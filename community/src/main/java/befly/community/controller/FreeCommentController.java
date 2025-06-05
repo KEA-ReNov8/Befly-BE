@@ -4,6 +4,7 @@ import befly.common.annotations.LoginUser;
 import befly.common.apiPayload.ApiResponse;
 import befly.community.service.FreeCommentService;
 import befly.community.dto.FreeCommentResponse;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ public class FreeCommentController {
 
     // 자유함 댓글 생성
     @PostMapping
-    public ApiResponse<FreeCommentResponse> createComment(@LoginUser Long userId,
+    public ApiResponse<FreeCommentResponse> createComment(@Parameter(hidden = true) @LoginUser Long userId,
                                                           @PathVariable Long freeId,
                                                           @RequestBody CommentDto commentDto) {
         return ApiResponse.onSuccess(freeCommentService.createComment(userId, freeId, commentDto));
@@ -29,7 +30,7 @@ public class FreeCommentController {
 
     // 자유함 댓글 수정
     @PatchMapping("/{commentId}")
-    public ApiResponse<FreeCommentResponse> updateComment(@LoginUser Long userId,
+    public ApiResponse<FreeCommentResponse> updateComment(@Parameter(hidden = true) @LoginUser Long userId,
                                                           @PathVariable Long freeId,
                                                           @PathVariable Long commentId,
                                                           @RequestBody CommentDto commentDto) {
@@ -38,13 +39,14 @@ public class FreeCommentController {
 
     // 자유함 댓글 조회
     @GetMapping
-    public ApiResponse<List<FreeCommentResponse>> getComments(@PathVariable Long freeId) {
-        return ApiResponse.onSuccess(freeCommentService.getComments(freeId));
+    public ApiResponse<List<FreeCommentResponse>> getComments(@PathVariable Long freeId,
+                                                              @Parameter(hidden = true) @LoginUser Long userId) {
+        return ApiResponse.onSuccess(freeCommentService.getComments(freeId, userId));
     }
 
     // 자유함 댓글 삭제
     @DeleteMapping("/{commentId}")
-    public ApiResponse<Void> deleteComment(@LoginUser Long userId,
+    public ApiResponse<Void> deleteComment(@Parameter(hidden = true) @LoginUser Long userId,
                                            @PathVariable Long freeId,
                                            @PathVariable Long commentId) {
         freeCommentService.deleteComment(userId, freeId, commentId);

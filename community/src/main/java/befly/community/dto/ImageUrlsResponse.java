@@ -1,15 +1,13 @@
-package befly.user.dto;
+package befly.community.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class ImageUploadResponse {
+public class ImageUrlsResponse {
     private String imageKey;
-    private String preSignedUrl;
-} 
+    private String putUrl; // 업로드용
+}
