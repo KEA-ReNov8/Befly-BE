@@ -54,7 +54,7 @@ public class SolvedPostSearchService {
             return Collections.emptyList();
         }
     }
-
+//
     private SolvedPostSearchResponse convertToSolvedPostResponse(Map<String, Object> source) {
         return SolvedPostSearchResponse.builder()
                 .solvedId(source.get("solved_id") != null ? Long.valueOf(source.get("solved_id").toString()) : null)
