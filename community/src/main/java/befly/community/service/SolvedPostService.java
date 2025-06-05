@@ -133,7 +133,7 @@ public class SolvedPostService {
     // 응답 변환
     private SolvedPostResponse toResponse(SolvedPost post, String nickname, long commentCount, long likeCount, AiSummaryResponse aiSummary) {
         List<String> imageUrls = post.getImageKeys() != null
-                ? post.getImageKeys().stream().map(s3Interface::getImageUrl).collect(Collectors.toList())
+                ? post.getImageKeys().stream().toList()
                 : List.of();
 
         return SolvedPostResponse.builder()
