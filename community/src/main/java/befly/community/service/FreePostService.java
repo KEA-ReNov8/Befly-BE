@@ -80,9 +80,16 @@ public class FreePostService {
         return toResponse(post, userId);
     }
 
+    // 유저 아이디로 글 조회
+    public Page<FreePostListResponse> getPostByUserId(Long loginId, Long userId, Pageable pageable) {
+        Page<FreePost> freePostsPage = freePostRepository.findAllByUserId(userId, pageable);
+
+        return freePostPageMapping(loginId, freePostsPage);
+    }
+
     // 자유함 글 리스트 조회 (페이지네이션, 페이지 사이즈 8, 생성 시간 순)
     public Page<FreePostListResponse> getAllPosts(Long userId, Pageable pageable) {
-        Page<FreePost> freePostsPage = freePostRepository.findAll(pageable);
+        Page<FreePost> freePostsPage = freePostRepository.findAllByOrderByCreatedAtDesc(pageable);
 
         return freePostPageMapping(userId, freePostsPage);
     }
@@ -150,6 +157,8 @@ public class FreePostService {
                     .likes(empathyCount != null ? empathyCount : 0L)
                     .comments(commentCount != null ? commentCount : 0L)
                     .time(TimeUtils.formatTimeAgo(freePost.getCreatedAt()))
+                    .createdAt(freePost.getCreatedAt())
+                    .updatedAt(freePost.getUpdatedAt())
                     .imageUrl(imageUrls)
                     .build();
         });
