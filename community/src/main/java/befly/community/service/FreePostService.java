@@ -15,6 +15,7 @@ import befly.community.service.kafka.WingEventProducerService;
 import befly.community.status.FreeErrorStatus;
 import befly.community.util.TimeUtils;
 import jakarta.transaction.Transactional;
+import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -135,7 +136,6 @@ public class FreePostService {
             List<String> imageUrls = Optional.ofNullable(freePost.getImageKeys())
                     .orElse(List.of())
                     .stream()
-                    .map(s3Interface::getImageUrl)
                     .toList();
 
             ApiResponse<String> responseWithNickname = userServiceClient.getUserNicknameById(freePost.getUserId(), userId);
@@ -166,7 +166,6 @@ public class FreePostService {
                     List<String> imageKeys = freePost.getImageKeys();
                     List<String> imageUrls = imageKeys != null
                             ? imageKeys.stream()
-                            .map(s3Interface::getImageUrl)
                             .toList()
                             : List.of();
 
@@ -197,9 +196,7 @@ public class FreePostService {
         Long commentCount = freeCommentRepository.countFreeCommentByFreeId(post); // 응원 수 조회
 
         if (post.getImageKeys() != null && !post.getImageKeys().isEmpty()) {
-            imageUrls = post.getImageKeys().stream()
-                    .map(s3Interface::getImageUrl)
-                    .collect(Collectors.toList());
+            imageUrls = new ArrayList<>(post.getImageKeys());
         }
 
         ApiResponse<String> responseWithNickname = userServiceClient.getUserNicknameById(post.getUserId(), userId);

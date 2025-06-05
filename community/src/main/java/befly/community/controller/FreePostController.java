@@ -86,11 +86,15 @@ public class FreePostController {
     @GetMapping("/image")
     public ApiResponse<List<ImageUrlsResponse>> getImageUrls(@RequestParam List<String> imageKeys) {
         List<ImageUrlsResponse> responses = imageKeys.stream()
-                .map(imageKey -> new ImageUrlsResponse(
-                        imageKey,
-                        s3Interface.createPreSignedUrl(imageKey, "PUT"),
-                        s3Interface.getImageUrl(imageKey)
-                ))
+                .map(imageKey -> {
+                    String preSignedUrl = s3Interface.createPreSignedUrl(imageKey, "PUT");
+                    String path = preSignedUrl.split("\\?")[0];  // 쿼리스트링 제거
+                    String fileName = path.substring(path.lastIndexOf('/') + 1);
+                    return new ImageUrlsResponse(
+                            fileName,
+                            preSignedUrl
+                    );
+                })
                 .toList();
         return ApiResponse.onSuccess(responses);
     }
