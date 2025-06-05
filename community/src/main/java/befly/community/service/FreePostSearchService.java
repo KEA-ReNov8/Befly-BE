@@ -5,14 +5,17 @@ import befly.community.dto.SolvedPostSearchResponse;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class FreePostSearchService {
     private final ElasticsearchClient elasticsearchClient;
@@ -38,6 +41,8 @@ public class FreePostSearchService {
 
         try {
             SearchResponse<Map> response = elasticsearchClient.search(builder.build(), Map.class);
+            ObjectMapper mapper = new ObjectMapper();
+            log.info("ES Response: {}", mapper.writeValueAsString(response));
             return response.hits().hits().stream()
                     .map(hit -> convertToFreePostResponse(hit.source()))
                     .collect(Collectors.toList());
@@ -48,7 +53,7 @@ public class FreePostSearchService {
 
     private FreePostSearchResponse convertToFreePostResponse(Map<String, Object> source) {
         return FreePostSearchResponse.builder()
-                .freeId(source.get("free_id") != null ? Long.valueOf(source.get("solved_id").toString()) : null)
+                .freeId(source.get("free_id") != null ? Long.valueOf(source.get("free_id").toString()) : null)
                 .userId(source.get("user_id") != null ? Long.valueOf(source.get("user_id").toString()) : null)
                 .freeTitle((String) source.get("free_title"))
                 .freeContent((String) source.get("free_content"))
