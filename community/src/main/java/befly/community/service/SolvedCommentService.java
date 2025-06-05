@@ -127,6 +127,8 @@ public class SolvedCommentService {
         solvedCommentRepository.save(comment);
     }
 
+
+
     // 결과 응답용
     private SolvedCommentResponse toResponse(SolvedComment comment) {
         return SolvedCommentResponse.builder()
