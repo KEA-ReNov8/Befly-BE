@@ -11,7 +11,10 @@ import java.util.List;
 public interface FreePostRepository extends JpaRepository<FreePost, Long> {
 
     // 페이징 - 전체 글 리스트 조회
-    Page<FreePost> findAll(Pageable pageable);
+    Page<FreePost> findAllByOrderByCreatedAtDesc(Pageable pageable);
+
+    // 페이징 - 특정 유저 글 리스트 조회
+    Page<FreePost> findAllByUserId(Long userId, Pageable pageable);
 
     // 최신 4개 최신순 조회
     List<FreePost> findTop4ByOrderByCreatedAtDesc();

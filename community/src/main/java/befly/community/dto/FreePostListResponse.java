@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -16,6 +17,8 @@ public class FreePostListResponse {
     private Long likes;
     private Long comments;
     private String time;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     // private Long userId;
     private String nickname;
     private List<String> imageUrl;

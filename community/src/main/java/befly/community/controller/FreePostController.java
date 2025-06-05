@@ -49,15 +49,27 @@ public class FreePostController {
         return ApiResponse.onSuccess(freePostService.getPost(freeId, userId));
     }
 
+    // 특정 유저 아이디로 자유함 글 조회
+    @GetMapping("/user/{userId}/page/{page}")
+    public ApiResponse<Page<FreePostListResponse>> getAllPostsByUserId(
+            @Parameter(hidden = true) @LoginUser Long loginId,
+            @PathVariable Long userId,
+            @PathVariable int page
+    ) {
+        Pageable pageable = PageRequest.of(page, 8, Sort.Direction.DESC, "createdAt");
+        Page<FreePostListResponse> response = freePostService.getPostByUserId(loginId, userId, pageable);
+        return ApiResponse.onSuccess(response);
+    }
+
     // 자유함 글 리스트 조회 (페이지 사이즈 8, 생성 시간 순)
     @GetMapping("/page/{page}")
-    public ResponseEntity<ApiResponse<Page<FreePostListResponse>>> getAllPosts(
+    public ApiResponse<Page<FreePostListResponse>> getAllPosts(
             @Parameter(hidden = true) @LoginUser Long userId,
             @PathVariable int page
     ) {
         Pageable pageable = PageRequest.of(page, 8, Sort.Direction.DESC, "createdAt");
         Page<FreePostListResponse> response = freePostService.getAllPosts(userId, pageable);
-        return ResponseEntity.ok(ApiResponse.onSuccess(response));
+        return ApiResponse.onSuccess(response);
     }
 
     // 자유함 최신 글 조회
