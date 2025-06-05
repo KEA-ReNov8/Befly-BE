@@ -79,6 +79,37 @@ public class UserService {
                 .orElseThrow(() -> new RestApiException(UserErrorStatus.MEMBER_NOT_FOUND));
         
         user.addWing(wing);
+        updateBadgeByWing(user);
+    }
+
+    private void updateBadgeByWing(User user) {
+        Long wing = user.getWing();
+        Long badge = 0L;
+        
+        if (wing >= 1250 ) {
+            badge = 8L;
+        } else if (wing >= 850) {
+            badge = 7L;
+        } else if (wing >= 550) {
+            badge = 5L;
+        }
+        else if (wing >= 330) {
+            badge = 4L;
+        }
+        else if (wing >= 180) {
+            badge = 3L;
+        }
+        else if (wing >= 90) {
+            badge = 2L;
+        }
+        else if (wing >= 30) {
+            badge = 1L;
+        }
+        else {
+            badge = 0L;
+        }
+        
+        user.updateBadge(badge);
     }
 
     @Transactional
@@ -110,4 +141,6 @@ public class UserService {
                 .map(user -> user.getNickName())
                 .orElseThrow(() -> new RestApiException(UserErrorStatus.MEMBER_NOT_FOUND));
     }
+
+
 }
