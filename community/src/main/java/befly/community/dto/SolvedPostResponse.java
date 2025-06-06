@@ -22,7 +22,6 @@ public class SolvedPostResponse {
     private LocalDateTime updatedAt;
     private String category;
     // AI 분석 결과
-
     private List<EmotionAnalytics> analytics;
     private String totalComment;
     private String suggest;

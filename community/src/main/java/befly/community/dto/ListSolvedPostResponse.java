@@ -1,4 +1,24 @@
 package befly.community.dto;
 
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Getter
+@Setter
+@Builder
 public class ListSolvedPostResponse {
+    private Long solvedId;
+    private String nickname;
+    private String solvedTitle;
+    private String solvedContent;
+    private List<String> imageUrls;
+    private Long commentCount;
+    private Long likeCount;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private String category;
 }
