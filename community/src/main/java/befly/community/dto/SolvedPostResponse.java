@@ -26,14 +26,6 @@ public class SolvedPostResponse {
     private List<EmotionAnalytics> analytics;
     private String totalComment;
     private String suggest;
-
-    @JsonProperty("worry_title")
     private String worryTitle;
-
-    @JsonProperty("worry_category")
-    private String worryCategory;
-
-    @JsonProperty("worry_created_at")
-    private String worryCreatedAt;
 }
 
