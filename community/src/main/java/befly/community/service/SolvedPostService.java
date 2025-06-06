@@ -100,7 +100,7 @@ public class SolvedPostService {
                     long likeCount = solvedEmpathyRepository.countSolvedEmpathyBySolvedId(post.getSolvedId());
 
                     List<String> imageUrls = post.getImageKeys() != null
-                            ? post.getImageKeys().stream().map(s3Interface::getImageUrl).toList()
+                            ? post.getImageKeys().stream().toList()
                             : List.of();
 
                     return SolvedPostResponse.builder()
@@ -130,7 +130,7 @@ public class SolvedPostService {
                     long likeCount = solvedEmpathyRepository.countSolvedEmpathyBySolvedId(post.getSolvedId());
 
                     List<String> imageUrls = post.getImageKeys() != null
-                            ? post.getImageKeys().stream().map(s3Interface::getImageUrl).toList()
+                            ? post.getImageKeys().stream().toList()
                             : List.of();
 
                     return SolvedPostResponse.builder()
