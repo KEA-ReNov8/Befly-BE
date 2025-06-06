@@ -2,6 +2,7 @@ package befly.community.controller;
 
 import befly.common.annotations.LoginUser;
 import befly.common.apiPayload.ApiResponse;
+import befly.community.dto.FreePostListResponse;
 import befly.community.dto.ListSolvedPostResponse;
 import befly.community.service.SolvedPostService;
 import befly.community.dto.SolvedPostRequest;
@@ -60,6 +61,17 @@ public class SolvedPostController {
         Pageable pageable = PageRequest.of(page, 8, Sort.Direction.DESC, "createdAt");
         Page<ListSolvedPostResponse> response = solvedPostService.getAllPosts(null, pageable);
         return ResponseEntity.ok(ApiResponse.onSuccess(response));
+    }
+
+    // 특정 유저 아이디로 해결함 글 조회
+    @GetMapping("/user/{userId}/page/{page}")
+    public ApiResponse<Page<ListSolvedPostResponse>> getPostsByUserId(
+            @PathVariable Long userId,
+            @PathVariable int page
+    ) {
+        Pageable pageable = PageRequest.of(page, 8, Sort.Direction.DESC, "createdAt");
+        Page<ListSolvedPostResponse> response = solvedPostService.getPostsByUserId(userId, pageable);
+        return ApiResponse.onSuccess(response);
     }
 
     // 해결함 글 삭제
