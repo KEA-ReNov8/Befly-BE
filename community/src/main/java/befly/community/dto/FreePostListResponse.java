@@ -18,8 +18,6 @@ public class FreePostListResponse {
     private Long comments;
     private String time;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    // private Long userId;
     private String nickname;
     private List<String> imageUrl;
 }
