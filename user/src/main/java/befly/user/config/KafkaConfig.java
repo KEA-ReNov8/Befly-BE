@@ -1,6 +1,6 @@
 package befly.user.config;
 
-import befly.user.dto.WingMessage;
+import befly.common.common.WingMessage;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;

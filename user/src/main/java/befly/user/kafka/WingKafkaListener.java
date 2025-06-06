@@ -1,6 +1,6 @@
 package befly.user.kafka;
 
-import befly.user.dto.WingMessage;
+import befly.common.common.WingMessage;
 import befly.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
