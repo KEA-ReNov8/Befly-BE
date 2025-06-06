@@ -25,7 +25,7 @@ public class NotificationProducerService {
     // 알림 발송 (본인이 작성한 게시글에 댓글을 단 경우 제외), postUserId는 게시글 주인, getuserId는 뭔가를 한 작성자,즉 로그인한 유저 마지막은 유형
     public void sendNotificationIfNeeded(long postUserId, long commentUserId, NotificationType type) {
         // 본인이 작성한 게시글에 댓글을 작성한 경우 알림 발송하지 않음, 좋아요도 마찬가지
-        ApiResponse<String> responseWithNickname = userServiceClient.getUserNicknameById(commentUserId, commentUserId);
+        ApiResponse<String> responseWithNickname = userServiceClient.getUserNicknameById(commentUserId);
         String Nickname = responseWithNickname.getResult();
 
         String messageContent = switch (type) {

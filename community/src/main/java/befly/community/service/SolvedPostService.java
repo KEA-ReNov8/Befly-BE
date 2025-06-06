@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SolvedPostService {
     private final SolvedPostRepository solvedPostRepository;
-    private final S3Interface s3Interface;
     private final WingEventProducerService wingEventProducerService;
     private final ConsultServiceClient consultServiceClient;
     private final UserServiceClient userServiceClient;
@@ -151,7 +150,7 @@ public class SolvedPostService {
 
     // 닉네임 조회
     private String getNickname(Long targetUserId, Long currentUserId) {
-        ApiResponse<String> response = userServiceClient.getUserNicknameById(targetUserId, currentUserId);
+        ApiResponse<String> response = userServiceClient.getUserNicknameById(targetUserId);
         return response.getResult();
     }
 

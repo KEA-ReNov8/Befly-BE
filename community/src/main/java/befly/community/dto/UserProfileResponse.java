@@ -1,14 +1,10 @@
-package befly.user.dto;
+package befly.community.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Setter
 public class UserProfileResponse {
     private Long userId;
     private String nickName;
@@ -16,3 +12,5 @@ public class UserProfileResponse {
     private Long wing;
     private Long badge;
 }
+
+

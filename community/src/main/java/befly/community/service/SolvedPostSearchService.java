@@ -68,7 +68,7 @@ public class SolvedPostSearchService {
                             // 닉네임 조회
                             String nickname;
                             try {
-                                ApiResponse<String> nicknameResponse = userServiceClient.getUserNicknameById(userId, userId);
+                                ApiResponse<String> nicknameResponse = userServiceClient.getUserNicknameById(userId);
                                 nickname = (nicknameResponse != null) ? nicknameResponse.getResult() : "익명";
                             } catch (Exception e) {
                                 nickname = "익명";

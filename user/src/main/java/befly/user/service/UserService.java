@@ -47,7 +47,6 @@ public class UserService {
                 .orElseThrow(() -> new RestApiException(UserErrorStatus.MEMBER_NOT_FOUND));
         return UserProfileResponse.builder()
                 .nickName(user.getNickName())
-                .clientId(user.getClientId())
                 .profileImg(user.getProfileImg())
                 .wing(user.getWing())
                 .badge(user.getBadge())
@@ -125,11 +124,11 @@ public class UserService {
 
         List<UserProfileResponse> userProfiles = users.stream()
                 .map(user -> UserProfileResponse.builder()
+                        .userId(user.getUserId())
                         .nickName(user.getNickName())
                         .profileImg(user.getProfileImg())
                         .wing(user.getWing())
                         .badge(user.getBadge())
-                        .loginType(user.getLoginType().name())
                         .build())
                 .toList();
 
