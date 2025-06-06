@@ -15,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,13 +40,11 @@ public class FreePostController {
     }
 
     // 특정 유저 아이디로 자유함 글 조회
-    @GetMapping("/user/{userId}/page/{page}")
-    public ApiResponse<Page<FreePostListResponse>> getAllPostsByUserId(
-            @Parameter(hidden = true) @LoginUser Long userId,
-            @PathVariable int page
+    @GetMapping("/user/{userId}")
+    public ApiResponse<List<FreePostListResponse>> getAllPostsByUserId(
+            @PathVariable Long userId
     ) {
-        Pageable pageable = PageRequest.of(page, 8, Sort.Direction.DESC, "createdAt");
-        Page<FreePostListResponse> response = freePostService.getPostByUserId(userId, pageable);
+        List<FreePostListResponse> response = freePostService.getPostByUserId(userId);
         return ApiResponse.onSuccess(response);
     }
 
