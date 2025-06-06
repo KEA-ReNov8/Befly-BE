@@ -2,8 +2,10 @@ package befly.community.service.kafka;
 
 import befly.common.apiPayload.ApiResponse;
 import befly.community.client.UserServiceClient;
+import befly.community.domain.Notification;
 import befly.community.dto.kafka.NotificationMessage;
 import befly.community.dto.kafka.NotificationType;
+import befly.community.repository.NotificationRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,8 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +25,7 @@ public class NotificationProducerService {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
     private final UserServiceClient userServiceClient;
+    private final NotificationRepository notificationRepository;
 
     // 알림 발송 (본인이 작성한 게시글에 댓글을 단 경우 제외), postUserId는 게시글 주인, getuserId는 뭔가를 한 작성자,즉 로그인한 유저 마지막은 유형
     public void sendNotificationIfNeeded(long postUserId, long commentUserId, NotificationType type) {
@@ -47,6 +52,13 @@ public class NotificationProducerService {
                     .createdAt(LocalDateTime.now())
                     .build();
 
+
+            Notification notification = Notification.builder()
+                    .userId(postUserId)
+                    .message(messageContent)
+                    .build();
+            notificationRepository.save(notification);
+
             sendNotification(message);
         }
     }
@@ -59,5 +71,16 @@ public class NotificationProducerService {
         } catch (Exception e) {
             log.error("Failed to send Kafka message", e);
         }
+    }
+
+
+    public List<String> getNotifications(Long userId) {
+        log.info("{}", userId);
+        List<Notification> userNotifications = notificationRepository.findByUserId(userId);
+        List<String> messages = new ArrayList<>();
+        for (Notification notification : userNotifications) {
+            messages.add(notification.getMessage()); // 각 Notification 객체의 메시지를 리스트에 추가합니다.
+        }
+        return messages;
     }
 }
