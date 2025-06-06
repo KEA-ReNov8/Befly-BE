@@ -10,10 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserProfileResponse {
+    private Long userId;
     private String nickName;
-    private String clientId;
     private String profileImg;
     private Long wing;
     private Long badge;
-    private String loginType;
 }
