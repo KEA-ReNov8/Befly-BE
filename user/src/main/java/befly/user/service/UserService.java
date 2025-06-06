@@ -46,6 +46,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RestApiException(UserErrorStatus.MEMBER_NOT_FOUND));
         return UserProfileResponse.builder()
+                .userId(user.getUserId())
                 .nickName(user.getNickName())
                 .profileImg(user.getProfileImg())
                 .wing(user.getWing())
