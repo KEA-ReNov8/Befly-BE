@@ -102,6 +102,19 @@ public class SolvedPostSearchService {
                 .map(SolvedPost::getCategory)
                 .orElse("전체");
 
+        return SolvedPostSearchResponse.builder()
+                .solvedId(solvedId)
+                .userId(getLong(source.get("user_id")))
+                .solvedTitle((String) source.get("solved_title"))
+                .solvedContent((String) source.get("solved_content"))
+                .category(category)
+                .imageKeys(imageKeys)
+                .createdAt(source.get("created_at") != null ? source.get("created_at").toString() : null)
+                .updatedAt(source.get("updated_at") != null ? source.get("updated_at").toString() : null)
+                .commentCount(getLong(source.get("comment_count")))
+                .likeCount(getLong(source.get("like_count")))
+                .nickname(nickname)
+                .build();
     }
 
     private Long getLong(Object obj) {
@@ -112,4 +125,5 @@ public class SolvedPostSearchService {
             return null;
         }
     }
+
 }
