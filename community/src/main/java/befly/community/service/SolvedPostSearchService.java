@@ -118,11 +118,11 @@ public class SolvedPostSearchService {
     }
 
     private Long getLong(Object obj) {
-        if (obj == null) return null;
+        if (obj == null) return 0L; // null이면 0L 반환
         try {
             return Long.valueOf(obj.toString());
         } catch (NumberFormatException e) {
-            return null;
+            return null; // 변환 실패하면 null 변환
         }
     }
 

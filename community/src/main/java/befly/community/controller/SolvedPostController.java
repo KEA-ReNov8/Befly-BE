@@ -48,13 +48,14 @@ public class SolvedPostController {
     }
 
     // 최신글 4개 조회
+    // 수정필요
     @GetMapping("/latest")
     public ApiResponse<List<SolvedPostResponse>> getLatestPosts() {
         return ApiResponse.onSuccess(solvedPostService.getLatestPosts(null));
     }
 
     // 페이지네이션 (페이지 사이즈 8, 생성일순)
-
+    // 수정필요
     @GetMapping("/page/{page}")
     public ResponseEntity<ApiResponse<Page<SolvedPostResponse>>> getAllPosts(@PathVariable int page) {
         Pageable pageable = PageRequest.of(page, 8, Sort.Direction.DESC, "createdAt");

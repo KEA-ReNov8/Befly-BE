@@ -21,7 +21,7 @@ public class FreePostSearchService {
     private final ElasticsearchClient elasticsearchClient;
 
     /**
-     * 해결함 게시글 카테고리/키워드별 8개씩 검색
+     * 자유함 게시글 카테고리/키워드별 8개씩 검색
      */
     public List<FreePostSearchResponse> searchFreePosts(String keyword, int page) {
         int size = 8; // 한 페이지 8개
