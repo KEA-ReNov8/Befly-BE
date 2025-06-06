@@ -24,7 +24,7 @@ public class AiSummaryResponse {
     @JsonProperty("suggest_comment")
     private String suggestComment;
 
-    @JsonProperty("worry_title")
+    @JsonProperty("chat_title")
     private String worryTitle;
 
 }
