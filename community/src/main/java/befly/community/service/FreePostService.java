@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FreePostService {
     private final FreePostRepository freePostRepository;
-    private final S3Interface s3Interface;
     private final FreeCommentRepository freeCommentRepository;
     private final FreeEmpathyRepository freeEmpathyRepository;
     private final WingEventProducerService wingEventProducerService;
@@ -71,37 +70,37 @@ public class FreePostService {
 
         FreePost saved = freePostRepository.save(post);
 
-        return toResponse(saved, userId);
+        return toResponse(saved);
     }
 
     // 자유함 글 조회
-    public FreePostResponse getPost(Long id, Long userId) {
+    public FreePostResponse getPost(Long id) {
         FreePost post = freePostRepository.findById(id)
                 .orElseThrow(() -> new RestApiException(FreeErrorStatus.POST_NOT_FOUND));
-        return toResponse(post, userId);
+        return toResponse(post);
     }
 
     // 유저 아이디로 글 조회
-    public Page<FreePostListResponse> getPostByUserId(Long loginId, Long userId, Pageable pageable) {
+    public Page<FreePostListResponse> getPostByUserId(Long userId, Pageable pageable) {
         Page<FreePost> freePostsPage = freePostRepository.findAllByUserId(userId, pageable);
 
-        return freePostPageMapping(loginId, freePostsPage);
+        return freePostPageMapping(freePostsPage);
     }
 
     // 자유함 글 리스트 조회 (페이지네이션, 페이지 사이즈 8, 생성 시간 순)
-    public Page<FreePostListResponse> getAllPosts(Long userId, Pageable pageable) {
+    public Page<FreePostListResponse> getAllPosts(Pageable pageable) {
         Page<FreePost> freePostsPage = freePostRepository.findAllByOrderByCreatedAtDesc(pageable);
 
-        return freePostPageMapping(userId, freePostsPage);
+        return freePostPageMapping(freePostsPage);
     }
 
     // 자유함 최신 글 조회
-    public List<FreePostListResponse> getLatestFreePosts(Long userId) {
+    public List<FreePostListResponse> getLatestFreePosts() {
         // 최근 4개 게시글 조회
         List<FreePost> freePosts = freePostRepository.findTop4ByOrderByCreatedAtDesc();
 
         // 최종 매핑 후 반환
-        return freePostListMapping(userId, freePosts);
+        return freePostListMapping(freePosts);
     }
 
     // 자유함 글 수정
@@ -117,7 +116,7 @@ public class FreePostService {
 
         post.updateFreePost(request.getFreeTitle(), request.getFreeContent(), request.getImageKeys());
         // FreePost updated = freePostRepository.save(post);
-        return toResponse(post, userId);
+        return toResponse(post);
     }
 
     // 자유함 글 삭제
@@ -134,7 +133,7 @@ public class FreePostService {
         freePostRepository.delete(post);
     }
 
-    public Page<FreePostListResponse> freePostPageMapping(Long userId, Page<FreePost> freePostsPage) {
+    public Page<FreePostListResponse> freePostPageMapping(Page<FreePost> freePostsPage) {
         return freePostsPage.map(freePost -> {
             Long freeId = freePost.getFreeId();
             Long empathyCount = freeEmpathyRepository.countFreeEmpathyByFreeId(freeId);
@@ -145,7 +144,7 @@ public class FreePostService {
                     .stream()
                     .toList();
 
-            ApiResponse<String> responseWithNickname = userServiceClient.getUserNicknameById(freePost.getUserId(), userId);
+            ApiResponse<String> responseWithNickname = userServiceClient.getUserNicknameById(freePost.getUserId());
             String nickname = responseWithNickname.getResult();
 
             return FreePostListResponse.builder()
@@ -164,7 +163,7 @@ public class FreePostService {
         });
     }
 
-    public List<FreePostListResponse> freePostListMapping(Long userId, List<FreePost> freePostList) {
+    public List<FreePostListResponse> freePostListMapping(List<FreePost> freePostList) {
         return freePostList.stream()
                 .map(freePost -> {
                     Long freeId = freePost.getFreeId(); // 자유함 게시글 아이디
@@ -178,7 +177,7 @@ public class FreePostService {
                             .toList()
                             : List.of();
 
-                    ApiResponse<String> responseWithNickname = userServiceClient.getUserNicknameById(freePost.getUserId(), userId);
+                    ApiResponse<String> responseWithNickname = userServiceClient.getUserNicknameById(freePost.getUserId());
                     String nickname = responseWithNickname.getResult();
 
                     return FreePostListResponse.builder()
@@ -198,7 +197,7 @@ public class FreePostService {
 
 
     // 결과 응답용
-    private FreePostResponse toResponse(FreePost post, Long userId) {
+    private FreePostResponse toResponse(FreePost post) {
         List<String> imageUrls = null;
 
         Long empathyCount = freeEmpathyRepository.countFreeEmpathyByFreeId(post.getFreeId()); // 공감 수 조회
@@ -208,7 +207,7 @@ public class FreePostService {
             imageUrls = new ArrayList<>(post.getImageKeys());
         }
 
-        ApiResponse<String> responseWithNickname = userServiceClient.getUserNicknameById(post.getUserId(), userId);
+        ApiResponse<String> responseWithNickname = userServiceClient.getUserNicknameById(post.getUserId());
         String nickname = responseWithNickname.getResult();
 
         return FreePostResponse.builder()

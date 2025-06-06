@@ -63,7 +63,7 @@ public class FreeCommentService {
                     }
                 });
 
-        return toResponse(saved, userId);
+        return toResponse(saved);
     }
 
     // 자유함 댓글 업데이트
@@ -82,11 +82,11 @@ public class FreeCommentService {
         comment.updateFreeComment(commentDto.getComment());
 
         // FreeComment updated = freeCommentRepository.save(comment);
-        return toResponse(comment, userId);
+        return toResponse(comment);
     }
 
     // 자유함 댓글 리스트 조회
-    public List<FreeCommentResponse> getComments(Long freeId, Long userId) {
+    public List<FreeCommentResponse> getComments(Long freeId) {
         FreePost freePost = freePostRepository.findById(freeId)
                 .orElseThrow(() -> new RestApiException(FreeErrorStatus.POST_NOT_FOUND));
 
@@ -95,7 +95,7 @@ public class FreeCommentService {
                         .commentId(comment.getFreeCommentId())
                         .postId(comment.getFreeId())
                         // .userId(comment.getUserId())
-                        .nickname(userServiceClient.getUserNicknameById(comment.getUserId(), userId).getResult())
+                        .nickname(userServiceClient.getUserNicknameById(comment.getUserId()).getResult())
                         .comment(comment.getIsDeleted() ? "삭제된 댓글입니다." : comment.getFreeComment())
                         .parentCommentId(comment.getPFreeCommentId())
                         .isDeleted(comment.getIsDeleted())
@@ -125,8 +125,8 @@ public class FreeCommentService {
 
 
     // 결과 응답용
-    private FreeCommentResponse toResponse(FreeComment comment, Long userId) {
-        ApiResponse<String> responseWithNickname = userServiceClient.getUserNicknameById(comment.getUserId(), userId);
+    private FreeCommentResponse toResponse(FreeComment comment) {
+        ApiResponse<String> responseWithNickname = userServiceClient.getUserNicknameById(comment.getUserId());
         String nickname = responseWithNickname.getResult();
 
         return FreeCommentResponse.builder()
