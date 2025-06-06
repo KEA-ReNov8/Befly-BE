@@ -173,10 +173,12 @@ public class SolvedPostService {
                 .analytics(aiSummary != null ? aiSummary.getAnalytics() : List.of())
                 .totalComment(aiSummary != null ? aiSummary.getTotalComment() : null)
                 .suggest(aiSummary != null ? aiSummary.getSuggest() : null)
-                .worry_category(aiSummary != null ? aiSummary.getWorry_category() : null)
-                .worry_created_at(aiSummary != null ? aiSummary.getWorry_created_at() : null)
+                .worry_title(aiSummary != null ? aiSummary.getWorryTitle() : null)
+                .worry_category(aiSummary != null ? aiSummary.getWorryCategory() : null)
+                .worry_created_at(aiSummary != null ? aiSummary.getWorryCreatedAt() : null)
                 .build();
     }
+
 
 
 }
