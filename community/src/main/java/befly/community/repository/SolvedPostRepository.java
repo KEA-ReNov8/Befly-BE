@@ -11,6 +11,5 @@ import java.util.Optional;
 public interface SolvedPostRepository extends JpaRepository<SolvedPost, Long> {
     Page<SolvedPost> findAll(Pageable pageable);
     List<SolvedPost> findTop4ByOrderByCreatedAtDesc();
-    Optional<SolvedPost> findBySessionId(String sessionId);
 }
 

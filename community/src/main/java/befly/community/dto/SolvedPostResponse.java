@@ -1,5 +1,6 @@
 package befly.community.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,8 +26,14 @@ public class SolvedPostResponse {
     private List<EmotionAnalytics> analytics;
     private String totalComment;
     private String suggest;
-    private String worry_title;
-    private String worry_category;
-    private String worry_created_at;
+
+    @JsonProperty("worry_title")
+    private String worryTitle;
+
+    @JsonProperty("worry_category")
+    private String worryCategory;
+
+    @JsonProperty("worry_created_at")
+    private String worryCreatedAt;
 }
 

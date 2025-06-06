@@ -173,9 +173,9 @@ public class SolvedPostService {
                 .analytics(aiSummary != null ? aiSummary.getAnalytics() : List.of())
                 .totalComment(aiSummary != null ? aiSummary.getTotalComment() : null)
                 .suggest(aiSummary != null ? aiSummary.getSuggest() : null)
-                .worry_title(aiSummary != null ? aiSummary.getWorryTitle() : null)
-                .worry_category(aiSummary != null ? aiSummary.getWorryCategory() : null)
-                .worry_created_at(aiSummary != null ? aiSummary.getWorryCreatedAt() : null)
+                .worryTitle(aiSummary != null ? aiSummary.getWorryTitle() : null)
+                .worryCategory(aiSummary != null ? aiSummary.getWorryCategory() : null)
+                .worryCreatedAt(aiSummary != null ? aiSummary.getWorryCreatedAt() : null)
                 .build();
     }
 
