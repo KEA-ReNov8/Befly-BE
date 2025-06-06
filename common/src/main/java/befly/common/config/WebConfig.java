@@ -26,7 +26,6 @@ public class WebConfig implements WebMvcConfigurer {
                         "/auth/signin",
                         "/auth/refresh",
                         "/auth/email/duplication",
-                        "/user/profile",
                         "/user/profiles",
                         "/user/getNickname/**",
                         "/swagger-ui/**", // Swagger UI 경로 제외
