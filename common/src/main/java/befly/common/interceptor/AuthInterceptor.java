@@ -18,6 +18,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
         log.info("AuthInterceptor preHandle");
+
         try {
             String userId = request.getHeader("X-USER-ID");
             request.setAttribute("userId", Long.parseLong(userId)); // ArgumentResolver에서 꺼내 쓸 수 있게 저장

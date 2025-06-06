@@ -10,13 +10,6 @@ public interface S3Interface {
     String createPreSignedUrl(String key, String httpMethod);
 
     /**
-     * key를 기준으로 프론트에서 이미지 업로드 시 확인할 수 있는 url을 반환합니다.
-     * @param key 객체 키(unique한 파일이름)
-     * @return    이미지 url(pre-signed랑은 구별됨)
-     */
-    String getImageUrl(String key);
-
-    /**
      * 파일 이름은 기존 파일명 + 현재 시각(ms)까지 해서 파일 덮어쓰기 방지하기
      * unique한 파일명이 중요
      *

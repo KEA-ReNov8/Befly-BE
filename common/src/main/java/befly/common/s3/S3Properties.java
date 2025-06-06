@@ -13,9 +13,6 @@ public class S3Properties {
     @Value("${s3.secretKey}")
     private String secretKey;
 
-    @Value("${s3.endPoint}")
-    private String endPoint;
-
     @Value("${s3.region}")
     private String region;
 
@@ -27,8 +24,5 @@ public class S3Properties {
 
     @Value("${s3.folderName}")
     private String folderName;
-
-    @Value("${s3.projectId}")
-    private String projectId;
 
 }

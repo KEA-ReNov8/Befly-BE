@@ -51,5 +51,7 @@ public class User extends BaseTimeEntity {
         this.wing += wing;
     }
     
-    
+    public void updateBadge(Long badge) {
+        this.badge = badge;
+    }
 }

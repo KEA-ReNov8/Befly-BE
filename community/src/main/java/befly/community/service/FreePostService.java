@@ -15,6 +15,7 @@ import befly.community.service.kafka.WingEventProducerService;
 import befly.community.status.FreeErrorStatus;
 import befly.community.util.TimeUtils;
 import jakarta.transaction.Transactional;
+import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -80,9 +81,16 @@ public class FreePostService {
         return toResponse(post, userId);
     }
 
+    // 유저 아이디로 글 조회
+    public Page<FreePostListResponse> getPostByUserId(Long loginId, Long userId, Pageable pageable) {
+        Page<FreePost> freePostsPage = freePostRepository.findAllByUserId(userId, pageable);
+
+        return freePostPageMapping(loginId, freePostsPage);
+    }
+
     // 자유함 글 리스트 조회 (페이지네이션, 페이지 사이즈 8, 생성 시간 순)
     public Page<FreePostListResponse> getAllPosts(Long userId, Pageable pageable) {
-        Page<FreePost> freePostsPage = freePostRepository.findAll(pageable);
+        Page<FreePost> freePostsPage = freePostRepository.findAllByOrderByCreatedAtDesc(pageable);
 
         return freePostPageMapping(userId, freePostsPage);
     }
@@ -135,7 +143,6 @@ public class FreePostService {
             List<String> imageUrls = Optional.ofNullable(freePost.getImageKeys())
                     .orElse(List.of())
                     .stream()
-                    .map(s3Interface::getImageUrl)
                     .toList();
 
             ApiResponse<String> responseWithNickname = userServiceClient.getUserNicknameById(freePost.getUserId(), userId);
@@ -150,6 +157,8 @@ public class FreePostService {
                     .likes(empathyCount != null ? empathyCount : 0L)
                     .comments(commentCount != null ? commentCount : 0L)
                     .time(TimeUtils.formatTimeAgo(freePost.getCreatedAt()))
+                    .createdAt(freePost.getCreatedAt())
+                    .updatedAt(freePost.getUpdatedAt())
                     .imageUrl(imageUrls)
                     .build();
         });
@@ -166,7 +175,6 @@ public class FreePostService {
                     List<String> imageKeys = freePost.getImageKeys();
                     List<String> imageUrls = imageKeys != null
                             ? imageKeys.stream()
-                            .map(s3Interface::getImageUrl)
                             .toList()
                             : List.of();
 
@@ -197,9 +205,7 @@ public class FreePostService {
         Long commentCount = freeCommentRepository.countFreeCommentByFreeId(post); // 응원 수 조회
 
         if (post.getImageKeys() != null && !post.getImageKeys().isEmpty()) {
-            imageUrls = post.getImageKeys().stream()
-                    .map(s3Interface::getImageUrl)
-                    .collect(Collectors.toList());
+            imageUrls = new ArrayList<>(post.getImageKeys());
         }
 
         ApiResponse<String> responseWithNickname = userServiceClient.getUserNicknameById(post.getUserId(), userId);
