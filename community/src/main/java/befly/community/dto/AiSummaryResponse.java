@@ -9,17 +9,23 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Getter
 @Setter
 public class AiSummaryResponse {
-    private List<EmotionAnalytics> analytics;
+    @JsonProperty("after_keyword")
+    private List<EmotionAnalytics> afterKeyword;
+
+    @JsonProperty("category")
+    private String category;
+
+    @JsonProperty("session_id")
+    private String sessionId;
+
+    @JsonProperty("total_comment")
     private String totalComment;
-    private String suggest;
+
+    @JsonProperty("suggest_comment")
+    private String suggestComment;
 
     @JsonProperty("worry_title")
     private String worryTitle;
 
-    @JsonProperty("worry_category")
-    private String worryCategory;
-
-    @JsonProperty("worry_created_at")
-    private String worryCreatedAt;
 }
 

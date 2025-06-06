@@ -170,12 +170,11 @@ public class SolvedPostService {
                 .likeCount(likeCount)
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
-                .analytics(aiSummary != null ? aiSummary.getAnalytics() : List.of())
+                .category(post.getCategory())
+                .analytics(aiSummary != null ? aiSummary.getAfterKeyword() : List.of())
                 .totalComment(aiSummary != null ? aiSummary.getTotalComment() : null)
-                .suggest(aiSummary != null ? aiSummary.getSuggest() : null)
+                .suggest(aiSummary != null ? aiSummary.getSuggestComment() : null)
                 .worryTitle(aiSummary != null ? aiSummary.getWorryTitle() : null)
-                .worryCategory(aiSummary != null ? aiSummary.getWorryCategory() : null)
-                .worryCreatedAt(aiSummary != null ? aiSummary.getWorryCreatedAt() : null)
                 .build();
     }
 
