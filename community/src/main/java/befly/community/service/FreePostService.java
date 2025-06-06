@@ -2,7 +2,6 @@ package befly.community.service;
 
 import befly.common.apiPayload.ApiResponse;
 import befly.common.exception.RestApiException;
-import befly.common.s3.S3Interface;
 import befly.community.client.UserServiceClient;
 import befly.community.dto.FreePostListResponse;
 import befly.community.repository.FreeCommentRepository;
@@ -15,7 +14,6 @@ import befly.community.service.kafka.WingEventProducerService;
 import befly.community.status.FreeErrorStatus;
 import befly.community.util.TimeUtils;
 import jakarta.transaction.Transactional;
-import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -26,7 +24,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -133,92 +130,59 @@ public class FreePostService {
         freePostRepository.delete(post);
     }
 
+    // 페이징 응답 매핑 - 전체, 유저
     public Page<FreePostListResponse> freePostPageMapping(Page<FreePost> freePostsPage) {
-        return freePostsPage.map(freePost -> {
-            Long freeId = freePost.getFreeId();
-            Long empathyCount = freeEmpathyRepository.countFreeEmpathyByFreeId(freeId);
-            Long commentCount = freeCommentRepository.countFreeCommentByFreeId(freePost);
-
-            List<String> imageUrls = Optional.ofNullable(freePost.getImageKeys())
-                    .orElse(List.of())
-                    .stream()
-                    .toList();
-
-            ApiResponse<String> responseWithNickname = userServiceClient.getUserNicknameById(freePost.getUserId());
-            String nickname = responseWithNickname.getResult();
-
-            return FreePostListResponse.builder()
-                    .postId(freeId)
-                    .title(freePost.getFreeTitle())
-                    .content(freePost.getFreeContent())
-                    // .userId(freePost.getUserId())
-                    .nickname(nickname)
-                    .likes(empathyCount != null ? empathyCount : 0L)
-                    .comments(commentCount != null ? commentCount : 0L)
-                    .time(TimeUtils.formatTimeAgo(freePost.getCreatedAt()))
-                    .createdAt(freePost.getCreatedAt())
-                    .updatedAt(freePost.getUpdatedAt())
-                    .imageUrl(imageUrls)
-                    .build();
-        });
+        return freePostsPage.map(post -> mapToListResponse(post));
     }
 
+    // 리스트 응답 매핑 - 최신글
     public List<FreePostListResponse> freePostListMapping(List<FreePost> freePostList) {
         return freePostList.stream()
-                .map(freePost -> {
-                    Long freeId = freePost.getFreeId(); // 자유함 게시글 아이디
-                    Long empathyCount = freeEmpathyRepository.countFreeEmpathyByFreeId(freeId); // 공감 수 조회
-                    Long commentCount = freeCommentRepository.countFreeCommentByFreeId(freePost); // 응원 수 조회
-
-                    // 이미지 키 -> 이미지 URL
-                    List<String> imageKeys = freePost.getImageKeys();
-                    List<String> imageUrls = imageKeys != null
-                            ? imageKeys.stream()
-                            .toList()
-                            : List.of();
-
-                    ApiResponse<String> responseWithNickname = userServiceClient.getUserNicknameById(freePost.getUserId());
-                    String nickname = responseWithNickname.getResult();
-
-                    return FreePostListResponse.builder()
-                            .postId(freePost.getFreeId())
-                            .title(freePost.getFreeTitle())
-                            .content(freePost.getFreeContent())
-                            // .userId(freePost.getUserId())
-                            .nickname(nickname)
-                            .likes(empathyCount != null ? empathyCount : 0L)
-                            .comments(commentCount != null ? commentCount : 0L)
-                            .time(TimeUtils.formatTimeAgo(freePost.getCreatedAt()))
-                            .imageUrl(imageUrls)
-                            .build();
-                })
+                .map(post -> mapToListResponse(post))
                 .toList();
     }
 
+    // FreePost 엔티티 -> FreePostListResponse 변환
+    private FreePostListResponse mapToListResponse(FreePost freePost) {
+        Long empathyCount = freeEmpathyRepository.countFreeEmpathyByFreeId(freePost.getFreeId());
+        Long commentCount = freeCommentRepository.countFreeCommentByFreeId(freePost);
 
-    // 결과 응답용
+        List<String> imageUrls = Optional.ofNullable(freePost.getImageKeys()).orElse(List.of());
+
+        ApiResponse<String> responseWithNickname = userServiceClient.getUserNicknameById(freePost.getUserId());
+        String nickname = responseWithNickname.getResult();
+
+        return FreePostListResponse.builder()
+                .postId(freePost.getFreeId())
+                .title(freePost.getFreeTitle())
+                .content(freePost.getFreeContent())
+                .nickname(nickname)
+                .likes(empathyCount != null ? empathyCount : 0L)
+                .comments(commentCount != null ? commentCount : 0L)
+                .time(TimeUtils.formatTimeAgo(freePost.getCreatedAt()))
+                .createdAt(freePost.getCreatedAt())
+                .imageUrl(imageUrls)
+                .build();
+    }
+
+    // 결과 응답용 (기본 작성, 조회, 수정)
     private FreePostResponse toResponse(FreePost post) {
-        List<String> imageUrls = null;
-
         Long empathyCount = freeEmpathyRepository.countFreeEmpathyByFreeId(post.getFreeId()); // 공감 수 조회
         Long commentCount = freeCommentRepository.countFreeCommentByFreeId(post); // 응원 수 조회
 
-        if (post.getImageKeys() != null && !post.getImageKeys().isEmpty()) {
-            imageUrls = new ArrayList<>(post.getImageKeys());
-        }
+        List<String> imageUrls = Optional.ofNullable(post.getImageKeys()).orElse(List.of());
 
         ApiResponse<String> responseWithNickname = userServiceClient.getUserNicknameById(post.getUserId());
         String nickname = responseWithNickname.getResult();
 
         return FreePostResponse.builder()
                 .freeId(post.getFreeId())
-                // .userId(post.getUserId())
                 .nickname(nickname)
                 .freeTitle(post.getFreeTitle())
                 .freeContent(post.getFreeContent())
                 .imageUrl(imageUrls)
-                .likes(empathyCount)
-                .comments(commentCount)
+                .likes(empathyCount != null ? empathyCount : 0L)
+                .comments(commentCount != null ? commentCount : 0L)
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .build();
