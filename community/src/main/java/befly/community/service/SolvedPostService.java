@@ -147,6 +147,30 @@ public class SolvedPostService {
                 });
     }
 
+    //유저 아이디로 해결함 글 조회
+    @Transactional(readOnly = true)
+    public Page<ListSolvedPostResponse> getPostsByUserId(Long userId, Pageable pageable) {
+        return solvedPostRepository.findByUserId(userId, pageable)
+                .map(post -> {
+                    List<String> imageUrls = post.getImageKeys() != null
+                            ? post.getImageKeys()
+                            : List.of();
+
+                    return ListSolvedPostResponse.builder()
+                            .solvedId(post.getSolvedId())
+                            .nickname(userServiceClient.getUserNicknameById(userId).getResult()) // 닉네임 조회
+                            .solvedTitle(post.getSolvedTitle())
+                            .solvedContent(post.getSolvedContent())
+                            .imageUrls(imageUrls)
+                            .commentCount(solvedCommentRepository.countBySolvedId(post))
+                            .likeCount(solvedEmpathyRepository.countSolvedEmpathyBySolvedId(post.getSolvedId()))
+                            .createdAt(post.getCreatedAt())
+                            .updatedAt(post.getUpdatedAt())
+                            .category(post.getCategory())
+                            .build();
+                });
+    }
+
 
     // 닉네임 조회
     private String getNickname(Long targetUserId, Long currentUserId) {
