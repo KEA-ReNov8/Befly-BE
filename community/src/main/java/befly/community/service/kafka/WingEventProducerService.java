@@ -1,6 +1,6 @@
 package befly.community.service.kafka;
 
-import befly.community.dto.kafka.WingMessage;
+import befly.common.common.WingMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -25,7 +25,7 @@ public class WingEventProducerService {
         Message<WingMessage> kafkaMessage = MessageBuilder
                 .withPayload(message)
                 .setHeader(KafkaHeaders.TOPIC, "user-wing")
-                .setHeader("__TypeId__", "befly.user.dto.WingMessage")
+                .setHeader("__TypeId__", "befly.common.common.WingMessage")
                 .build();
 
         kafkaTemplate.send(kafkaMessage);

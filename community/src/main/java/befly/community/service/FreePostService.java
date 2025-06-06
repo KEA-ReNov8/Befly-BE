@@ -78,10 +78,10 @@ public class FreePostService {
     }
 
     // 유저 아이디로 글 조회
-    public Page<FreePostListResponse> getPostByUserId(Long userId, Pageable pageable) {
-        Page<FreePost> freePostsPage = freePostRepository.findAllByUserId(userId, pageable);
+    public List<FreePostListResponse> getPostByUserId(Long userId) {
+        List<FreePost> freePostsList = freePostRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
 
-        return freePostPageMapping(freePostsPage);
+        return freePostListMapping(freePostsList);
     }
 
     // 자유함 글 리스트 조회 (페이지네이션, 페이지 사이즈 8, 생성 시간 순)
@@ -130,15 +130,15 @@ public class FreePostService {
         freePostRepository.delete(post);
     }
 
-    // 페이징 응답 매핑 - 전체, 유저
+    // 페이징 응답 매핑 - 전체
     public Page<FreePostListResponse> freePostPageMapping(Page<FreePost> freePostsPage) {
-        return freePostsPage.map(post -> mapToListResponse(post));
+        return freePostsPage.map(this::mapToListResponse);
     }
 
-    // 리스트 응답 매핑 - 최신글
+    // 리스트 응답 매핑 - 최신글, 유저
     public List<FreePostListResponse> freePostListMapping(List<FreePost> freePostList) {
         return freePostList.stream()
-                .map(post -> mapToListResponse(post))
+                .map(this::mapToListResponse)
                 .toList();
     }
 
