@@ -88,9 +88,11 @@ public class UserService {
         
         if (wing >= 1250 ) {
             badge = 7L;
-        } else if (wing >= 850) {
+        } 
+        else if (wing >= 850) {
             badge = 6L;
-        } else if (wing >= 550) {
+        } 
+        else if (wing >= 550) {
             badge = 5L;
         }
         else if (wing >= 330) {
