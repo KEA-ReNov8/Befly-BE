@@ -2,6 +2,7 @@ package befly.community.controller;
 
 import befly.common.annotations.LoginUser;
 import befly.common.apiPayload.ApiResponse;
+import befly.community.dto.ListSolvedPostResponse;
 import befly.community.service.SolvedPostService;
 import befly.community.dto.SolvedPostRequest;
 import befly.community.dto.SolvedPostResponse;
@@ -49,16 +50,15 @@ public class SolvedPostController {
 
     // 최신글 4개 조회
     @GetMapping("/latest")
-    public ApiResponse<List<SolvedPostResponse>> getLatestPosts() {
+    public ApiResponse<List<ListSolvedPostResponse>> getLatestPosts() {
         return ApiResponse.onSuccess(solvedPostService.getLatestPosts(null));
     }
 
     // 페이지네이션 (페이지 사이즈 8, 생성일순)
-
     @GetMapping("/page/{page}")
-    public ResponseEntity<ApiResponse<Page<SolvedPostResponse>>> getAllPosts(@PathVariable int page) {
+    public ResponseEntity<ApiResponse<Page<ListSolvedPostResponse>>> getAllPosts(@PathVariable int page) {
         Pageable pageable = PageRequest.of(page, 8, Sort.Direction.DESC, "createdAt");
-        Page<SolvedPostResponse> response = solvedPostService.getAllPosts(null, pageable);
+        Page<ListSolvedPostResponse> response = solvedPostService.getAllPosts(null, pageable);
         return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 
@@ -70,4 +70,6 @@ public class SolvedPostController {
         solvedPostService.deletePost(userId, solvedId);
         return ApiResponse.onSuccess(null);
     }
+
+
 }

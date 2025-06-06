@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class SolvedPostResponse {
+public class ListSolvedPostResponse {
     private Long solvedId;
     private String nickname;
     private String solvedTitle;
@@ -21,12 +21,4 @@ public class SolvedPostResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String category;
-    // AI 분석 결과
-    private List<EmotionAnalytics> analytics;
-    private String totalComment;
-    private String suggest;
-    private String worry_title;
-    private String worry_category;
-    private String worry_created_at;
 }
-

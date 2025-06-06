@@ -2,11 +2,11 @@ package befly.community.service;
 
 import befly.common.apiPayload.ApiResponse;
 import befly.common.exception.RestApiException;
-import befly.common.s3.S3Interface;
 import befly.community.client.ConsultServiceClient;
 import befly.community.client.UserServiceClient;
 import befly.community.domain.SolvedPost;
 import befly.community.dto.AiSummaryResponse;
+import befly.community.dto.ListSolvedPostResponse;
 import befly.community.dto.SolvedPostRequest;
 import befly.community.dto.SolvedPostResponse;
 import befly.community.repository.SolvedCommentRepository;
@@ -90,7 +90,7 @@ public class SolvedPostService {
 
     // 최신글 4개 조회
     @Transactional(readOnly = true)
-    public List<SolvedPostResponse> getLatestPosts(Long currentUserId) {
+    public List<ListSolvedPostResponse> getLatestPosts(Long currentUserId) {
         List<SolvedPost> posts = solvedPostRepository.findTop4ByOrderByCreatedAtDesc();
         return posts.stream()
                 .map(post -> {
@@ -102,7 +102,7 @@ public class SolvedPostService {
                             ? post.getImageKeys().stream().toList()
                             : List.of();
 
-                    return SolvedPostResponse.builder()
+                    return ListSolvedPostResponse.builder()
                             .solvedId(post.getSolvedId())
                             .nickname(nickname)
                             .solvedTitle(post.getSolvedTitle())
@@ -121,7 +121,7 @@ public class SolvedPostService {
 
     // 페이지네이션 (페이지 사이즈 8, 생성일순)
     @Transactional(readOnly = true)
-    public Page<SolvedPostResponse> getAllPosts(Long currentUserId, Pageable pageable) {
+    public Page<ListSolvedPostResponse> getAllPosts(Long currentUserId, Pageable pageable) {
         return solvedPostRepository.findAll(pageable)
                 .map(post -> {
                     String nickname = getNickname(post.getUserId(), currentUserId);
@@ -132,7 +132,7 @@ public class SolvedPostService {
                             ? post.getImageKeys().stream().toList()
                             : List.of();
 
-                    return SolvedPostResponse.builder()
+                    return ListSolvedPostResponse.builder()
                             .solvedId(post.getSolvedId())
                             .nickname(nickname)
                             .solvedTitle(post.getSolvedTitle())
@@ -142,7 +142,7 @@ public class SolvedPostService {
                             .likeCount(likeCount)
                             .createdAt(post.getCreatedAt())
                             .updatedAt(post.getUpdatedAt())
-                            .category(post.getCategory())  // ✅ DB에서 직접
+                            .category(post.getCategory())
                             .build();
                 });
     }
@@ -177,4 +177,6 @@ public class SolvedPostService {
                 .worry_created_at(aiSummary != null ? aiSummary.getWorry_created_at() : null)
                 .build();
     }
+
+
 }
