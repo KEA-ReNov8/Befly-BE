@@ -36,6 +36,7 @@ public class SolvedPostService {
     // 해결함 글 생성
     @Transactional
     public SolvedPostResponse createPost(Long userId, SolvedPostRequest request) {
+
         SolvedPost post = SolvedPost.builder()
                 .userId(userId)
                 .solvedTitle(request.getSolvedTitle())
@@ -48,12 +49,7 @@ public class SolvedPostService {
         SolvedPost saved = solvedPostRepository.save(post);
         wingEventProducerService.produceWingEvent(userId, 10L);
 
-        AiSummaryResponse aiSummary = consultServiceClient.evaluateChat(request.getSessionId(), userId).getResult();
-        String nickname = getNickname(saved.getUserId(), userId);
-        long commentCount = solvedCommentRepository.countBySolvedId(saved);
-        long likeCount = solvedEmpathyRepository.countSolvedEmpathyBySolvedId(saved.getSolvedId());
-
-        return toResponse(saved, nickname, commentCount, likeCount, aiSummary);
+        return null;
     }
 
     // 해결함 글 수정
@@ -64,12 +60,8 @@ public class SolvedPostService {
         if (!post.getUserId().equals(userId)) throw new RestApiException(SolvedErrorStatus.NO_PERMISSION);
 
         post.update(request.getSolvedTitle(), request.getSolvedContent(), request.getImageKeys(), request.getCategory());
-        AiSummaryResponse aiSummary = consultServiceClient.evaluateChat(request.getSessionId(), userId).getResult();
-        String nickname = getNickname(post.getUserId(), userId);
-        long commentCount = solvedCommentRepository.countBySolvedId(post);
-        long likeCount = solvedEmpathyRepository.countSolvedEmpathyBySolvedId(post.getSolvedId());
 
-        return toResponse(post, nickname, commentCount, likeCount, aiSummary);
+        return null;
     }
 
     // 해결함 글 삭제
@@ -96,33 +88,66 @@ public class SolvedPostService {
         return toResponse(post, nickname, commentCount, likeCount, aiSummary);
     }
 
+
     // 최신글 4개 조회
     @Transactional(readOnly = true)
     public List<SolvedPostResponse> getLatestPosts(Long currentUserId) {
         List<SolvedPost> posts = solvedPostRepository.findTop4ByOrderByCreatedAtDesc();
         return posts.stream()
                 .map(post -> {
-                    AiSummaryResponse aiSummary = consultServiceClient.evaluateChat(post.getSessionId(), currentUserId).getResult();
                     String nickname = getNickname(post.getUserId(), currentUserId);
                     long commentCount = solvedCommentRepository.countBySolvedId(post);
                     long likeCount = solvedEmpathyRepository.countSolvedEmpathyBySolvedId(post.getSolvedId());
-                    return toResponse(post, nickname, commentCount, likeCount, aiSummary);
+
+                    List<String> imageUrls = post.getImageKeys() != null
+                            ? post.getImageKeys().stream().map(s3Interface::getImageUrl).toList()
+                            : List.of();
+
+                    return SolvedPostResponse.builder()
+                            .solvedId(post.getSolvedId())
+                            .nickname(nickname)
+                            .solvedTitle(post.getSolvedTitle())
+                            .solvedContent(post.getSolvedContent())
+                            .imageUrls(imageUrls)
+                            .commentCount(commentCount)
+                            .likeCount(likeCount)
+                            .createdAt(post.getCreatedAt())
+                            .updatedAt(post.getUpdatedAt())
+                            .category(post.getCategory())
+                            .build();
                 })
                 .collect(Collectors.toList());
     }
+
 
     // 페이지네이션 (페이지 사이즈 8, 생성일순)
     @Transactional(readOnly = true)
     public Page<SolvedPostResponse> getAllPosts(Long currentUserId, Pageable pageable) {
         return solvedPostRepository.findAll(pageable)
                 .map(post -> {
-                    AiSummaryResponse aiSummary = consultServiceClient.evaluateChat(post.getSessionId(), currentUserId).getResult();
                     String nickname = getNickname(post.getUserId(), currentUserId);
                     long commentCount = solvedCommentRepository.countBySolvedId(post);
                     long likeCount = solvedEmpathyRepository.countSolvedEmpathyBySolvedId(post.getSolvedId());
-                    return toResponse(post, nickname, commentCount, likeCount, aiSummary);
+
+                    List<String> imageUrls = post.getImageKeys() != null
+                            ? post.getImageKeys().stream().map(s3Interface::getImageUrl).toList()
+                            : List.of();
+
+                    return SolvedPostResponse.builder()
+                            .solvedId(post.getSolvedId())
+                            .nickname(nickname)
+                            .solvedTitle(post.getSolvedTitle())
+                            .solvedContent(post.getSolvedContent())
+                            .imageUrls(imageUrls)
+                            .commentCount(commentCount)
+                            .likeCount(likeCount)
+                            .createdAt(post.getCreatedAt())
+                            .updatedAt(post.getUpdatedAt())
+                            .category(post.getCategory())  // ✅ DB에서 직접
+                            .build();
                 });
     }
+
 
     // 닉네임 조회
     private String getNickname(Long targetUserId, Long currentUserId) {

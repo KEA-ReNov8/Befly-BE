@@ -43,26 +43,22 @@ public class SolvedPostController {
 
     // 해결함 글 단건 조회
     @GetMapping("/{solvedId}")
-    public ApiResponse<SolvedPostResponse> getPost(
-            @PathVariable Long solvedId,
-            @Parameter(hidden = true) @LoginUser Long userId) {
-        return ApiResponse.onSuccess(solvedPostService.getPost(solvedId, userId));
+    public ApiResponse<SolvedPostResponse> getPost(@PathVariable Long solvedId) {
+        return ApiResponse.onSuccess(solvedPostService.getPost(solvedId, null));
     }
 
     // 최신글 4개 조회
     @GetMapping("/latest")
-    public ApiResponse<List<SolvedPostResponse>> getLatestPosts(
-            @Parameter(hidden = true) @LoginUser Long userId) {
-        return ApiResponse.onSuccess(solvedPostService.getLatestPosts(userId));
+    public ApiResponse<List<SolvedPostResponse>> getLatestPosts() {
+        return ApiResponse.onSuccess(solvedPostService.getLatestPosts(null));
     }
 
     // 페이지네이션 (페이지 사이즈 8, 생성일순)
+
     @GetMapping("/page/{page}")
-    public ResponseEntity<ApiResponse<Page<SolvedPostResponse>>> getAllPosts(
-            @Parameter(hidden = true) @LoginUser Long userId,
-            @PathVariable int page) {
+    public ResponseEntity<ApiResponse<Page<SolvedPostResponse>>> getAllPosts(@PathVariable int page) {
         Pageable pageable = PageRequest.of(page, 8, Sort.Direction.DESC, "createdAt");
-        Page<SolvedPostResponse> response = solvedPostService.getAllPosts(userId, pageable);
+        Page<SolvedPostResponse> response = solvedPostService.getAllPosts(null, pageable);
         return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 
