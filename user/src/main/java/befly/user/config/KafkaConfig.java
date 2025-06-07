@@ -16,7 +16,6 @@ public class KafkaConfig {
         ConcurrentKafkaListenerContainerFactory<String, WingMessage> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
-        factory.setRecordMessageConverter(new StringJsonMessageConverter());
         return factory;
     }
 }
