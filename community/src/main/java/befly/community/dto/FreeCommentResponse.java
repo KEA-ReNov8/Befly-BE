@@ -15,6 +15,7 @@ public class FreeCommentResponse {
     private Long userId;
     private String nickname;
     private Long badge;
+    private String profileImage;
     private String comment;
     private Boolean isDeleted;
     private FreeComment parentCommentId;

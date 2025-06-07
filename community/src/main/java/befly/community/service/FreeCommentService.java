@@ -103,6 +103,7 @@ public class FreeCommentService {
                         .badge(userProfileResponseMap.get(comment.getUserId()).getBadge())
                         .userId(userProfileResponseMap.get(comment.getUserId()).getUserId())
                         .nickname(userProfileResponseMap.get(comment.getUserId()).getNickName())
+                        .profileImage(userProfileResponseMap.get(comment.getUserId()).getProfileImg())
                         .comment(comment.getIsDeleted() ? "삭제된 댓글입니다." : comment.getFreeComment())
                         .parentCommentId(comment.getPFreeCommentId())
                         .isDeleted(comment.getIsDeleted())
