@@ -10,6 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WingMessage {
+    //
     private Long userId;
     private Long wing;
 } 
