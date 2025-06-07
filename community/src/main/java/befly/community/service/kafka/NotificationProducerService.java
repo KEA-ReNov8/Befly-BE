@@ -58,18 +58,6 @@ public class NotificationProducerService {
                     .message(messageContent)
                     .build();
             notificationRepository.save(notification);
-
-            sendNotification(message);
-        }
-    }
-
-    public void sendNotification(NotificationMessage message) {
-        try {
-            String topic = "notification." + message.getType().name().toLowerCase();
-            String json = objectMapper.writeValueAsString(message);
-            kafkaTemplate.send(topic, String.valueOf(message.getTargetUserId()), json);
-        } catch (Exception e) {
-            log.error("Failed to send Kafka message", e);
         }
     }
 

@@ -52,18 +52,13 @@ public class FreeCommentService {
                 .freeComment(commentDto.getComment())
                 .pFreeCommentId(pComment)
                 .build();
-        FreeComment saved = freeCommentRepository.save(comment);
+        freeCommentRepository.save(comment);
 
-        freePostRepository.findById(freeId)
-                .ifPresent(freePost -> {
-                    Long postUserId = freePost.getUserId();
-                    // 알림을 보내는 조건 (postUserId가 현재 사용자 userId와 다른 경우)도 여기서 처리
-                    if (postUserId != null && !postUserId.equals(userId)) { // null 체크 및 본인에게 알림 보내지 않기
-                        notificationProducerService.sendNotificationIfNeeded(postUserId, userId, NotificationType.FREEPOST);
-                    }
-                });
+        if (post.getUserId() != null && !post.getUserId().equals(userId)) { // null 체크 및 본인에게 알림 보내지 않기
+            notificationProducerService.sendNotificationIfNeeded(post.getUserId(), userId, NotificationType.FREEPOST);
+        }
 
-        return toResponse(saved);
+        return null;
     }
 
     // 자유함 댓글 업데이트
@@ -82,7 +77,7 @@ public class FreeCommentService {
         comment.updateFreeComment(commentDto.getComment());
 
         // FreeComment updated = freeCommentRepository.save(comment);
-        return toResponse(comment);
+        return null;
     }
 
     // 자유함 댓글 리스트 조회
@@ -121,24 +116,5 @@ public class FreeCommentService {
         comment.deleteFreeComment();
 
         freeCommentRepository.save(comment);
-    }
-
-
-    // 결과 응답용
-    private FreeCommentResponse toResponse(FreeComment comment) {
-        ApiResponse<String> responseWithNickname = userServiceClient.getUserNicknameById(comment.getUserId());
-        String nickname = responseWithNickname.getResult();
-
-        return FreeCommentResponse.builder()
-                .commentId(comment.getFreeCommentId())
-                .postId(comment.getFreeId())
-                // .userId(comment.getUserId())
-                .nickname(nickname)
-                .comment(comment.getFreeComment())
-                .isDeleted(comment.getIsDeleted())
-                .parentCommentId(comment.getPFreeCommentId())
-                .createdAt(comment.getCreatedAt())
-                .updatedAt(comment.getUpdatedAt())
-                .build();
     }
 }

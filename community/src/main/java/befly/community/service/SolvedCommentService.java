@@ -47,16 +47,11 @@ public class SolvedCommentService {
                 .build();
         SolvedComment saved = solvedCommentRepository.save(comment);
 
-        solvedPostRepository.findById(solvedId)
-                .ifPresent(solvedPost -> {
-                    Long postUserId = solvedPost.getUserId();
-                    // 알림을 보내는 조건 (postUserId가 현재 사용자 userId와 다른 경우)도 여기서 처리
-                    if (postUserId != null && !postUserId.equals(userId)) { // null 체크 및 본인에게 알림 보내지 않기
-                        notificationProducerService.sendNotificationIfNeeded(postUserId, userId, NotificationType.SOLVEDPOST);
-                    }
-                });
-
-
+        Long postUserId = post.getUserId();
+        // 알림을 보내는 조건 (postUserId가 현재 사용자 userId와 다른 경우)도 여기서 처리
+        if (postUserId != null && !postUserId.equals(userId)) { // null 체크 및 본인에게 알림 보내지 않기
+            notificationProducerService.sendNotificationIfNeeded(postUserId, userId, NotificationType.SOLVEDPOST);
+        }
 
         return toResponse(saved);
     }
@@ -82,8 +77,8 @@ public class SolvedCommentService {
                 .solvedComment(commentDto.getComment())
                 .pSolvedCommentId(comment.getPSolvedCommentId())
                 .build();
-        SolvedComment saved = solvedCommentRepository.save(comment);
-        return toResponse(saved);
+        solvedCommentRepository.save(comment);
+        return null;
     }
 
     // 해결함 댓글 리스트 조회
