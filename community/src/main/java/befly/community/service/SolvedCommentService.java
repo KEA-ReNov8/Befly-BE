@@ -108,6 +108,8 @@ public class SolvedCommentService {
                         .comment(comment.getIsDeleted() ? "삭제된 댓글입니다." : comment.getSolvedComment())
                         .parentCommentId(comment.getPSolvedCommentId())
                         .isDeleted(comment.getIsDeleted())
+                        .createdAt(comment.getCreatedAt())
+                        .updatedAt(comment.getUpdatedAt())
                         .build())
                 .collect(Collectors.toList());
     }

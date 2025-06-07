@@ -101,7 +101,7 @@ public class FreeCommentService {
                         .commentId(comment.getFreeCommentId())
                         .postId(comment.getFreeId())
                         .badge(userProfileResponseMap.get(comment.getUserId()).getBadge())
-                        // .userId(comment.getUserId())
+                        .userId(userProfileResponseMap.get(comment.getUserId()).getUserId())
                         .nickname(userProfileResponseMap.get(comment.getUserId()).getNickName())
                         .comment(comment.getIsDeleted() ? "삭제된 댓글입니다." : comment.getFreeComment())
                         .parentCommentId(comment.getPFreeCommentId())

@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class FreeCommentResponse {
     private Long commentId;
     private FreePost postId;
-    // private Long userId;
+    private Long userId;
     private String nickname;
     private Long badge;
     private String comment;
