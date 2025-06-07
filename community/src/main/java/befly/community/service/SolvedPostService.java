@@ -4,16 +4,20 @@ import befly.common.apiPayload.ApiResponse;
 import befly.common.exception.RestApiException;
 import befly.community.client.ConsultServiceClient;
 import befly.community.client.UserServiceClient;
+import befly.community.domain.FreePost;
 import befly.community.domain.SolvedPost;
 import befly.community.dto.AiSummaryResponse;
 import befly.community.dto.ListSolvedPostResponse;
 import befly.community.dto.SolvedPostRequest;
 import befly.community.dto.SolvedPostResponse;
+import befly.community.dto.UserProfileResponse;
 import befly.community.repository.SolvedCommentRepository;
 import befly.community.repository.SolvedEmpathyRepository;
 import befly.community.repository.SolvedPostRepository;
 import befly.community.service.kafka.WingEventProducerService;
 import befly.community.status.SolvedErrorStatus;
+import befly.community.util.CacheUtils;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +35,7 @@ public class SolvedPostService {
     private final UserServiceClient userServiceClient;
     private final SolvedCommentRepository solvedCommentRepository;
     private final SolvedEmpathyRepository solvedEmpathyRepository;
+    private final CacheUtils cacheUtils;
 
     // 해결함 글 생성
     @Transactional
@@ -80,11 +85,13 @@ public class SolvedPostService {
         SolvedPost post = solvedPostRepository.findById(id)
                 .orElseThrow(() -> new RestApiException(SolvedErrorStatus.POST_NOT_FOUND));
         AiSummaryResponse aiSummary = consultServiceClient.evaluateChat(post.getSessionId(), currentUserId).getResult();
-        String nickname = getNickname(post.getUserId(), currentUserId);
+        Map<Long, UserProfileResponse> userProfileResponseMap = cacheUtils.getUserNickName(
+                List.of(post.getUserId())
+        );
         long commentCount = solvedCommentRepository.countBySolvedId(post);
         long likeCount = solvedEmpathyRepository.countSolvedEmpathyBySolvedId(post.getSolvedId());
 
-        return toResponse(post, nickname, commentCount, likeCount, aiSummary);
+        return toResponse(post, commentCount, likeCount, aiSummary, userProfileResponseMap.get(post.getUserId()));
     }
 
 
@@ -92,9 +99,14 @@ public class SolvedPostService {
     @Transactional(readOnly = true)
     public List<ListSolvedPostResponse> getLatestPosts(Long currentUserId) {
         List<SolvedPost> posts = solvedPostRepository.findTop4ByOrderByCreatedAtDesc();
+        Map<Long, UserProfileResponse> userProfileResponseMap = cacheUtils.getUserNickName(
+                posts.stream()
+                        .map(SolvedPost::getUserId)
+                        .distinct()
+                        .toList()
+        );
         return posts.stream()
                 .map(post -> {
-                    String nickname = getNickname(post.getUserId(), currentUserId);
                     long commentCount = solvedCommentRepository.countBySolvedId(post);
                     long likeCount = solvedEmpathyRepository.countSolvedEmpathyBySolvedId(post.getSolvedId());
 
@@ -104,7 +116,8 @@ public class SolvedPostService {
 
                     return ListSolvedPostResponse.builder()
                             .solvedId(post.getSolvedId())
-                            .nickname(nickname)
+                            .nickname(userProfileResponseMap.get(post.getUserId()).getNickName())
+                            .badge(userProfileResponseMap.get(post.getUserId()).getBadge())
                             .solvedTitle(post.getSolvedTitle())
                             .solvedContent(post.getSolvedContent())
                             .imageUrls(imageUrls)
@@ -122,9 +135,15 @@ public class SolvedPostService {
     // 페이지네이션 (페이지 사이즈 8, 생성일순)
     @Transactional(readOnly = true)
     public Page<ListSolvedPostResponse> getAllPosts(Long currentUserId, Pageable pageable) {
-        return solvedPostRepository.findAll(pageable)
+        Page<SolvedPost> solvedPostPage = solvedPostRepository.findAll(pageable);
+        Map<Long, UserProfileResponse> userProfileResponseMap = cacheUtils.getUserNickName(
+                solvedPostPage.getContent().stream()
+                        .map(SolvedPost::getUserId)
+                        .distinct()
+                        .toList()
+        );
+        return solvedPostPage
                 .map(post -> {
-                    String nickname = getNickname(post.getUserId(), currentUserId);
                     long commentCount = solvedCommentRepository.countBySolvedId(post);
                     long likeCount = solvedEmpathyRepository.countSolvedEmpathyBySolvedId(post.getSolvedId());
 
@@ -134,7 +153,8 @@ public class SolvedPostService {
 
                     return ListSolvedPostResponse.builder()
                             .solvedId(post.getSolvedId())
-                            .nickname(nickname)
+                            .badge(userProfileResponseMap.get(post.getUserId()).getBadge())
+                            .nickname(userProfileResponseMap.get(post.getUserId()).getNickName())
                             .solvedTitle(post.getSolvedTitle())
                             .solvedContent(post.getSolvedContent())
                             .imageUrls(imageUrls)
@@ -150,7 +170,14 @@ public class SolvedPostService {
     //유저 아이디로 해결함 글 조회
     @Transactional(readOnly = true)
     public Page<ListSolvedPostResponse> getPostsByUserId(Long userId, Pageable pageable) {
-        return solvedPostRepository.findByUserId(userId, pageable)
+        Page<SolvedPost> solvedPostPage = solvedPostRepository.findByUserId(userId, pageable);
+        Map<Long, UserProfileResponse> userProfileResponseMap = cacheUtils.getUserNickName(
+                solvedPostPage.getContent().stream()
+                        .map(SolvedPost::getUserId)
+                        .distinct()
+                        .toList()
+        );
+        return solvedPostPage
                 .map(post -> {
                     List<String> imageUrls = post.getImageKeys() != null
                             ? post.getImageKeys()
@@ -158,7 +185,8 @@ public class SolvedPostService {
 
                     return ListSolvedPostResponse.builder()
                             .solvedId(post.getSolvedId())
-                            .nickname(userServiceClient.getUserNicknameById(userId).getResult()) // 닉네임 조회
+                            .badge(userProfileResponseMap.get(post.getUserId()).getBadge())
+                            .nickname(userProfileResponseMap.get(post.getUserId()).getNickName())
                             .solvedTitle(post.getSolvedTitle())
                             .solvedContent(post.getSolvedContent())
                             .imageUrls(imageUrls)
@@ -171,22 +199,16 @@ public class SolvedPostService {
                 });
     }
 
-
-    // 닉네임 조회
-    private String getNickname(Long targetUserId, Long currentUserId) {
-        ApiResponse<String> response = userServiceClient.getUserNicknameById(targetUserId);
-        return response.getResult();
-    }
-
     // 응답 변환
-    private SolvedPostResponse toResponse(SolvedPost post, String nickname, long commentCount, long likeCount, AiSummaryResponse aiSummary) {
+    private SolvedPostResponse toResponse(SolvedPost post, long commentCount, long likeCount, AiSummaryResponse aiSummary, UserProfileResponse userProfileResponse) {
         List<String> imageUrls = post.getImageKeys() != null
                 ? post.getImageKeys().stream().toList()
                 : List.of();
 
         return SolvedPostResponse.builder()
                 .solvedId(post.getSolvedId())
-                .nickname(nickname)
+                .nickname(userProfileResponse.getNickName())
+                .badge(userProfileResponse.getBadge())
                 .solvedTitle(post.getSolvedTitle())
                 .solvedContent(post.getSolvedContent())
                 .imageUrls(imageUrls)

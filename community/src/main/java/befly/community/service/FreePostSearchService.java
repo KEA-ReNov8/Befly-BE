@@ -2,8 +2,11 @@ package befly.community.service;
 
 import befly.common.apiPayload.ApiResponse;
 import befly.community.client.UserServiceClient;
+import befly.community.domain.comment.FreeComment;
 import befly.community.dto.FreePostSearchResponse;
+import befly.community.dto.UserProfileResponse;
 import befly.community.repository.FreePostRepository;
+import befly.community.util.CacheUtils;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
@@ -21,7 +24,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class FreePostSearchService {
     private final ElasticsearchClient elasticsearchClient;
-    private final UserServiceClient userServiceClient;
+    private final CacheUtils cacheUtils;
 
     /**
      * 자유함 게시글 키워드별 8개씩 검색
@@ -45,7 +48,15 @@ public class FreePostSearchService {
         // 검색 실행
         try {
             SearchResponse<JsonData> response = elasticsearchClient.search(builder.build(), JsonData.class);
-
+            Map<Long, UserProfileResponse> userProfileResponseMap = cacheUtils.getUserNickName(
+                    response.hits().hits().stream()
+                            .map(hit -> {
+                                Map<String, Object> source = hit.source().to(Map.class);
+                                return getLong(source.get("user_id"));
+                            })
+                            .distinct()
+                            .toList()
+            );
             return response.hits().hits().stream()
                     .map(hit -> {
                         try {
@@ -57,16 +68,17 @@ public class FreePostSearchService {
                                 throw new RuntimeException("user_id 또는 free_id가 null이거나 잘못된 형식입니다.");
                             }
 
-                            // 닉네임 조회
                             String nickname;
+                            // 닉네임 조회
                             try {
-                                ApiResponse<String> nicknameResponse = userServiceClient.getUserNicknameById(userId);
-                                nickname = (nicknameResponse != null) ? nicknameResponse.getResult() : "익명";
+                                UserProfileResponse profile = userProfileResponseMap.get(userId);
+                                nickname = (profile != null && profile.getNickName() != null) ? profile.getNickName() : "익명";
                             } catch (Exception e) {
                                 nickname = "익명";
                             }
+                            Long badge =  userProfileResponseMap.get(userId).getBadge();
 
-                            return convertToFreePostResponse(source, freeId, nickname);
+                            return convertToFreePostResponse(source, freeId, nickname, badge);
                         } catch (Exception ex) {
                             throw new RuntimeException("파싱 중 오류 발생", ex);
                         }
@@ -78,7 +90,7 @@ public class FreePostSearchService {
         }
     }
 
-    private FreePostSearchResponse convertToFreePostResponse(Map<String, Object> source, Long freeId, String nickname) {
+    private FreePostSearchResponse convertToFreePostResponse(Map<String, Object> source, Long freeId, String nickname, Long badge) {
         Object imageKeyRaw = source.get("image_key");
         List<String> imageKeys;
 
@@ -95,6 +107,7 @@ public class FreePostSearchService {
                 .userId(getLong(source.get("user_id")))
                 .freeTitle((String) source.get("free_title"))
                 .freeContent((String) source.get("free_content"))
+                .badge(badge)
                 .imageKeys(imageKeys)
                 .createdAt(source.get("created_at") != null ? source.get("created_at").toString() : null)
                 .updatedAt(source.get("updated_at") != null ? source.get("updated_at").toString() : null)

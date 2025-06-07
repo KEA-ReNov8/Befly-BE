@@ -1,6 +1,8 @@
 package befly.community.service;
 
 import befly.common.exception.RestApiException;
+import befly.community.domain.comment.FreeComment;
+import befly.community.dto.UserProfileResponse;
 import befly.community.repository.SolvedCommentRepository;
 import befly.community.repository.SolvedPostRepository;
 import befly.community.domain.SolvedPost;
@@ -10,7 +12,9 @@ import befly.community.dto.SolvedCommentResponse;
 import befly.community.dto.kafka.NotificationType;
 import befly.community.service.kafka.NotificationProducerService;
 import befly.community.status.SolvedErrorStatus;
+import befly.community.util.CacheUtils;
 import jakarta.transaction.Transactional;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +27,7 @@ public class SolvedCommentService {
     private final SolvedCommentRepository solvedCommentRepository;
     private final SolvedPostRepository solvedPostRepository;
     private final NotificationProducerService notificationProducerService;
+    private final CacheUtils cacheUtils;
 
     // 해결함 댓글 생성
     @Transactional
@@ -85,10 +90,19 @@ public class SolvedCommentService {
     public List<SolvedCommentResponse> getComments(Long solvedId) {
         SolvedPost solvedPost = solvedPostRepository.findById(solvedId)
                 .orElseThrow(() -> new RestApiException(SolvedErrorStatus.POST_NOT_FOUND));
+        List<SolvedComment> solvedCommentList = solvedCommentRepository.findBySolvedId(solvedPost);
+        Map<Long, UserProfileResponse> userProfileResponseMap = cacheUtils.getUserNickName(
+                solvedCommentList.stream()
+                        .map(SolvedComment::getUserId)
+                        .distinct()
+                        .toList()
+        );
 
         return solvedCommentRepository.findBySolvedId(solvedPost).stream()
                 .map(comment -> SolvedCommentResponse.builder()
                         .commentId(comment.getSolvedCommentId())
+                        .badge(userProfileResponseMap.get(comment.getUserId()).getBadge())
+                        .nickname(userProfileResponseMap.get(comment.getUserId()).getNickName())
                         .postId(comment.getSolvedId())
                         .userId(comment.getUserId())
                         .comment(comment.getIsDeleted() ? "삭제된 댓글입니다." : comment.getSolvedComment())
