@@ -207,6 +207,7 @@ public class SolvedPostService {
 
         return SolvedPostResponse.builder()
                 .solvedId(post.getSolvedId())
+                .userId(post.getUserId())
                 .nickname(userProfileResponse.getNickName())
                 .badge(userProfileResponse.getBadge())
                 .solvedTitle(post.getSolvedTitle())

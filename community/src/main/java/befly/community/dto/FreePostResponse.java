@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 public class FreePostResponse {
     private Long freeId;
-    // private Long userId;
+    private Long userId;
     private String nickname;
     private Long badge;
     private String freeTitle;

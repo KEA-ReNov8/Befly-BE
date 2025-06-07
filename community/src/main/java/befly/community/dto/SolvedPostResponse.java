@@ -13,6 +13,7 @@ import java.util.List;
 @Builder
 public class SolvedPostResponse {
     private Long solvedId;
+    private Long userId;
     private String nickname;
     private Long badge;
     private String solvedTitle;
