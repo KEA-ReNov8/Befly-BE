@@ -3,6 +3,7 @@ package befly.community.service;
 import befly.common.apiPayload.ApiResponse;
 import befly.common.exception.RestApiException;
 import befly.community.client.UserServiceClient;
+import befly.community.dto.UserProfileResponse;
 import befly.community.repository.FreeCommentRepository;
 import befly.community.repository.FreePostRepository;
 import befly.community.domain.FreePost;
@@ -12,7 +13,9 @@ import befly.community.dto.FreeCommentResponse;
 import befly.community.dto.kafka.NotificationType;
 import befly.community.service.kafka.NotificationProducerService;
 import befly.community.status.FreeErrorStatus;
+import befly.community.util.CacheUtils;
 import jakarta.transaction.Transactional;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,7 +30,7 @@ public class FreeCommentService {
     private final FreeCommentRepository freeCommentRepository;
     private final FreePostRepository freePostRepository;
     private final NotificationProducerService notificationProducerService;
-    private final UserServiceClient userServiceClient;
+    private final CacheUtils cacheUtils;
 
     // 자유함 댓글 생성
     @Transactional
@@ -84,13 +87,22 @@ public class FreeCommentService {
     public List<FreeCommentResponse> getComments(Long freeId) {
         FreePost freePost = freePostRepository.findById(freeId)
                 .orElseThrow(() -> new RestApiException(FreeErrorStatus.POST_NOT_FOUND));
+        List<FreeComment> freeCommentList = freeCommentRepository.findByFreeId(freePost);
+
+        Map<Long, UserProfileResponse> userProfileResponseMap = cacheUtils.getUserNickName(
+                freeCommentList.stream()
+                        .map(FreeComment::getUserId)
+                        .distinct()
+                        .toList()
+        );
 
         return freeCommentRepository.findByFreeId(freePost).stream()
                 .map(comment -> FreeCommentResponse.builder()
                         .commentId(comment.getFreeCommentId())
                         .postId(comment.getFreeId())
+                        .badge(userProfileResponseMap.get(comment.getUserId()).getBadge())
                         // .userId(comment.getUserId())
-                        .nickname(userServiceClient.getUserNicknameById(comment.getUserId()).getResult())
+                        .nickname(userProfileResponseMap.get(comment.getUserId()).getNickName())
                         .comment(comment.getIsDeleted() ? "삭제된 댓글입니다." : comment.getFreeComment())
                         .parentCommentId(comment.getPFreeCommentId())
                         .isDeleted(comment.getIsDeleted())

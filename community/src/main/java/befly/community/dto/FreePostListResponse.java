@@ -19,5 +19,6 @@ public class FreePostListResponse {
     private String time;
     private LocalDateTime createdAt;
     private String nickname;
+    private Long badge;
     private List<String> imageUrl;
 }

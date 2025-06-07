@@ -3,7 +3,9 @@ package befly.community.service;
 import befly.community.client.UserServiceClient;
 import befly.community.domain.SolvedPost;
 import befly.community.dto.SolvedPostSearchResponse;
+import befly.community.dto.UserProfileResponse;
 import befly.community.repository.SolvedPostRepository;
+import befly.community.util.CacheUtils;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
@@ -21,8 +23,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SolvedPostSearchService {
     private final ElasticsearchClient elasticsearchClient;
-    private final UserServiceClient userServiceClient;
     private final SolvedPostRepository solvedPostRepository;
+    private final CacheUtils cacheUtils;
 
     /**
      * 해결함 게시글 카테고리/키워드별 8개씩 검색
@@ -53,7 +55,15 @@ public class SolvedPostSearchService {
         // 검색 실행
         try {
             SearchResponse<JsonData> response = elasticsearchClient.search(builder.build(), JsonData.class);
-
+            Map<Long, UserProfileResponse> userProfileResponseMap = cacheUtils.getUserNickName(
+                    response.hits().hits().stream()
+                            .map(hit -> {
+                                Map<String, Object> source = hit.source().to(Map.class);
+                                return getLong(source.get("user_id"));
+                            })
+                            .distinct()
+                            .toList()
+            );
             return response.hits().hits().stream()
                     .map(hit -> {
                         try {
@@ -67,14 +77,16 @@ public class SolvedPostSearchService {
 
                             // 닉네임 조회
                             String nickname;
+                            // 닉네임 조회
                             try {
-                                ApiResponse<String> nicknameResponse = userServiceClient.getUserNicknameById(userId);
-                                nickname = (nicknameResponse != null) ? nicknameResponse.getResult() : "익명";
+                                UserProfileResponse profile = userProfileResponseMap.get(userId);
+                                nickname = (profile != null && profile.getNickName() != null) ? profile.getNickName() : "익명";
                             } catch (Exception e) {
                                 nickname = "익명";
                             }
+                            Long badge =  userProfileResponseMap.get(userId).getBadge();
 
-                            return convertToSolvedPostResponse(source, solvedId, nickname);
+                            return convertToSolvedPostResponse(source, solvedId, nickname, badge);
                         } catch (Exception ex) {
                             throw new RuntimeException("파싱 중 오류 발생", ex);
                         }
@@ -86,7 +98,7 @@ public class SolvedPostSearchService {
         }
     }
 
-    private SolvedPostSearchResponse convertToSolvedPostResponse(Map<String, Object> source, Long solvedId, String nickname) {
+    private SolvedPostSearchResponse convertToSolvedPostResponse(Map<String, Object> source, Long solvedId, String nickname, Long badge) {
         Object imageKeyRaw = source.get("image_key");
         List<String> imageKeys;
 
@@ -113,6 +125,7 @@ public class SolvedPostSearchService {
                 .updatedAt(source.get("updated_at") != null ? source.get("updated_at").toString() : null)
                 .commentCount(getLong(source.get("comment_count")))
                 .likeCount(getLong(source.get("like_count")))
+                .badge(badge)
                 .nickname(nickname)
                 .build();
     }

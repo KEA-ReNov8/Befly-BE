@@ -14,6 +14,7 @@ public class FreePostResponse {
     private Long freeId;
     // private Long userId;
     private String nickname;
+    private Long badge;
     private String freeTitle;
     private String freeContent;
     private List<String> imageUrl;

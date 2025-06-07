@@ -14,6 +14,7 @@ import java.util.List;
 public class SolvedPostResponse {
     private Long solvedId;
     private String nickname;
+    private Long badge;
     private String solvedTitle;
     private String solvedContent;
     private List<String> imageUrls;

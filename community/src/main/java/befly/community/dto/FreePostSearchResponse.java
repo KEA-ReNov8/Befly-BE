@@ -17,4 +17,5 @@ public class FreePostSearchResponse {
     private Long commentCount;
     private Long likeCount;
     private String nickname;
+    private Long badge;
 }
