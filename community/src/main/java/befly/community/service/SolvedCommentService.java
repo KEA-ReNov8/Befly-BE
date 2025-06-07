@@ -105,6 +105,7 @@ public class SolvedCommentService {
                         .nickname(userProfileResponseMap.get(comment.getUserId()).getNickName())
                         .postId(comment.getSolvedId())
                         .userId(comment.getUserId())
+                        .profileImage(userProfileResponseMap.get(comment.getUserId()).getProfileImg())
                         .comment(comment.getIsDeleted() ? "삭제된 댓글입니다." : comment.getSolvedComment())
                         .parentCommentId(comment.getPSolvedCommentId())
                         .isDeleted(comment.getIsDeleted())
