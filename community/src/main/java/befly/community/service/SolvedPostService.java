@@ -45,7 +45,7 @@ public class SolvedPostService {
                 .category(request.getCategory())
                 .build();
 
-        SolvedPost saved = solvedPostRepository.save(post);
+        solvedPostRepository.save(post);
         wingEventProducerService.produceWingEvent(userId, 10L);
 
         return null;

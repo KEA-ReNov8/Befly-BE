@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class WingEventProducerService {
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaTemplate<String, WingMessage> kafkaTemplate;
 
     public void produceWingEvent(Long userId, Long wing) {
         log.info("[WingEventProducerService] produceWingEvent 실행");
@@ -25,7 +25,6 @@ public class WingEventProducerService {
         Message<WingMessage> kafkaMessage = MessageBuilder
                 .withPayload(message)
                 .setHeader(KafkaHeaders.TOPIC, "user-wing")
-                .setHeader("__TypeId__", "befly.common.common.WingMessage")
                 .build();
 
         kafkaTemplate.send(kafkaMessage);

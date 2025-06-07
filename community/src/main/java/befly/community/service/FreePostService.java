@@ -65,9 +65,9 @@ public class FreePostService {
             log.info("[FreePostService] wing event 실행 완료");
         }
 
-        FreePost saved = freePostRepository.save(post);
+        freePostRepository.save(post);
 
-        return toResponse(saved);
+        return null;
     }
 
     // 자유함 글 조회
@@ -113,7 +113,7 @@ public class FreePostService {
 
         post.updateFreePost(request.getFreeTitle(), request.getFreeContent(), request.getImageKeys());
         // FreePost updated = freePostRepository.save(post);
-        return toResponse(post);
+        return null;
     }
 
     // 자유함 글 삭제
