@@ -124,7 +124,7 @@ public class FreePostSearchService {
                 .freeTitle((String) source.get("free_title"))
                 .freeContent((String) source.get("free_content"))
                 .badge(badge)
-                .imageKey(imageKey)
+                .imageKeys(imageKey)
                 .createdAt(source.get("created_at") != null ? source.get("created_at").toString() : null)
                 .updatedAt(source.get("updated_at") != null ? source.get("updated_at").toString() : null)
                 .commentCount(getLong(source.get("comment_count")))

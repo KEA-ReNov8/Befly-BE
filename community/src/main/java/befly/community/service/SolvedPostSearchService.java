@@ -134,7 +134,7 @@ public class SolvedPostSearchService {
                 .solvedTitle((String) source.get("solved_title"))
                 .solvedContent((String) source.get("solved_content"))
                 .category(category)
-                .imageKey(imageKey)
+                .imageKeys(imageKey)
                 .createdAt(source.get("created_at") != null ? source.get("created_at").toString() : null)
                 .updatedAt(source.get("updated_at") != null ? source.get("updated_at").toString() : null)
                 .commentCount(getLong(source.get("comment_count")))

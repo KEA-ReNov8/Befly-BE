@@ -45,7 +45,7 @@
                     .userId(userId)
                     .solvedTitle(request.getSolvedTitle())
                     .solvedContent(request.getSolvedContent())
-                    .imageKey(request.getImageKey())
+                    .imageKeys(request.getImageKeys())
                     .sessionId(request.getSessionId())
                     .category(request.getCategory())
                     .build();
@@ -63,7 +63,7 @@
                     .orElseThrow(() -> new RestApiException(SolvedErrorStatus.POST_NOT_FOUND));
             if (!post.getUserId().equals(userId)) throw new RestApiException(SolvedErrorStatus.NO_PERMISSION);
 
-            post.update(request.getSolvedTitle(), request.getSolvedContent(), request.getImageKey(), request.getCategory());
+            post.update(request.getSolvedTitle(), request.getSolvedContent(), request.getImageKeys(), request.getCategory());
 
             return null;
         }
@@ -121,7 +121,7 @@
                                 .badge(userProfileResponseMap.get(post.getUserId()).getBadge())
                                 .solvedTitle(post.getSolvedTitle())
                                 .solvedContent(post.getSolvedContent())
-                                .imageUrl(post.getImageKey())
+                                .imageUrls(post.getImageKeys())
                                 .commentCount(commentCount)
                                 .likeCount(likeCount)
                                 .createdAt(post.getCreatedAt())
@@ -155,7 +155,7 @@
                                 .nickname(userProfileResponseMap.get(post.getUserId()).getNickName())
                                 .solvedTitle(post.getSolvedTitle())
                                 .solvedContent(post.getSolvedContent())
-                                .imageUrl(post.getImageKey())
+                                .imageUrls(post.getImageKeys())
                                 .commentCount(commentCount)
                                 .likeCount(likeCount)
                                 .createdAt(post.getCreatedAt())
@@ -184,7 +184,7 @@
                                 .nickname(userProfileResponseMap.get(post.getUserId()).getNickName())
                                 .solvedTitle(post.getSolvedTitle())
                                 .solvedContent(post.getSolvedContent())
-                                .imageUrl(post.getImageKey())
+                                .imageUrls(post.getImageKeys())
                                 .commentCount(solvedCommentRepository.countBySolvedId(post))
                                 .likeCount(solvedEmpathyRepository.countSolvedEmpathyBySolvedId(post.getSolvedId()))
                                 .createdAt(post.getCreatedAt())
@@ -205,7 +205,7 @@
                     .badge(userProfileResponse.getBadge())
                     .solvedTitle(post.getSolvedTitle())
                     .solvedContent(post.getSolvedContent())
-                    .imageUrl(post.getImageKey())
+                    .imageUrls(post.getImageKeys())
                     .commentCount(commentCount)
                     .likeCount(likeCount)
                     .createdAt(post.getCreatedAt())
