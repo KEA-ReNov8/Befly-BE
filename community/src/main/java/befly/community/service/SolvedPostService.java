@@ -92,7 +92,7 @@
             Map<Long, UserProfileResponse> userProfileResponseMap = cacheUtils.getUserNickName(
                     List.of(post.getUserId())
             );
-            long commentCount = solvedCommentRepository.countBySolvedId(post.getSolvedId());
+            long commentCount = solvedCommentRepository.countBySolvedId(post);
             long likeCount = solvedEmpathyRepository.countSolvedEmpathyBySolvedId(post.getSolvedId());
 
             return toResponse(post, commentCount, likeCount, aiSummary, userProfileResponseMap.get(post.getUserId()));
@@ -111,7 +111,7 @@
             );
             return posts.stream()
                     .map(post -> {
-                        long commentCount = solvedCommentRepository.countBySolvedId(post.getSolvedId());
+                        long commentCount = solvedCommentRepository.countBySolvedId(post);
                         long likeCount = solvedEmpathyRepository.countSolvedEmpathyBySolvedId(post.getSolvedId());
 
                         List<String> imageUrls = post.getImageKeys() != null
@@ -148,7 +148,7 @@
             );
             return solvedPostPage
                     .map(post -> {
-                        long commentCount = solvedCommentRepository.countBySolvedId(post.getSolvedId());
+                        long commentCount = solvedCommentRepository.countBySolvedId(post);
                         long likeCount = solvedEmpathyRepository.countSolvedEmpathyBySolvedId(post.getSolvedId());
 
                         List<String> imageUrls = post.getImageKeys() != null
@@ -194,7 +194,7 @@
                                 .solvedTitle(post.getSolvedTitle())
                                 .solvedContent(post.getSolvedContent())
                                 .imageUrls(imageUrls)
-                                .commentCount(solvedCommentRepository.countBySolvedId(post.getSolvedId()))
+                                .commentCount(solvedCommentRepository.countBySolvedId(post))
                                 .likeCount(solvedEmpathyRepository.countSolvedEmpathyBySolvedId(post.getSolvedId()))
                                 .createdAt(post.getCreatedAt())
                                 .updatedAt(post.getUpdatedAt())
