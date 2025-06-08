@@ -4,6 +4,9 @@ import befly.common.apiPayload.ApiResponse;
 import befly.community.client.UserServiceClient;
 import befly.community.domain.comment.FreeComment;
 import befly.community.dto.FreePostSearchResponse;
+import befly.community.dto.FreePostSearchResult;
+import befly.community.dto.SolvedPostSearchResponse;
+import befly.community.dto.SolvedPostSearchResult;
 import befly.community.dto.UserProfileResponse;
 import befly.community.repository.FreePostRepository;
 import befly.community.util.CacheUtils;
@@ -29,7 +32,7 @@ public class FreePostSearchService {
     /**
      * 자유함 게시글 키워드별 8개씩 검색
      */
-    public List<FreePostSearchResponse> searchFreePosts(String keyword, int page) {
+    public FreePostSearchResult searchFreePosts(String keyword, int page) {
         int size = 8; // 한 페이지 8개
         SearchRequest.Builder builder = new SearchRequest.Builder()
                 .index("mysql-server_befly_free_post")
@@ -48,6 +51,10 @@ public class FreePostSearchService {
         // 검색 실행
         try {
             SearchResponse<JsonData> response = elasticsearchClient.search(builder.build(), JsonData.class);
+
+            long totalElements = response.hits().total().value();
+            int totalPages = (int) Math.ceil((double) totalElements / size);
+
             Map<Long, UserProfileResponse> userProfileResponseMap = cacheUtils.getUserNickName(
                     response.hits().hits().stream()
                             .map(hit -> {
@@ -57,7 +64,7 @@ public class FreePostSearchService {
                             .distinct()
                             .toList()
             );
-            return response.hits().hits().stream()
+            List<FreePostSearchResponse> posts = response.hits().hits().stream()
                     .map(hit -> {
                         try {
                             Map<String, Object> source = hit.source().to(Map.class);
@@ -84,6 +91,15 @@ public class FreePostSearchService {
                         }
                     })
                     .collect(Collectors.toList());
+
+            return FreePostSearchResult.builder()
+                    .posts(posts)
+                    .currentPage(page)
+                    .totalPages(totalPages)
+                    .totalElements(totalElements)
+                    .hasNext(page < totalPages - 1)
+                    .hasPrevious(page > 0)
+                    .build();
 
         } catch (Exception e) {
             throw new RuntimeException("Elasticsearch 검색 실패", e);
