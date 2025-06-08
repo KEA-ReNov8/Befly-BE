@@ -78,7 +78,7 @@
                 throw new RestApiException(SolvedErrorStatus.NO_PERMISSION);
             }
 
-            solvedCommentRepository.deleteAllBySolvedId(post.getSolvedId());
+            solvedCommentRepository.deleteAllBySolvedId(post);
             solvedEmpathyRepository.deleteAllBySolvedId(post.getSolvedId());
             solvedPostRepository.delete(post);
         }
