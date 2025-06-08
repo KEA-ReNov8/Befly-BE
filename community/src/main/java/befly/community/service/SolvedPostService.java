@@ -76,6 +76,8 @@ public class SolvedPostService {
         if (!post.getUserId().equals(userId)) {
             throw new RestApiException(SolvedErrorStatus.NO_PERMISSION);
         }
+        solvedCommentRepository.deleteAllBySolvedId(post);
+        solvedEmpathyRepository.deleteAllBySolvedId(post);     // 또는 post.getSolvedId()
         solvedPostRepository.delete(post);
     }
 

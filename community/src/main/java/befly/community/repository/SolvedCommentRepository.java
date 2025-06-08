@@ -9,4 +9,5 @@ import java.util.List;
 public interface SolvedCommentRepository extends JpaRepository<SolvedComment, Long> {
     List<SolvedComment> findBySolvedId(SolvedPost solvedId);
     long countBySolvedId(SolvedPost solvedId);
+    void deleteAllBySolvedId(SolvedPost solvedId);
 }
