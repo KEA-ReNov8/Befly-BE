@@ -189,6 +189,7 @@ public class FreePostService {
 
         return FreePostResponse.builder()
                 .freeId(post.getFreeId())
+                .userId(post.getUserId())
                 .badge(userProfileResponse.getUserId())
                 .badge(userProfileResponse.getBadge())
                 .nickname(userProfileResponse.getNickName())
