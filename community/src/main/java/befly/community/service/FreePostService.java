@@ -43,10 +43,10 @@ public class FreePostService {
                 .userId(userId)
                 .freeTitle(request.getFreeTitle())
                 .freeContent(request.getFreeContent())
-                .imageKeys(request.getImageKeys())
+                .imageKey(request.getImageKey())
                 .build();
 
-        log.info("Request imageKeys : {}", request.getImageKeys());
+        log.info("Request imageKeys : {}", request.getImageKey());
 
         // FreePost는 하루 한 번, 5 wings
         // 작성 시점 기준 하루의 시작과 끝
@@ -115,7 +115,7 @@ public class FreePostService {
             throw new RestApiException(FreeErrorStatus.NO_PERMISSION);
         }
 
-        post.updateFreePost(request.getFreeTitle(), request.getFreeContent(), request.getImageKeys());
+        post.updateFreePost(request.getFreeTitle(), request.getFreeContent(), request.getImageKey());
         // FreePost updated = freePostRepository.save(post);
         return null;
     }
@@ -164,7 +164,6 @@ public class FreePostService {
         Long empathyCount = freeEmpathyRepository.countFreeEmpathyByFreeId(freePost.getFreeId());
         Long commentCount = freeCommentRepository.countFreeCommentByFreeId(freePost);
 
-        List<String> imageUrls = Optional.ofNullable(freePost.getImageKeys()).orElse(List.of());
 
         return FreePostListResponse.builder()
                 .postId(freePost.getFreeId())
@@ -176,7 +175,7 @@ public class FreePostService {
                 .comments(commentCount != null ? commentCount : 0L)
                 .time(TimeUtils.formatTimeAgo(freePost.getCreatedAt()))
                 .createdAt(freePost.getCreatedAt())
-                .imageUrl(imageUrls)
+                .imageUrl(freePost.getImageKey())
                 .build();
     }
 
@@ -185,7 +184,6 @@ public class FreePostService {
         Long empathyCount = freeEmpathyRepository.countFreeEmpathyByFreeId(post.getFreeId()); // 공감 수 조회
         Long commentCount = freeCommentRepository.countFreeCommentByFreeId(post); // 응원 수 조회
 
-        List<String> imageUrls = Optional.ofNullable(post.getImageKeys()).orElse(List.of());
 
         return FreePostResponse.builder()
                 .freeId(post.getFreeId())
@@ -195,7 +193,7 @@ public class FreePostService {
                 .nickname(userProfileResponse.getNickName())
                 .freeTitle(post.getFreeTitle())
                 .freeContent(post.getFreeContent())
-                .imageUrl(imageUrls)
+                .imageUrl(post.getImageKey())
                 .likes(empathyCount != null ? empathyCount : 0L)
                 .comments(commentCount != null ? commentCount : 0L)
                 .createdAt(post.getCreatedAt())

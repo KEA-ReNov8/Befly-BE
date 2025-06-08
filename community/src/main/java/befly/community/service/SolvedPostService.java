@@ -45,7 +45,7 @@
                     .userId(userId)
                     .solvedTitle(request.getSolvedTitle())
                     .solvedContent(request.getSolvedContent())
-                    .imageKeys(request.getImageKeys())
+                    .imageKey(request.getImageKey())
                     .sessionId(request.getSessionId())
                     .category(request.getCategory())
                     .build();
@@ -63,7 +63,7 @@
                     .orElseThrow(() -> new RestApiException(SolvedErrorStatus.POST_NOT_FOUND));
             if (!post.getUserId().equals(userId)) throw new RestApiException(SolvedErrorStatus.NO_PERMISSION);
 
-            post.update(request.getSolvedTitle(), request.getSolvedContent(), request.getImageKeys(), request.getCategory());
+            post.update(request.getSolvedTitle(), request.getSolvedContent(), request.getImageKey(), request.getCategory());
 
             return null;
         }
@@ -114,9 +114,6 @@
                         long commentCount = solvedCommentRepository.countBySolvedId(post);
                         long likeCount = solvedEmpathyRepository.countSolvedEmpathyBySolvedId(post.getSolvedId());
 
-                        List<String> imageUrls = post.getImageKeys() != null
-                                ? post.getImageKeys().stream().toList()
-                                : List.of();
 
                         return ListSolvedPostResponse.builder()
                                 .solvedId(post.getSolvedId())
@@ -124,7 +121,7 @@
                                 .badge(userProfileResponseMap.get(post.getUserId()).getBadge())
                                 .solvedTitle(post.getSolvedTitle())
                                 .solvedContent(post.getSolvedContent())
-                                .imageUrls(imageUrls)
+                                .imageUrl(post.getImageKey())
                                 .commentCount(commentCount)
                                 .likeCount(likeCount)
                                 .createdAt(post.getCreatedAt())
@@ -151,9 +148,6 @@
                         long commentCount = solvedCommentRepository.countBySolvedId(post);
                         long likeCount = solvedEmpathyRepository.countSolvedEmpathyBySolvedId(post.getSolvedId());
 
-                        List<String> imageUrls = post.getImageKeys() != null
-                                ? post.getImageKeys().stream().toList()
-                                : List.of();
 
                         return ListSolvedPostResponse.builder()
                                 .solvedId(post.getSolvedId())
@@ -161,7 +155,7 @@
                                 .nickname(userProfileResponseMap.get(post.getUserId()).getNickName())
                                 .solvedTitle(post.getSolvedTitle())
                                 .solvedContent(post.getSolvedContent())
-                                .imageUrls(imageUrls)
+                                .imageUrl(post.getImageKey())
                                 .commentCount(commentCount)
                                 .likeCount(likeCount)
                                 .createdAt(post.getCreatedAt())
@@ -183,9 +177,6 @@
             );
             return solvedPostPage
                     .map(post -> {
-                        List<String> imageUrls = post.getImageKeys() != null
-                                ? post.getImageKeys()
-                                : List.of();
 
                         return ListSolvedPostResponse.builder()
                                 .solvedId(post.getSolvedId())
@@ -193,7 +184,7 @@
                                 .nickname(userProfileResponseMap.get(post.getUserId()).getNickName())
                                 .solvedTitle(post.getSolvedTitle())
                                 .solvedContent(post.getSolvedContent())
-                                .imageUrls(imageUrls)
+                                .imageUrl(post.getImageKey())
                                 .commentCount(solvedCommentRepository.countBySolvedId(post))
                                 .likeCount(solvedEmpathyRepository.countSolvedEmpathyBySolvedId(post.getSolvedId()))
                                 .createdAt(post.getCreatedAt())
@@ -205,9 +196,7 @@
 
         // 응답 변환
         private SolvedPostResponse toResponse(SolvedPost post, long commentCount, long likeCount, AiSummaryResponse aiSummary, UserProfileResponse userProfileResponse) {
-            List<String> imageUrls = post.getImageKeys() != null
-                    ? post.getImageKeys().stream().toList()
-                    : List.of();
+
 
             return SolvedPostResponse.builder()
                     .solvedId(post.getSolvedId())
@@ -216,7 +205,7 @@
                     .badge(userProfileResponse.getBadge())
                     .solvedTitle(post.getSolvedTitle())
                     .solvedContent(post.getSolvedContent())
-                    .imageUrls(imageUrls)
+                    .imageUrl(post.getImageKey())
                     .commentCount(commentCount)
                     .likeCount(likeCount)
                     .createdAt(post.getCreatedAt())

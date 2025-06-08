@@ -8,7 +8,7 @@ import java.util.List;
 public class SolvedPostRequest {
     private String solvedTitle;
     private String solvedContent;
-    private List<String> imageKeys;
+    private String imageKey;
     private String sessionId; // AI 분석 결과 조회용
     private String category;
 }
