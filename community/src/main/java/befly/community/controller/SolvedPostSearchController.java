@@ -2,7 +2,9 @@
 
     import befly.common.apiPayload.ApiResponse;
     import befly.community.dto.FreePostSearchResponse;
+    import befly.community.dto.FreePostSearchResult;
     import befly.community.dto.SolvedPostSearchResponse;
+    import befly.community.dto.SolvedPostSearchResult;
     import befly.community.service.FreePostSearchService;
     import befly.community.service.SolvedPostSearchService;
     import lombok.RequiredArgsConstructor;
@@ -22,19 +24,19 @@
          * 예: /api/search/solved?category=불안&page=0&keyword=좋아
          */
         @GetMapping("/solved")
-        public ApiResponse<List<SolvedPostSearchResponse>> searchSolvedPosts(
+        public ApiResponse<SolvedPostSearchResult> searchSolvedPosts(
                 @RequestParam(required = false, defaultValue = "전체") String category,
                 @RequestParam(defaultValue = "0") int page,
                 @RequestParam(required = false, defaultValue = "") String keyword) {
-            List<SolvedPostSearchResponse> results = solvedPostSearchService.searchSolvedPosts(category, keyword, page);
+            SolvedPostSearchResult results = solvedPostSearchService.searchSolvedPosts(category, keyword, page);
             return ApiResponse.onSuccess(results);
         }
 
         @GetMapping("/free")
-        public ApiResponse<List<FreePostSearchResponse>> searchFreePosts(
+        public ApiResponse<FreePostSearchResult> searchFreePosts(
                 @RequestParam(defaultValue = "0") int page,
                 @RequestParam(required = false, defaultValue = "") String keyword) {
-            List<FreePostSearchResponse> results = freePostSearchService.searchFreePosts(keyword, page);
+            FreePostSearchResult results = freePostSearchService.searchFreePosts(keyword, page);
             return ApiResponse.onSuccess(results);
         }
     }

@@ -3,6 +3,7 @@ package befly.community.service;
 import befly.community.client.UserServiceClient;
 import befly.community.domain.SolvedPost;
 import befly.community.dto.SolvedPostSearchResponse;
+import befly.community.dto.SolvedPostSearchResult;
 import befly.community.dto.UserProfileResponse;
 import befly.community.repository.SolvedPostRepository;
 import befly.community.util.CacheUtils;
@@ -29,7 +30,7 @@ public class SolvedPostSearchService {
     /**
      * 해결함 게시글 카테고리/키워드별 8개씩 검색
      */
-    public List<SolvedPostSearchResponse> searchSolvedPosts(String category, String keyword, int page) {
+    public SolvedPostSearchResult searchSolvedPosts(String category, String keyword, int page) {
         int size = 8;
         SearchRequest.Builder builder = new SearchRequest.Builder()
                 .index("mysql-server_befly_solved_post")
@@ -55,6 +56,10 @@ public class SolvedPostSearchService {
         // 검색 실행
         try {
             SearchResponse<JsonData> response = elasticsearchClient.search(builder.build(), JsonData.class);
+
+            long totalElements = response.hits().total().value();
+            int totalPages = (int) Math.ceil((double) totalElements / size);
+
             Map<Long, UserProfileResponse> userProfileResponseMap = cacheUtils.getUserNickName(
                     response.hits().hits().stream()
                             .map(hit -> {
@@ -64,7 +69,7 @@ public class SolvedPostSearchService {
                             .distinct()
                             .toList()
             );
-            return response.hits().hits().stream()
+            List<SolvedPostSearchResponse> posts = response.hits().hits().stream()
                     .map(hit -> {
                         try {
                             Map<String, Object> source = hit.source().to(Map.class);
@@ -77,14 +82,14 @@ public class SolvedPostSearchService {
 
                             // 닉네임 조회
                             String nickname;
-                            // 닉네임 조회
+                            Long badge = 0L;
                             try {
                                 UserProfileResponse profile = userProfileResponseMap.get(userId);
                                 nickname = (profile != null && profile.getNickName() != null) ? profile.getNickName() : "익명";
+                                badge = (profile != null && profile.getBadge() != null) ? profile.getBadge() : 0L;
                             } catch (Exception e) {
                                 nickname = "익명";
                             }
-                            Long badge =  userProfileResponseMap.get(userId).getBadge();
 
                             return convertToSolvedPostResponse(source, solvedId, nickname, badge);
                         } catch (Exception ex) {
@@ -92,6 +97,15 @@ public class SolvedPostSearchService {
                         }
                     })
                     .collect(Collectors.toList());
+
+            return SolvedPostSearchResult.builder()
+                    .posts(posts)
+                    .currentPage(page)
+                    .totalPages(totalPages)
+                    .totalElements(totalElements)
+                    .hasNext(page < totalPages - 1)
+                    .hasPrevious(page > 0)
+                    .build();
 
         } catch (Exception e) {
             throw new RuntimeException("Elasticsearch 검색 실패", e);
