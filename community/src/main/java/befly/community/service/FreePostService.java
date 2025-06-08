@@ -1,9 +1,6 @@
 package befly.community.service;
 
-import befly.common.apiPayload.ApiResponse;
 import befly.common.exception.RestApiException;
-import befly.community.client.UserServiceClient;
-import befly.community.domain.comment.FreeComment;
 import befly.community.dto.FreePostListResponse;
 import befly.community.dto.UserProfileResponse;
 import befly.community.repository.FreeCommentRepository;
@@ -133,7 +130,8 @@ public class FreePostService {
         if (!post.getUserId().equals(userId)) {
             throw new RestApiException(FreeErrorStatus.NO_PERMISSION);
         }
-
+        freeCommentRepository.deleteAllByFreeId(post);
+        freeEmpathyRepository.deleteAllByFreeId(id);
         freePostRepository.delete(post);
     }
 
