@@ -14,5 +14,5 @@ public interface SolvedEmpathyRepository extends JpaRepository<SolvedEmpathy, Lo
 
     long countSolvedEmpathyBySolvedId(Long solvedId);
 
-    void deleteAllBySolvedId(SolvedPost solvedId);
+    void deleteAllBySolvedId(Long solvedId);
 }
