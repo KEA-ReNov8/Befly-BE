@@ -18,7 +18,7 @@ public class SolvedPostResponse {
     private Long badge;
     private String solvedTitle;
     private String solvedContent;
-    private String imageUrl;
+    private String imageUrls;
     private Long commentCount;
     private Long likeCount;
     private LocalDateTime createdAt;

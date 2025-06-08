@@ -43,10 +43,10 @@ public class FreePostService {
                 .userId(userId)
                 .freeTitle(request.getFreeTitle())
                 .freeContent(request.getFreeContent())
-                .imageKey(request.getImageKey())
+                .imageKeys(request.getImageKeys())
                 .build();
 
-        log.info("Request imageKeys : {}", request.getImageKey());
+        log.info("Request imageKeys : {}", request.getImageKeys());
 
         // FreePost는 하루 한 번, 5 wings
         // 작성 시점 기준 하루의 시작과 끝
@@ -115,7 +115,7 @@ public class FreePostService {
             throw new RestApiException(FreeErrorStatus.NO_PERMISSION);
         }
 
-        post.updateFreePost(request.getFreeTitle(), request.getFreeContent(), request.getImageKey());
+        post.updateFreePost(request.getFreeTitle(), request.getFreeContent(), request.getImageKeys());
         // FreePost updated = freePostRepository.save(post);
         return null;
     }
@@ -175,7 +175,7 @@ public class FreePostService {
                 .comments(commentCount != null ? commentCount : 0L)
                 .time(TimeUtils.formatTimeAgo(freePost.getCreatedAt()))
                 .createdAt(freePost.getCreatedAt())
-                .imageUrl(freePost.getImageKey())
+                .imageUrl(freePost.getImageKeys())
                 .build();
     }
 
@@ -193,7 +193,7 @@ public class FreePostService {
                 .nickname(userProfileResponse.getNickName())
                 .freeTitle(post.getFreeTitle())
                 .freeContent(post.getFreeContent())
-                .imageUrl(post.getImageKey())
+                .imageUrl(post.getImageKeys())
                 .likes(empathyCount != null ? empathyCount : 0L)
                 .comments(commentCount != null ? commentCount : 0L)
                 .createdAt(post.getCreatedAt())

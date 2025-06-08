@@ -26,7 +26,7 @@ public class SolvedPost extends BaseTimeEntity {
 
 
     @Column(name = "image_key")
-    private String imageKey;
+    private String imageKeys;
 
     @Column(name = "session_id")
     private String sessionId;
@@ -37,7 +37,7 @@ public class SolvedPost extends BaseTimeEntity {
     public void update(String title, String content, String imageKey, String category) {
         if (title != null) this.solvedTitle = title;
         if (content != null) this.solvedContent = content;
-        if (imageKey != null) this.imageKey = imageKey;
+        if (imageKey != null) this.imageKeys = imageKey;
         if (category != null) this.category = category;
     }
 }

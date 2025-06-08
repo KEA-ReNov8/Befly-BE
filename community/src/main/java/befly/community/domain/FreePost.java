@@ -30,12 +30,12 @@ public class FreePost extends BaseTimeEntity {
     private String freeContent; // 글 내용
 
     @Column(name = "image_key")
-    private String imageKey;
+    private String imageKeys;
 
     public void updateFreePost(String title, String content, String imageKey) {
         if (title != null) this.freeTitle = title;
         if (content != null) this.freeContent = content;
-        if (imageKey != null) this.imageKey = imageKey;
+        if (imageKey != null) this.imageKeys = imageKey;
     }
 
 }
