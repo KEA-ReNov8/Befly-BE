@@ -19,7 +19,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
         log.info("AuthInterceptor preHandle");
         try {
-            if ("GET".equalsIgnoreCase(request.getMethod()) && request.getRequestURI().startsWith("/community/") && !request.getRequestURI().startsWith("/community/notification")) {
+            if ("GET".equalsIgnoreCase(request.getMethod()) && request.getRequestURI().startsWith("/community/") && (!request.getRequestURI().startsWith("/community/notification") && !request.getRequestURI().contains("/check"))) {
                 return true;
             }
             String userId = request.getHeader("X-USER-ID");
