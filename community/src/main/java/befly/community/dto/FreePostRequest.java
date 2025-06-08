@@ -10,5 +10,5 @@ import java.util.List;
 public class FreePostRequest {
     private String freeTitle;
     private String freeContent;
-    private List<String> imageKeys;
+    private String imageKey;
 }

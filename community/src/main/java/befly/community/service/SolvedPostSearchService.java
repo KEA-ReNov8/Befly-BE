@@ -114,14 +114,14 @@ public class SolvedPostSearchService {
 
     private SolvedPostSearchResponse convertToSolvedPostResponse(Map<String, Object> source, Long solvedId, String nickname, Long badge) {
         Object imageKeyRaw = source.get("image_key");
-        List<String> imageKeys;
+        String imageKey;
 
         if (imageKeyRaw instanceof List) {
-            imageKeys = (List<String>) imageKeyRaw;
+            imageKey = (String) imageKeyRaw;
         } else if (imageKeyRaw instanceof String) {
-            imageKeys = List.of((String) imageKeyRaw);
+            imageKey = (String) imageKeyRaw;;
         } else {
-            imageKeys = Collections.emptyList();
+            imageKey = null;
         }
 
         String category = solvedPostRepository.findById(solvedId)
@@ -134,7 +134,7 @@ public class SolvedPostSearchService {
                 .solvedTitle((String) source.get("solved_title"))
                 .solvedContent((String) source.get("solved_content"))
                 .category(category)
-                .imageKeys(imageKeys)
+                .imageKey(imageKey)
                 .createdAt(source.get("created_at") != null ? source.get("created_at").toString() : null)
                 .updatedAt(source.get("updated_at") != null ? source.get("updated_at").toString() : null)
                 .commentCount(getLong(source.get("comment_count")))
