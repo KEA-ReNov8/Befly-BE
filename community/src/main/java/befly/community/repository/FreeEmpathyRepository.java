@@ -8,6 +8,8 @@ public interface FreeEmpathyRepository extends JpaRepository<FreeEmpathy, Long> 
 
     Optional<FreeEmpathy> findByUserIdAndFreeId(Long userId, Long freeId);
 
+    void deleteAllByFreeId(Long freeId);
+
     boolean existsByUserIdAndFreeId(Long userId, Long longId);
 
     Long countFreeEmpathyByFreeId(Long freeId);
