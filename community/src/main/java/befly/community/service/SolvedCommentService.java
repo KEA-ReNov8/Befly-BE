@@ -74,15 +74,7 @@ public class SolvedCommentService {
             throw new RestApiException(SolvedErrorStatus.NO_PERMISSION);
         }
 
-        comment = SolvedComment.builder()
-                .solvedCommentId(comment.getSolvedCommentId())
-                .solvedId(comment.getSolvedId())
-                .userId(comment.getUserId())
-                .isDeleted(false)
-                .solvedComment(commentDto.getComment())
-                .pSolvedCommentId(comment.getPSolvedCommentId())
-                .build();
-        solvedCommentRepository.save(comment);
+        comment.updateSolvedComment(commentDto.getComment());
         return null;
     }
 
@@ -128,14 +120,8 @@ public class SolvedCommentService {
             throw new RestApiException(SolvedErrorStatus.NO_PERMISSION);
         }
 
-        comment = SolvedComment.builder()
-                .solvedCommentId(comment.getSolvedCommentId())
-                .solvedId(comment.getSolvedId())
-                .userId(comment.getUserId())
-                .isDeleted(true)
-                .solvedComment(comment.getSolvedComment())
-                .pSolvedCommentId(comment.getPSolvedCommentId())
-                .build();
+        comment.deleteSolvedComment(); // isDeleted = true
+
         solvedCommentRepository.save(comment);
     }
 
