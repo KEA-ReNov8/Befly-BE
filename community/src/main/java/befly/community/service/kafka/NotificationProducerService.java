@@ -35,9 +35,9 @@ public class NotificationProducerService {
 
         String messageContent = switch (type) {
             case FREELIKE -> Nickname + "님이 자유함을 좋아합니다.";
-            case SOLVEDLIKE ->  Nickname + "님이 해결함을 좋아합니다.";
+            case SOLVEDLIKE ->  Nickname + "님이 공유함을 좋아합니다.";
             case FREEPOST -> Nickname + "님의 자유함에 댓글을 남겼습니다.";
-            case SOLVEDPOST -> Nickname +"님이 회원님의 해결함에 댓글을 남겼습니다.";
+            case SOLVEDPOST -> Nickname +"님이 회원님의 공유함에 댓글을 남겼습니다.";
             default -> "알 수 없는 알림입니다. 서버에 문의하세요";
         };
 
