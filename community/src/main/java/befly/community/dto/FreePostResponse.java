@@ -17,7 +17,7 @@ public class FreePostResponse {
     private Long badge;
     private String freeTitle;
     private String freeContent;
-    private List<String> imageUrl;
+    private String imageUrl;
     private Long likes;
     private Long comments;
     private LocalDateTime createdAt;

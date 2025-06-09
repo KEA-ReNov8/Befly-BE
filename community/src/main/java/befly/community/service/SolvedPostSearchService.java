@@ -8,6 +8,7 @@ import befly.community.dto.UserProfileResponse;
 import befly.community.repository.SolvedPostRepository;
 import befly.community.util.CacheUtils;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.json.JsonData;
@@ -37,21 +38,19 @@ public class SolvedPostSearchService {
                 .from(page * size)
                 .size(size);
 
-        // 쿼리 조건 설정
+        BoolQuery.Builder boolBuilder = new BoolQuery.Builder();
+
         if (category != null && !category.equals("전체")) {
-            builder.query(q -> q.bool(b -> b
-                    .must(m -> m.term(t -> t.field("category").value(category)))
-                    .should(sh -> sh.match(m -> m.field("solved_title").query(keyword).boost(3.0f)))
-                    .should(sh -> sh.match(m -> m.field("solved_content").query(keyword).boost(1.0f)))
-            ));
-        } else if (keyword != null && !keyword.isEmpty()) {
-            builder.query(q -> q.bool(b -> b
-                    .should(sh -> sh.match(m -> m.field("solved_title").query(keyword).boost(3.0f)))
-                    .should(sh -> sh.match(m -> m.field("solved_content").query(keyword).boost(1.0f)))
-            ));
-        } else {
-            builder.query(q -> q.matchAll(m -> m));
+            boolBuilder.filter(f -> f.term(t -> t.field("category").value(category)));
         }
+
+        if (keyword != null && !keyword.isEmpty()) {
+            boolBuilder.should(sh -> sh.match(m -> m.field("solved_title").query(keyword).boost(3.0f)))
+                    .should(sh -> sh.match(m -> m.field("solved_content").query(keyword).boost(1.0f)))
+                    .minimumShouldMatch("1");
+        }
+
+        builder.query(q -> q.bool(boolBuilder.build()));
 
         // 검색 실행
         try {
@@ -114,14 +113,14 @@ public class SolvedPostSearchService {
 
     private SolvedPostSearchResponse convertToSolvedPostResponse(Map<String, Object> source, Long solvedId, String nickname, Long badge) {
         Object imageKeyRaw = source.get("image_key");
-        List<String> imageKeys;
+        String imageKey;
 
         if (imageKeyRaw instanceof List) {
-            imageKeys = (List<String>) imageKeyRaw;
+            imageKey = (String) imageKeyRaw;
         } else if (imageKeyRaw instanceof String) {
-            imageKeys = List.of((String) imageKeyRaw);
+            imageKey = (String) imageKeyRaw;;
         } else {
-            imageKeys = Collections.emptyList();
+            imageKey = null;
         }
 
         String category = solvedPostRepository.findById(solvedId)
@@ -134,7 +133,7 @@ public class SolvedPostSearchService {
                 .solvedTitle((String) source.get("solved_title"))
                 .solvedContent((String) source.get("solved_content"))
                 .category(category)
-                .imageKeys(imageKeys)
+                .imageKeys(imageKey)
                 .createdAt(source.get("created_at") != null ? source.get("created_at").toString() : null)
                 .updatedAt(source.get("updated_at") != null ? source.get("updated_at").toString() : null)
                 .commentCount(getLong(source.get("comment_count")))

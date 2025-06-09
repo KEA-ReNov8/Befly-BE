@@ -13,7 +13,7 @@ public class SolvedPostSearchResponse {
     private String solvedTitle;
     private String solvedContent;
     private String category;
-    private List<String> imageKeys; // 썸네일/이미지 미리보기
+    private String imageKeys; // 썸네일/이미지 미리보기
     private String createdAt;
     private String updatedAt;
     private Long commentCount;

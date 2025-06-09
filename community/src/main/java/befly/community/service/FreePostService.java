@@ -1,9 +1,6 @@
 package befly.community.service;
 
-import befly.common.apiPayload.ApiResponse;
 import befly.common.exception.RestApiException;
-import befly.community.client.UserServiceClient;
-import befly.community.domain.comment.FreeComment;
 import befly.community.dto.FreePostListResponse;
 import befly.community.dto.UserProfileResponse;
 import befly.community.repository.FreeCommentRepository;
@@ -133,7 +130,8 @@ public class FreePostService {
         if (!post.getUserId().equals(userId)) {
             throw new RestApiException(FreeErrorStatus.NO_PERMISSION);
         }
-
+        freeCommentRepository.deleteAllByFreeId(post);
+        freeEmpathyRepository.deleteAllByFreeId(id);
         freePostRepository.delete(post);
     }
 
@@ -166,7 +164,6 @@ public class FreePostService {
         Long empathyCount = freeEmpathyRepository.countFreeEmpathyByFreeId(freePost.getFreeId());
         Long commentCount = freeCommentRepository.countFreeCommentByFreeId(freePost);
 
-        List<String> imageUrls = Optional.ofNullable(freePost.getImageKeys()).orElse(List.of());
 
         return FreePostListResponse.builder()
                 .postId(freePost.getFreeId())
@@ -178,7 +175,7 @@ public class FreePostService {
                 .comments(commentCount != null ? commentCount : 0L)
                 .time(TimeUtils.formatTimeAgo(freePost.getCreatedAt()))
                 .createdAt(freePost.getCreatedAt())
-                .imageUrl(imageUrls)
+                .imageUrl(freePost.getImageKeys())
                 .build();
     }
 
@@ -187,16 +184,16 @@ public class FreePostService {
         Long empathyCount = freeEmpathyRepository.countFreeEmpathyByFreeId(post.getFreeId()); // 공감 수 조회
         Long commentCount = freeCommentRepository.countFreeCommentByFreeId(post); // 응원 수 조회
 
-        List<String> imageUrls = Optional.ofNullable(post.getImageKeys()).orElse(List.of());
 
         return FreePostResponse.builder()
                 .freeId(post.getFreeId())
+                .userId(post.getUserId())
                 .badge(userProfileResponse.getUserId())
                 .badge(userProfileResponse.getBadge())
                 .nickname(userProfileResponse.getNickName())
                 .freeTitle(post.getFreeTitle())
                 .freeContent(post.getFreeContent())
-                .imageUrl(imageUrls)
+                .imageUrl(post.getImageKeys())
                 .likes(empathyCount != null ? empathyCount : 0L)
                 .comments(commentCount != null ? commentCount : 0L)
                 .createdAt(post.getCreatedAt())

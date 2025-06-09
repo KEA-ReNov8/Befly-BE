@@ -108,14 +108,14 @@ public class FreePostSearchService {
 
     private FreePostSearchResponse convertToFreePostResponse(Map<String, Object> source, Long freeId, String nickname, Long badge) {
         Object imageKeyRaw = source.get("image_key");
-        List<String> imageKeys;
+        String imageKey;
 
         if (imageKeyRaw instanceof List) {
-            imageKeys = (List<String>) imageKeyRaw;
+            imageKey = (String) imageKeyRaw;
         } else if (imageKeyRaw instanceof String) {
-            imageKeys = List.of((String) imageKeyRaw);
+            imageKey = (String) imageKeyRaw;;
         } else {
-            imageKeys = Collections.emptyList();
+            imageKey = null;
         }
 
         return FreePostSearchResponse.builder()
@@ -124,7 +124,7 @@ public class FreePostSearchService {
                 .freeTitle((String) source.get("free_title"))
                 .freeContent((String) source.get("free_content"))
                 .badge(badge)
-                .imageKeys(imageKeys)
+                .imageKeys(imageKey)
                 .createdAt(source.get("created_at") != null ? source.get("created_at").toString() : null)
                 .updatedAt(source.get("updated_at") != null ? source.get("updated_at").toString() : null)
                 .commentCount(getLong(source.get("comment_count")))
