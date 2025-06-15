@@ -1,5 +1,6 @@
 package befly.community.repository;
 
+import befly.community.domain.SolvedPost;
 import befly.community.domain.empahty.SolvedEmpathy;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -12,4 +13,6 @@ public interface SolvedEmpathyRepository extends JpaRepository<SolvedEmpathy, Lo
     boolean existsByUserIdAndSolvedId(Long userId, Long solvedId);
 
     long countSolvedEmpathyBySolvedId(Long solvedId);
+
+    void deleteAllBySolvedId(Long solvedId);
 }

@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface SolvedCommentRepository extends JpaRepository<SolvedComment, Long> {
     List<SolvedComment> findBySolvedId(SolvedPost solvedId);
-    long countBySolvedId(SolvedPost solvedId);
+    long countBySolvedId(SolvedPost solvedPost);
+    void deleteAllBySolvedId(SolvedPost solvedPost);
 }

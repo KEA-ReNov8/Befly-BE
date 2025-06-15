@@ -15,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,14 +26,6 @@ import java.util.List;
 public class FreePostController {
     private final FreePostService freePostService;
     private final S3Interface s3Interface;
-
-    @GetMapping("/test")
-    public ApiResponse<Long> test(@Parameter(hidden = true) @LoginUser Long userId) {
-        log.info("test");
-        log.info("userId:{}", userId);
-        return ApiResponse.onSuccess(userId);
-    }
-
     // 자유함 글 생성
     @PostMapping
     public ApiResponse<FreePostResponse> createPost(@Parameter(hidden = true) @LoginUser Long userId,
@@ -44,38 +35,33 @@ public class FreePostController {
 
     // 자유함 글 조회
     @GetMapping("/{freeId}")
-    public ApiResponse<FreePostResponse> getPost(@PathVariable Long freeId,
-                                                 @Parameter(hidden = true) @LoginUser Long userId) {
-        return ApiResponse.onSuccess(freePostService.getPost(freeId, userId));
+    public ApiResponse<FreePostResponse> getPost(@PathVariable Long freeId) {
+        return ApiResponse.onSuccess(freePostService.getPost(freeId));
     }
 
     // 특정 유저 아이디로 자유함 글 조회
-    @GetMapping("/user/{userId}/page/{page}")
-    public ApiResponse<Page<FreePostListResponse>> getAllPostsByUserId(
-            @Parameter(hidden = true) @LoginUser Long loginId,
-            @PathVariable Long userId,
-            @PathVariable int page
+    @GetMapping("/user/{userId}")
+    public ApiResponse<List<FreePostListResponse>> getAllPostsByUserId(
+            @PathVariable Long userId
     ) {
-        Pageable pageable = PageRequest.of(page, 8, Sort.Direction.DESC, "createdAt");
-        Page<FreePostListResponse> response = freePostService.getPostByUserId(loginId, userId, pageable);
+        List<FreePostListResponse> response = freePostService.getPostByUserId(userId);
         return ApiResponse.onSuccess(response);
     }
 
     // 자유함 글 리스트 조회 (페이지 사이즈 8, 생성 시간 순)
     @GetMapping("/page/{page}")
     public ApiResponse<Page<FreePostListResponse>> getAllPosts(
-            @Parameter(hidden = true) @LoginUser Long userId,
             @PathVariable int page
     ) {
         Pageable pageable = PageRequest.of(page, 8, Sort.Direction.DESC, "createdAt");
-        Page<FreePostListResponse> response = freePostService.getAllPosts(userId, pageable);
+        Page<FreePostListResponse> response = freePostService.getAllPosts(pageable);
         return ApiResponse.onSuccess(response);
     }
 
     // 자유함 최신 글 조회
     @GetMapping("/latest")
-    public ApiResponse<List<FreePostListResponse>> getLatestPost(@Parameter(hidden = true) @LoginUser Long userId) {
-        return ApiResponse.onSuccess(freePostService.getLatestFreePosts(userId));
+    public ApiResponse<List<FreePostListResponse>> getLatestPost() {
+        return ApiResponse.onSuccess(freePostService.getLatestFreePosts());
     }
 
     // 자유함 글 수정

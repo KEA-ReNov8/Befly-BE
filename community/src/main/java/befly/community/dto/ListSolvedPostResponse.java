@@ -10,16 +10,16 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class FreePostResponse {
-    private Long freeId;
-    private Long userId;
+public class ListSolvedPostResponse {
+    private Long solvedId;
     private String nickname;
     private Long badge;
-    private String freeTitle;
-    private String freeContent;
-    private String imageUrl;
-    private Long likes;
-    private Long comments;
+    private String solvedTitle;
+    private String solvedContent;
+    private String imageUrls;
+    private Long commentCount;
+    private Long likeCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String category;
 }

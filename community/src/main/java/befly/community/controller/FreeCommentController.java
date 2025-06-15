@@ -39,9 +39,8 @@ public class FreeCommentController {
 
     // 자유함 댓글 조회
     @GetMapping
-    public ApiResponse<List<FreeCommentResponse>> getComments(@PathVariable Long freeId,
-                                                              @Parameter(hidden = true) @LoginUser Long userId) {
-        return ApiResponse.onSuccess(freeCommentService.getComments(freeId, userId));
+    public ApiResponse<List<FreeCommentResponse>> getComments(@PathVariable Long freeId) {
+        return ApiResponse.onSuccess(freeCommentService.getComments(freeId));
     }
 
     // 자유함 댓글 삭제

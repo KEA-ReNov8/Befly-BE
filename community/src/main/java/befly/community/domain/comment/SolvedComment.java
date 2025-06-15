@@ -37,5 +37,14 @@ public class SolvedComment extends BaseTimeEntity {
     @JoinColumn(name = "p_solved_comment_id")
     private SolvedComment pSolvedCommentId; // 부모 댓글 ID (대댓글)
 
+    public void deleteSolvedComment() {
+        this.isDeleted = true;
+    }
+
+    public void updateSolvedComment(String newComment) {
+        if (newComment != null) {
+            this.solvedComment = newComment;
+        }
+    }
 }
 

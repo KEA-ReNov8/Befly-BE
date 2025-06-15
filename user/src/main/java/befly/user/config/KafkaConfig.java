@@ -1,6 +1,6 @@
 package befly.user.config;
 
-import befly.user.dto.WingMessage;
+import befly.common.common.WingMessage;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
@@ -16,7 +16,6 @@ public class KafkaConfig {
         ConcurrentKafkaListenerContainerFactory<String, WingMessage> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
-        factory.setRecordMessageConverter(new StringJsonMessageConverter());
         return factory;
     }
 }

@@ -24,10 +24,9 @@ public class SolvedPost extends BaseTimeEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String solvedContent;
 
-    @ElementCollection
-    @CollectionTable(name = "solved_images", joinColumns = @JoinColumn(name = "solved_id"))
+
     @Column(name = "image_key")
-    private List<String> imageKeys;
+    private String imageKeys;
 
     @Column(name = "session_id")
     private String sessionId;
@@ -35,10 +34,10 @@ public class SolvedPost extends BaseTimeEntity {
     @Column(nullable = false, length = 20)
     private String category; // 카테고리 필드 추가 ("불안", "상처" 등)
 
-    public void update(String title, String content, List<String> imageKeys, String category) {
+    public void update(String title, String content, String imageKey, String category) {
         if (title != null) this.solvedTitle = title;
         if (content != null) this.solvedContent = content;
-        if (imageKeys != null) this.imageKeys = imageKeys;
+        if (imageKey != null) this.imageKeys = imageKey;
         if (category != null) this.category = category;
     }
 }

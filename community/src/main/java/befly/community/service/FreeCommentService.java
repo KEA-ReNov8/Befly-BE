@@ -1,8 +1,7 @@
 package befly.community.service;
 
-import befly.common.apiPayload.ApiResponse;
 import befly.common.exception.RestApiException;
-import befly.community.client.UserServiceClient;
+import befly.community.dto.UserProfileResponse;
 import befly.community.repository.FreeCommentRepository;
 import befly.community.repository.FreePostRepository;
 import befly.community.domain.FreePost;
@@ -12,7 +11,9 @@ import befly.community.dto.FreeCommentResponse;
 import befly.community.dto.kafka.NotificationType;
 import befly.community.service.kafka.NotificationProducerService;
 import befly.community.status.FreeErrorStatus;
+import befly.community.util.CacheUtils;
 import jakarta.transaction.Transactional;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ public class FreeCommentService {
     private final FreeCommentRepository freeCommentRepository;
     private final FreePostRepository freePostRepository;
     private final NotificationProducerService notificationProducerService;
-    private final UserServiceClient userServiceClient;
+    private final CacheUtils cacheUtils;
 
     // 자유함 댓글 생성
     @Transactional
@@ -52,18 +53,13 @@ public class FreeCommentService {
                 .freeComment(commentDto.getComment())
                 .pFreeCommentId(pComment)
                 .build();
-        FreeComment saved = freeCommentRepository.save(comment);
+        freeCommentRepository.save(comment);
 
-        freePostRepository.findById(freeId)
-                .ifPresent(freePost -> {
-                    Long postUserId = freePost.getUserId();
-                    // 알림을 보내는 조건 (postUserId가 현재 사용자 userId와 다른 경우)도 여기서 처리
-                    if (postUserId != null && !postUserId.equals(userId)) { // null 체크 및 본인에게 알림 보내지 않기
-                        notificationProducerService.sendNotificationIfNeeded(postUserId, userId, NotificationType.FREEPOST);
-                    }
-                });
+        if (post.getUserId() != null && !post.getUserId().equals(userId)) { // null 체크 및 본인에게 알림 보내지 않기
+            notificationProducerService.sendNotificationIfNeeded(post.getUserId(), userId, NotificationType.FREEPOST);
+        }
 
-        return toResponse(saved, userId);
+        return null;
     }
 
     // 자유함 댓글 업데이트
@@ -82,20 +78,30 @@ public class FreeCommentService {
         comment.updateFreeComment(commentDto.getComment());
 
         // FreeComment updated = freeCommentRepository.save(comment);
-        return toResponse(comment, userId);
+        return null;
     }
 
     // 자유함 댓글 리스트 조회
-    public List<FreeCommentResponse> getComments(Long freeId, Long userId) {
+    public List<FreeCommentResponse> getComments(Long freeId) {
         FreePost freePost = freePostRepository.findById(freeId)
                 .orElseThrow(() -> new RestApiException(FreeErrorStatus.POST_NOT_FOUND));
+        List<FreeComment> freeCommentList = freeCommentRepository.findByFreeId(freePost);
+
+        Map<Long, UserProfileResponse> userProfileResponseMap = cacheUtils.getUserNickName(
+                freeCommentList.stream()
+                        .map(FreeComment::getUserId)
+                        .distinct()
+                        .toList()
+        );
 
         return freeCommentRepository.findByFreeId(freePost).stream()
                 .map(comment -> FreeCommentResponse.builder()
                         .commentId(comment.getFreeCommentId())
                         .postId(comment.getFreeId())
-                        // .userId(comment.getUserId())
-                        .nickname(userServiceClient.getUserNicknameById(comment.getUserId(), userId).getResult())
+                        .badge(userProfileResponseMap.get(comment.getUserId()).getBadge())
+                        .userId(userProfileResponseMap.get(comment.getUserId()).getUserId())
+                        .nickname(userProfileResponseMap.get(comment.getUserId()).getNickName())
+                        .profileImage(userProfileResponseMap.get(comment.getUserId()).getProfileImg())
                         .comment(comment.getIsDeleted() ? "삭제된 댓글입니다." : comment.getFreeComment())
                         .parentCommentId(comment.getPFreeCommentId())
                         .isDeleted(comment.getIsDeleted())
@@ -121,24 +127,5 @@ public class FreeCommentService {
         comment.deleteFreeComment();
 
         freeCommentRepository.save(comment);
-    }
-
-
-    // 결과 응답용
-    private FreeCommentResponse toResponse(FreeComment comment, Long userId) {
-        ApiResponse<String> responseWithNickname = userServiceClient.getUserNicknameById(comment.getUserId(), userId);
-        String nickname = responseWithNickname.getResult();
-
-        return FreeCommentResponse.builder()
-                .commentId(comment.getFreeCommentId())
-                .postId(comment.getFreeId())
-                // .userId(comment.getUserId())
-                .nickname(nickname)
-                .comment(comment.getFreeComment())
-                .isDeleted(comment.getIsDeleted())
-                .parentCommentId(comment.getPFreeCommentId())
-                .createdAt(comment.getCreatedAt())
-                .updatedAt(comment.getUpdatedAt())
-                .build();
     }
 }

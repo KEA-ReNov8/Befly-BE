@@ -21,6 +21,7 @@ public class FreeEmpathyService {
     private final NotificationProducerService notificationProducerService;
     private final FreePostRepository freePostRepository;
 
+    // 공감 생성
     @Transactional
     public void createEmpathy(Long userId, Long freeId) {
         boolean exists = freeEmpathyRepository.existsByUserIdAndFreeId(userId, freeId);
@@ -45,6 +46,7 @@ public class FreeEmpathyService {
         freeEmpathyRepository.save(empathy);
     }
 
+    // 공감 삭제
     @Transactional
     public void deleteEmpathy(Long userId, Long freeId) {
         FreeEmpathy empathy = freeEmpathyRepository.findByUserIdAndFreeId(userId, freeId)
@@ -53,11 +55,9 @@ public class FreeEmpathyService {
         freeEmpathyRepository.delete(empathy);
     }
 
+    // 공감 여부
     public boolean isEmpathized(Long userId, Long freeId) {
         return freeEmpathyRepository.existsByUserIdAndFreeId(userId, freeId);
     }
 
-    public long countFreeEmpathy(Long freeId) {
-        return freeEmpathyRepository.countFreeEmpathyByFreeId(freeId);
-    }
 }

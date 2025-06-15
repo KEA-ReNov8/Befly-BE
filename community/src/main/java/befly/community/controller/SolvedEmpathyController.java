@@ -3,6 +3,7 @@ package befly.community.controller;
 import befly.common.annotations.LoginUser;
 import befly.common.apiPayload.ApiResponse;
 import befly.community.service.SolvedEmpathyService;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class SolvedEmpathyController {
 
     //해결함 공감 생성
     @PostMapping
-    public ApiResponse<Void> createEmpathy(@LoginUser Long userId,
+    public ApiResponse<Void> createEmpathy(@LoginUser @Parameter(hidden = true) Long userId,
                                            @PathVariable Long solvedId) {
         solvedEmpathyService.createEmpathy(userId, solvedId);
         return ApiResponse.onSuccess(null);
@@ -25,7 +26,7 @@ public class SolvedEmpathyController {
 
     // 해결함 공감 취소
     @DeleteMapping
-    public ApiResponse<Void> deleteEmpathy(@LoginUser Long userId,
+    public ApiResponse<Void> deleteEmpathy(@LoginUser @Parameter(hidden = true) Long userId,
                                            @PathVariable Long solvedId) {
         solvedEmpathyService.deleteEmpathy(userId, solvedId);
         return ApiResponse.onSuccess(null);
@@ -33,14 +34,14 @@ public class SolvedEmpathyController {
 
     // 유저가 공감했는지 여부
     @GetMapping("/check")
-    public ApiResponse<Boolean> isEmpathized(@LoginUser Long userId,
+    public ApiResponse<Boolean> isEmpathized(@LoginUser @Parameter(hidden = true) Long userId,
                                              @PathVariable Long solvedId) {
         return ApiResponse.onSuccess(solvedEmpathyService.isEmpathized(userId, solvedId));
     }
 
     // 해결함 글 공감 갯수 확인
     @GetMapping("/count")
-    public ApiResponse<Long> countEmpathy(@PathVariable Long solvedId) {
+    public ApiResponse<Long> countEmpathy(@PathVariable @Parameter(hidden = true) Long solvedId) {
         return ApiResponse.onSuccess(solvedEmpathyService.countSolvedEmpathy(solvedId));
     }
 }

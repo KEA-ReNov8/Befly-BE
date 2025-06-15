@@ -46,8 +46,8 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RestApiException(UserErrorStatus.MEMBER_NOT_FOUND));
         return UserProfileResponse.builder()
+                .userId(user.getUserId())
                 .nickName(user.getNickName())
-                .clientId(user.getClientId())
                 .profileImg(user.getProfileImg())
                 .wing(user.getWing())
                 .badge(user.getBadge())
@@ -87,10 +87,12 @@ public class UserService {
         Long badge = 0L;
         
         if (wing >= 1250 ) {
-            badge = 8L;
-        } else if (wing >= 850) {
             badge = 7L;
-        } else if (wing >= 550) {
+        } 
+        else if (wing >= 850) {
+            badge = 6L;
+        } 
+        else if (wing >= 550) {
             badge = 5L;
         }
         else if (wing >= 330) {
@@ -123,11 +125,11 @@ public class UserService {
 
         List<UserProfileResponse> userProfiles = users.stream()
                 .map(user -> UserProfileResponse.builder()
+                        .userId(user.getUserId())
                         .nickName(user.getNickName())
                         .profileImg(user.getProfileImg())
                         .wing(user.getWing())
                         .badge(user.getBadge())
-                        .loginType(user.getLoginType().name())
                         .build())
                 .toList();
 

@@ -16,6 +16,7 @@ public class    FreeEmpathyController {
 
     private final FreeEmpathyService freeEmpathyService;
 
+    // 공감 생성
     @PostMapping
     public ApiResponse<Void> createEmpathy(@Parameter(hidden = true) @LoginUser Long userId,
                                            @PathVariable Long freeId) {
@@ -24,6 +25,7 @@ public class    FreeEmpathyController {
         return ApiResponse.onSuccess(null);
     }
 
+    // 공감 삭제
     @DeleteMapping
     public ApiResponse<Void> deleteEmpathy(@Parameter(hidden = true) @LoginUser Long userId,
                                            @PathVariable Long freeId) {
@@ -31,14 +33,11 @@ public class    FreeEmpathyController {
         return ApiResponse.onSuccess(null);
     }
 
+    // 공감 여부
     @GetMapping("/check")
     public ApiResponse<Boolean> isEmpathized(@Parameter(hidden = true) @LoginUser Long userId,
                                              @PathVariable Long freeId) {
         return ApiResponse.onSuccess(freeEmpathyService.isEmpathized(userId, freeId));
     }
 
-    @GetMapping("/count")
-    public ApiResponse<Long> countEmpathy(@PathVariable Long freeId) {
-        return ApiResponse.onSuccess(freeEmpathyService.countFreeEmpathy(freeId));
-    }
 }
